@@ -8,7 +8,9 @@ from diffusers.models.model_loading_utils import load_model_dict_into_meta
 from diffusers.utils import logging
 from diffusers import StableDiffusionXLPipeline, UNet2DConditionModel, AutoencoderKL
 from transformers import CLIPTextModel, CLIPTextModelWithProjection
+from . util.decorator import module
 
+@module
 class ComposableStableDiffusionXLPipeline:
 
   logger = logging.get_logger(__name__)
