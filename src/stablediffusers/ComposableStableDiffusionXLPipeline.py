@@ -1,4 +1,4 @@
-from torch import bfloat16, float16, device as dev
+from torch import bfloat16, float16, device as dev, Generator
 from torch.cuda import is_available, ipc_collect, empty_cache
 from numba.cuda import select_device, get_current_device
 from gc import collect
@@ -8,17 +8,21 @@ from diffusers.models.model_loading_utils import load_model_dict_into_meta
 from diffusers.utils import logging
 from diffusers import StableDiffusionXLPipeline, UNet2DConditionModel, AutoencoderKL
 from transformers import CLIPTextModel, CLIPTextModelWithProjection
-from . util.decorator import module
+from sd_embed.embedding_funcs import get_weighted_text_embeddings_sdxl
+from PIL import Image, ImageDraw, ImageFont
+import cv2
+import os
 
-@module
 class ComposableStableDiffusionXLPipeline:
 
   logger = logging.get_logger(__name__)
   logger.setLevel("ERROR")
 
+  cuda_is_available = is_available()
+
   default = {
     "model" : "stabilityai/stable-diffusion-xl-base-1.0",
-    "device" : "cuda" if is_available() else "cpu",
+    "device" : "cuda" if cuda_is_available else "cpu",
     "merging" : {
       "text_encoder" : {
         "model" : CLIPTextModel,
@@ -56,6 +60,7 @@ class ComposableStableDiffusionXLPipeline:
   })
 
   device = dev(default["device"])
+  generator = Generator(device = device)
 
   name = {}
   path = {}
@@ -125,7 +130,15 @@ class ComposableStableDiffusionXLPipeline:
         cls.logger.info(f"Loading model {name} from memory")
         return cls
     cls.logger.info(f"Loading model {name} from {path}")
-    pipeline = StableDiffusionXLPipeline.from_pretrained(path, **kwargs, **cls.default["inference"])
+    try :
+      inference = cls.default["inference"].copy()
+      return cls.default["merging"][name]["model"].from_pretrained(path, **inference, **{
+        "subfolder" : name
+      })
+    except :
+      cls.logger.info("Logging default variant instead")
+      inference.pop("variant")
+      pipeline = StableDiffusionXLPipeline.from_pretrained(path, **kwargs, **inference).to(dtype=cls.default["inference"]["torch_dtype"])
     cls.name[name] = [None, [name], pipeline]
     cls.current = cls.name[name]
     if "unet" in kwargs or "text_encoder" in kwargs or "text_encoder_2" in kwargs or "vae" in kwargs :
@@ -168,6 +181,29 @@ class ComposableStableDiffusionXLPipeline:
     raise Exception("No model available")
 
   @classmethod
+  def combine_tuples_into_dict(cls, *args, **kwargs):
+    tuple1, tuple2, *_ = list(args) + [()] * 2
+    if len(tuple1) == len(tuple2):
+      return {tuple1[i] : tuple2[i] for i, _ in enumerate(tuple2)}
+    raise Exception(f"{tuple1} is not the same size as {tuple2}")
+
+  @classmethod
+  def prompt_fix(cls, *args, **kwargs):
+    prompt, *_ = list(args) + [kwargs.pop("prompt", None)]
+    return cls.combine_tuples_into_dict((
+      "prompt_embeds",
+      "prompt_neg_embeds",
+      "pooled_prompt_embeds",
+      "negative_pooled_prompt_embeds"
+    ), get_weighted_text_embeddings_sdxl(cls.current[2], prompt = ', '.join(filter(None, (
+      prompt,
+      kwargs.pop("prompt_2", None)
+    ))), neg_prompt = ', '.join(filter(None, (
+      kwargs.pop("negative_prompt", None),
+      kwargs.pop("negative_prompt_2", None)
+    )))))
+
+  @classmethod
   def compose(cls, *args, **kwargs):
     name = kwargs.setdefault("name", None)
     if name is None :
@@ -187,6 +223,43 @@ class ComposableStableDiffusionXLPipeline:
     return cls.load_model(path, skip_load_from_memory = True, **kwargs)
 
   @classmethod
+  def wrap_text(cls, text, max_width, font):
+    lines = []
+    current_line = ""
+    words = text.split(" ")
+    for word in words:
+      test_line = current_line + word + " "
+      line_width = font.getlength(test_line)
+      if line_width <= max_width:
+        current_line = test_line
+      else:
+        lines.append(current_line[:-1])
+        current_line = word + " "
+    lines.append(current_line[:-1])
+    return '\n'.join(lines)
+
+  @classmethod
+  def image_grid(cls, imgs, rows = 1, cols = 1, prompt = ""):
+    assert len(imgs) == rows*cols
+    text_margin = 40
+    w, h = imgs[0].size
+    prompt_height = h * rows // 2 - (2 * text_margin)
+    prompt_width = cols*w - (2 * text_margin)
+    grid = Image.new('RGB', size=(cols*w, rows*h + prompt_height))
+    grid_w, grid_h = grid.size
+    grid.paste((255,255,255, 255), (0, 0, grid_w, grid_h))
+    draw = ImageDraw.Draw(grid)
+    # requires a newer version of pillow
+    # use a truetype font
+    font_path = os.path.join(cv2.__path__[0],'qt','fonts','DejaVuSans.ttf')
+    font_size = 30
+    font = ImageFont.truetype(font_path, font_size)
+    draw.text((text_margin, text_margin), cls.wrap_text(prompt, prompt_width, font), font = font, fill=(0,0,0, 255))
+    for i, img in enumerate(imgs):
+      grid.paste(img, box=(i%cols*w, prompt_height + (i//cols*h)))
+    return grid
+
+  @classmethod
   def __load_component_from_config(cls, config, **kwargs):
     name = kwargs.setdefault("name", "unet")
     model = cls.default["merging"][name]["model"]
@@ -198,9 +271,17 @@ class ComposableStableDiffusionXLPipeline:
     if path in cls.path :
       return getattr(cls.path[path][2], name)
     else :
-      return cls.default["merging"][name]["model"].from_pretrained(path, **cls.default["inference"], **{
-        "subfolder" : name
-      })
+      try :
+        inference = cls.default["inference"].copy()
+        return cls.default["merging"][name]["model"].from_pretrained(path, **inference, **{
+          "subfolder" : name
+        })
+      except :
+        cls.logger.info("Logging default variant instead")
+        inference.pop("variant")
+        return cls.default["merging"][name]["model"].from_pretrained(path, **inference, **{
+          "subfolder" : name
+        }).to(dtype=cls.default["inference"]["torch_dtype"])
 
   @classmethod
   def __compare_configs(cls, config_a, config_b, skip_keys):
