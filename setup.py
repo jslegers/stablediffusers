@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 
-setuptools.setup(
+setup(
   name = "stablediffusers",
   version = "0.1",
   description = "Stable Diffusion library.",
