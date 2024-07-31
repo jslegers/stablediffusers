@@ -30,6 +30,6 @@ setup(
     "torchaudio",
     "torchvision",
     "transformers",
-    "sd_embed @ git+ssh://git@github.com/xhinker/sd_embed.git#egg=xhinker/sd_embed-1.240707.2"
+    "sd_embed@git+https://github.com/xhinker/sd_embed@main"
   ]
 )
