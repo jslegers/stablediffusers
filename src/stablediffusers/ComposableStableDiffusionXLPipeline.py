@@ -10,7 +10,7 @@ from diffusers import StableDiffusionXLPipeline, UNet2DConditionModel, Autoencod
 from transformers import CLIPTextModel, CLIPTextModelWithProjection
 from sd_embed.embedding_funcs import get_weighted_text_embeddings_sdxl
 from PIL import Image, ImageDraw, ImageFont
-import os.path import join
+from os.path import join
 import cv2
 
 class ComposableStableDiffusionXLPipeline:
