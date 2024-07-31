@@ -13,7 +13,7 @@ setup(
   package_dir={"": "src"},
   packages=find_packages("src"),
   python_requires=">=3.8.0",
-  dependency_links = ["https://github.com/xhinker/sd_embed/tarball/master#egg=sd_embed-1.240707.2"],
+#  dependency_links = ["https://github.com/xhinker/sd_embed/tarball/master#egg=sd_embed-1.240707.2"],
   install_requires = [
     "accelerate",
     "diffusers",
