@@ -16,9 +16,7 @@ setuptools.setup(
   install_requires =[
     "accelerate",
     "diffusers",
-    "filelock",
     "huggingface_hub",
-    "importlib_metadata"
     "numba",
     "numpy",
     "Pillow",
