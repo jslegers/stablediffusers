@@ -10,8 +10,8 @@ from diffusers import StableDiffusionXLPipeline, UNet2DConditionModel, Autoencod
 from transformers import CLIPTextModel, CLIPTextModelWithProjection
 from sd_embed.embedding_funcs import get_weighted_text_embeddings_sdxl
 from PIL import Image, ImageDraw, ImageFont
+import os.path import join
 import cv2
-import os
 
 class ComposableStableDiffusionXLPipeline:
 
@@ -251,7 +251,7 @@ class ComposableStableDiffusionXLPipeline:
     draw = ImageDraw.Draw(grid)
     # requires a newer version of pillow
     # use a truetype font
-    font_path = os.path.join(cv2.__path__[0],'qt','fonts','DejaVuSans.ttf')
+    font_path = join(cv2.__path__[0],'qt','fonts','DejaVuSans.ttf')
     font_size = 30
     font = ImageFont.truetype(font_path, font_size)
     draw.text((text_margin, text_margin), cls.wrap_text(prompt, prompt_width, font), font = font, fill=(0,0,0, 255))
