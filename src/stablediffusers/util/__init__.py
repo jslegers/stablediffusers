@@ -16,13 +16,12 @@ def import_structure(path, prefix = "class") :
   for root, dirs, files in walk(path, topdown=False):
     for dir in dirs:
       dict.update(import_structure(join(path, dir), f"{prefix}.{dir}"))
-    break
+    return dict
     for file in files:
       file_name, file_extension = splitext(file)
       if file_extension.lower() == ".py":
         dict[f"{prefix}.{file_name}"] = [file_name]
-    break
-  return dict
+    return dict
 
 class LazyModule(ModuleType):
     """
