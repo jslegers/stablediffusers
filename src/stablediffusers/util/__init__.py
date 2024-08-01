@@ -74,7 +74,7 @@ class LazyModule(ModuleType):
             return import_module("." + module_name, self.__name__)
         except Exception as e:
             without_prefix = module_name.replace(".class", "", 1)
-            if without_prefix != module_name
+            if without_prefix != module_name :
               return _get_module(without_prefix)
             raise RuntimeError(
                 f"Failed to import {self.__name__}.{module_name} because of the following error (look up to see its"
