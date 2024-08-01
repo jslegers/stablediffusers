@@ -1,17 +1,25 @@
 import sys
 from os import walk, getcwd
-from os.path import dirname, splitext
+from os.path import join, dirname, splitext
 from importlib import import_module
 from types import ModuleType
 from itertools import chain
 
+def snake_to_camel(word):
+  return ''.join(x.capitalize() or '_' for x in word.split('_'))
+
+def camel_to_snake(s):
+  return ''.join(['_'+c.lower() if c.isupper() else c for c in s]).lstrip('_')
+
 def import_structure (path) :
   dict = {}
   for root, dirs, files in walk(path, topdown=False):
+    for dir in dirs:
+      dict[f"class.{dir}"] = import_structure(join(path, dir))
     for file in files:
       file_name, file_extension = splitext(file)
       if file_extension.lower() == ".py":
-        dict[file_name] = [file_name]
+        dict[f"class.{file_name}"] = [file_name]
   return dict
 
 class LazyModule(ModuleType):
