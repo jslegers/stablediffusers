@@ -1,12 +1,12 @@
 from sys import modules
 from os import getcwd
-from os.path import join
+from os.path import join, dirname
 from .util import (
 #    LazyModule,
     import_structure
 )
 
-import_test = import_structure(join(getcwd(), "class"))
+import_test = import_structure(join(dirname(globals()["__file__"]), "class"))
 
 #modules[__name__] = LazyModule(
 #  __name__,
