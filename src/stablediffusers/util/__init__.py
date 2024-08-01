@@ -13,7 +13,7 @@ def camel_to_snake(s):
 
 def import_structure(path, prefix = "class") :
   dict = {}
-  obj = os.scandir(path)
+  obj = scandir(path)
   for entry in obj :
     if entry.is_dir() :
       dict.update(import_structure(join(path, dir), f"{prefix}.{dir}"))
