@@ -63,7 +63,7 @@ class LazyModule(ModuleType):
         if name in self._modules:
             value = self._get_module(name)
         elif name in self._class_to_module.keys():
-            value = getattr(self._get_module(name), name)
+            value = getattr(self._get_module(self._class_to_module[name]), name)
         else:
             raise AttributeError(f"module {self.__name__} has no attribute {name}")
 
@@ -74,7 +74,6 @@ class LazyModule(ModuleType):
         try:
             return import_module("." + module_name, self.__name__)
         except Exception as e:
-            raise RuntimeError(self._modules) from e
             raise RuntimeError(
                 f"Failed to import {self.__name__}.{module_name} because of the following error (look up to see its"
                 f" traceback):\n{e}"
