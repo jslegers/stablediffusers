@@ -73,7 +73,7 @@ class LazyModule(ModuleType):
         try:
             return import_module("." + module_name, self.__name__)
         except Exception as e:
-            without_prefix = module_name.replace(".class", "", 1)
+            without_prefix = module_name.replace("class.", "")
             if without_prefix != module_name :
               return _get_module(without_prefix)
             raise RuntimeError(
