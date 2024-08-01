@@ -16,9 +16,10 @@ def import_structure(path, prefix = "class") :
   obj = scandir(path)
   for entry in obj :
     if entry.is_dir() :
-      dict.update(import_structure(join(path, entry), f"{prefix}.{entry}"))
+      dir_name = entry.name
+      dict.update(import_structure(join(path, dir_name), f"{prefix}.{dir_name}"))
     else :
-      file_name, file_extension = splitext(entry)
+      file_name, file_extension = splitext(entry.name)
       if file_extension.lower() == ".py":
         dict[f"{prefix}.{file_name}"] = [file_name]
   return dict
