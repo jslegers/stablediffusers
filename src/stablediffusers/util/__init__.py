@@ -15,7 +15,7 @@ def import_structure(path, prefix = "class") :
   dict = {}
   for root, dirs, files in walk(path, topdown=False):
     for dir in dirs:
-      dict.extend(import_structure(join(path, dir), ".".join(prefix, dir)))
+      dict.update(import_structure(join(path, dir), ".".join(prefix, dir)))
     for file in files:
       file_name, file_extension = splitext(file)
       if file_extension.lower() == ".py":
