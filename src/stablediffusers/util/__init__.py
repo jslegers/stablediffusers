@@ -13,9 +13,8 @@ def camel_to_snake(s):
 
 def import_structure (path) :
   dict = {}
+  path = join(path, "class")
   for root, dirs, files in walk(path, topdown=False):
-    for dir in dirs:
-      dict[f"class.{dir}"] = import_structure(join(path, dir))
     for file in files:
       file_name, file_extension = splitext(file)
       if file_extension.lower() == ".py":
