@@ -1,5 +1,4 @@
 from sys import modules
-from os import getcwd
 from os.path import join, dirname
 from .util import (
 #    LazyModule,
