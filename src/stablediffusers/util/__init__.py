@@ -1,5 +1,5 @@
 import sys
-from os import walk, getcwd
+from os import scandir
 from os.path import join, dirname, splitext
 from importlib import import_module
 from types import ModuleType
@@ -13,15 +13,15 @@ def camel_to_snake(s):
 
 def import_structure(path, prefix = "class") :
   dict = {}
-  for root, dirs, files in walk(path, topdown=False):
-    for dir in dirs:
+  obj = os.scandir(path)
+  for entry in obj :
+    if entry.is_dir() :
       dict.update(import_structure(join(path, dir), f"{prefix}.{dir}"))
-    return dict
-    for file in files:
-      file_name, file_extension = splitext(file)
+    else :
+      file_name, file_extension = splitext(entry)
       if file_extension.lower() == ".py":
         dict[f"{prefix}.{file_name}"] = [file_name]
-    return dict
+  return dict
 
 class LazyModule(ModuleType):
     """
