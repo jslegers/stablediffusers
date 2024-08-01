@@ -2,7 +2,7 @@ from sys import modules
 from os import getcwd
 from os.path import join
 from .util import (
-    LazyModule,
+#    LazyModule,
     import_structure
 )
 
