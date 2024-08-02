@@ -1,2 +1,2 @@
-from .util import AutoLoad
+from ..util import AutoLoad
 AutoLoad()
