@@ -1,6 +1,6 @@
 from sys import modules, _getframe
 from os import scandir
-from os.path import join, dirname, splitext, exists
+from os.path import join, dirname, splitext, isfile, isdir
 from pathlib import PurePath
 from importlib import import_module
 from types import ModuleType, SimpleNamespace
@@ -30,16 +30,16 @@ def all_files_in_path(*args, **kwargs) :
     dict = {}
     entries = scandir(path)
     for entry in entries :
-      if entry.is_dir() :
-        kwargs["path_from_package"] = join(path_from_package, entry.name)
+      if isdir(entry) :
+        kwargs["path_from_package"] = entry
         print(f"TEST : {skip_internal_package}")
         print(f"TEST : {kwargs['path_from_package']}")
         print(f"TEST : {join(kwargs['path_from_package'], package_file)}")
-        print(f"TEST : {exists(join(kwargs['path_from_package'], package_file))}")
-        if not skip_internal_package or not exists(join(kwargs["path_from_package"], package_file)) :
+        print(f"TEST : {isfile(join(kwargs['path_from_package'], package_file))}")
+        if not skip_internal_package or not isfile(join(kwargs["path_from_package"], package_file)) :
           dict.update(all_files_in_path(package_path, **kwargs))
-      elif entry.name not in exclude_files :
-        file_name, file_extension = splitext(entry.name)
+      elif entry not in exclude_files :
+        file_name, file_extension = splitext(entry)
         if extension is None or file_extension.lower() == extension :
           dict[f"{path_from_package_dot_notation}.{file_name}"] = [file_name]
   except Exception :
