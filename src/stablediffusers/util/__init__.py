@@ -12,13 +12,16 @@ def snake_to_camel(word) :
 def camel_to_snake(s) :
   return ''.join(['_'+c.lower() if c.isupper() else c for c in s]).lstrip('_')
 
-def all_files_in_path(package_path, **kwargs) :
+def all_files_in_path(*args, **kwargs) :
+  if not isinstance(args[0], str) :
+    raise RuntimeError("all_files_in_path failed because package name is missing") from e
+  package_path = args[0]
   package_file = "__init__.py"
-  exclude_files = kwargs.get("exclude_files", [])
-  extension = kwargs.get("extension", None)
-  skip_internal_package = kwargs.get("skip_internal_package", False)
-  path_from_package = kwargs.get("path_from_package", "")
-  path = path if path_from_package == "" else join(package_path, path_from_package)
+  exclude_files = kwargs.setDefault("exclude_files", [package_file])
+  extension = kwargs.setDefault("extension", None)
+  skip_internal_package = kwargs.setDefault("skip_internal_package", True)
+  path_from_package = kwargs.setDefault("path_from_package", "")
+  path = package_path if path_from_package == "" else join(package_path, path_from_package)
   if extension is not None :
     extension = extension.lower()
   path_from_package_dot_notation = '.'.join(PurePath.parts(path_from_package))
@@ -28,12 +31,9 @@ def all_files_in_path(package_path, **kwargs) :
     if entry.is_dir() :
       path_from_package = join(path_from_package, entry.name)
       if not skip_internal_package or not isfile(join(path_from_package, package_file)) :
-        dict.update(all_files_in_path(
-          package_path,
-          join(path_from_package, entry.name),
-          extension,
-          skip_internal_package
-        ))
+        newkwargs = kwargs.copy()
+        newkwargs.setDefault("path_from_package", join(path_from_package, entry.name))
+        dict.update(all_files_in_path(package_path, **newkwargs))
     elif entry.name not in exclude_files :
       file_name, file_extension = splitext(entry.name)
       if extension is None or file_extension.lower() == extension :
@@ -47,23 +47,22 @@ class LazyModule(ModuleType) :
 
     # Very heavily inspired by optuna.integration._IntegrationModule
     # https://github.com/optuna/optuna/blob/master/optuna/integration/__init__.py
-    def __init__(
-      self,
-      package_name,
-      package_file,
-      package_spec = None,
-      import_structure = None,
-      extra_objects = None
-    ) :
+    def __init__(self, *args, **kwargs) :
+      package_name, package_file, *_ = list(args) + [None] * 2
+      if not isinstance(package_name, str) :
+        raise RuntimeError("Autoload failed because package name is missing or not a string") from e
+      if not isinstance(package_file, str) :
+        raise RuntimeError("Autoload failed because package file name is missing or not a string") from e
+      package_spec = kwargs.get("package_spec", None)
+      import_structure = kwargs.get("import_structure", None)
+      extra_objects = kwargs.get("extra_objects", None)
       super().__init__(package_name)
       package_dir = dirname(package_file)
-      if import_structure is None or isinstance(import_structure, str) :
+      if import_structure is None :
         import_structure = all_files_in_path(
           package_dir,
-          import_structure = import_structure,
           extension = ".py",
-          exclude_files = ["__init__.py"],
-          skip_internal_package = True
+          exclude_files = ["__init__.py"]
         )
       modules = import_structure.keys()
       classes = import_structure.values()
@@ -126,10 +125,6 @@ class LazyModule(ModuleType) :
 
 
 def AutoLoad(*args, **kwargs) :
-  if not isinstance(args[0], str) :
-    raise RuntimeError("Autoload failed because package name is missing") from e
-  if not isinstance(args[1], str) :
-    raise RuntimeError(f"Autoload failed because package file name is missing or not a string") from e
   module = LazyModule(*args, **kwargs)
   modules[args[0]] = module
   return module
