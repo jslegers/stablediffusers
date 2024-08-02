@@ -129,6 +129,8 @@ class LazyModule(ModuleType) :
 
 def AutoLoad(*args, **kwargs) :
   module_info = _getframe(1).f_globals
-  module = LazyModule(module_info["__name__"], module_info["__file__"], **kwargs)
-  modules[module_info.__name__] = module
+  name = module_info["__name__"]
+  file = module_info["__file__"]
+  module = LazyModule(name, file, **kwargs)
+  modules[name] = module
   return module
