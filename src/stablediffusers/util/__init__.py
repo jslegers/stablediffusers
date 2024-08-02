@@ -132,11 +132,11 @@ class LazyModule(ModuleType) :
       self.__allow_module_imports = enabled
 
 
-def AutoLoad(*args, **kwargs) :
-  module_info = _getframe(1).f_globals
-  name = module_info["__name__"]
-  file = module_info["__file__"]
-  spec = module_info["__spec__"]
+def AutoLoad(name, file, spec, **kwargs) :
+  #module_info = _getframe(1).f_globals
+  #name = module_info["__name__"]
+  #file = module_info["__file__"]
+  #spec = module_info["__spec__"]
   module = LazyModule(name, file, spec = spec, **kwargs)
   modules[name] = module
   return module
