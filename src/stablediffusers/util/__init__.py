@@ -68,11 +68,7 @@ class LazyModule(ModuleType) :
       super().__init__(package_name)
       package_dir = dirname(package_file)
       if import_structure is None :
-        import_structure = all_files_in_path(
-          package_dir,
-          extension = ".py",
-          exclude_files = ["__init__.py"]
-        )
+        import_structure = all_files_in_path(package_dir, extension = ".py")
       modules = import_structure.keys()
       classes = import_structure.values()
       self.__modules = set(modules)
