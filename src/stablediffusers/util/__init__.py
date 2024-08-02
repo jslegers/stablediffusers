@@ -38,7 +38,7 @@ def all_files_in_path(
         ))
     elif entry.name not in exclude_files :
       file_name, file_extension = splitext(entry.name)
-      if file_extension.lower() == extension
+      if file_extension.lower() == extension :
         dict[f"{path_from_package_dot_notation}.{file_name}"] = [file_name]
   return dict
 
