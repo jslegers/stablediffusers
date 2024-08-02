@@ -99,7 +99,7 @@ class LazyModule(ModuleType) :
         return self.__objects[name]
       if name in self.__class_to_module.keys() :
         module = self.__get_module(self.__class_to_module[name])
-        value = name if name.lower == name else getattr(module, name)
+        value = name if name.lower() == name else getattr(module, name)
       elif name in self._modules :
         value = self.__get_module(name)
       else :
