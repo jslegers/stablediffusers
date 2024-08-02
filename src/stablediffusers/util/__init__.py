@@ -8,10 +8,10 @@ from itertools import chain
 from pkgutil import walk_packages
 
 def LazyLoad(module_name) :
-  spec = importlib.util.find_spec(module_name)
-  loader = importlib.util.LazyLoader(spec.loader)
+  spec = util.find_spec(module_name)
+  loader = util.LazyLoader(spec.loader)
   spec.loader = loader
-  module = importlib.util.module_from_spec(spec)
+  module = util.module_from_spec(spec)
   modules[name] = module
   loader.exec_module(module)
   return module
