@@ -1,4 +1,4 @@
-from sys import modules
+from sys import modules, _getframe
 from os import scandir
 from os.path import join, dirname, splitext, isfile
 from pathlib import PurePath
@@ -130,6 +130,7 @@ class LazyModule(ModuleType) :
 
 
 def AutoLoad(*args, **kwargs) :
-  module = LazyModule(*args, **kwargs)
-  modules[args[0]] = module
+  module_info = _getframe(1).f_globals
+  module = LazyModule(module_info.__name__, module_info.__file__, **kwargs)
+  modules[namespace.__name__] = module
   return module
