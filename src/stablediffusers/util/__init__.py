@@ -4,8 +4,8 @@ from os.path import join, dirname, splitext, isfile, isdir
 from pathlib import PurePath
 from importlib import import_module
 from types import ModuleType, SimpleNamespace
-import traceback
 from itertools import chain
+from pkgutil import walk_packages
 
 def snake_to_camel(word) :
   return ''.join(x.capitalize() or '_' for x in word.split('_'))
@@ -74,6 +74,12 @@ class LazyModule(ModuleType) :
       self.__objects = {} if extra_objects is None else extra_objects
       self.__package__ = package_name
       self.__import_structure = import_structure
+      name_with_dot = stablediffusers.__name__+'.'
+      for loader, module_name, is_pkg in walk_packages(stablediffusers.__path__, name_with_dot):
+        sub_package_name = module_name.replace(name_with_dot, '')
+        sub_package = self.__get_module(sub_package_name)
+        setattr(self, sub_package_name, sub_package_name)
+        self.__all__.append(sub_package)
 
     # Needed for autocompletion in an IDE
     def __dir__(self) :
@@ -119,7 +125,7 @@ class LazyModule(ModuleType) :
       ))
 
 
-def AutoLoad(name, file, spec, **kwargs) :
+def AutoLoad(name, file, **kwargs) :
   import importlib
   module_spec = importlib.util.find_spec(name)
   module = LazyModule(name, file, spec = module_spec, **kwargs)
