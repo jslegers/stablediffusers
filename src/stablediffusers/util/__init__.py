@@ -17,10 +17,10 @@ def all_files_in_path(*args, **kwargs) :
     raise RuntimeError("all_files_in_path failed because package name is missing") from e
   package_path = args[0]
   package_file = "__init__.py"
-  exclude_files = kwargs.setDefault("exclude_files", [package_file])
-  extension = kwargs.setDefault("extension", None)
-  skip_internal_package = kwargs.setDefault("skip_internal_package", True)
-  path_from_package = kwargs.setDefault("path_from_package", "")
+  exclude_files = kwargs.setdefault("exclude_files", [package_file])
+  extension = kwargs.setdefault("extension", None)
+  skip_internal_package = kwargs.setdefault("skip_internal_package", True)
+  path_from_package = kwargs.setdefault("path_from_package", "")
   path = package_path if path_from_package == "" else join(package_path, path_from_package)
   if extension is not None :
     extension = extension.lower()
@@ -32,7 +32,7 @@ def all_files_in_path(*args, **kwargs) :
       path_from_package = join(path_from_package, entry.name)
       if not skip_internal_package or not isfile(join(path_from_package, package_file)) :
         newkwargs = kwargs.copy()
-        newkwargs.setDefault("path_from_package", join(path_from_package, entry.name))
+        newkwargs.setdefault("path_from_package", join(path_from_package, entry.name))
         dict.update(all_files_in_path(package_path, **newkwargs))
     elif entry.name not in exclude_files :
       file_name, file_extension = splitext(entry.name)
