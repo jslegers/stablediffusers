@@ -4,6 +4,7 @@ from os.path import join, dirname, splitext, isfile
 from pathlib import PurePath
 from importlib import import_module
 from types import ModuleType, SimpleNamespace
+import traceback
 from itertools import chain
 
 def snake_to_camel(word) :
@@ -21,23 +22,27 @@ def all_files_in_path(*args, **kwargs) :
   extension = kwargs.setdefault("extension", None)
   skip_internal_package = kwargs.setdefault("skip_internal_package", True)
   path_from_package = kwargs.setdefault("path_from_package", "")
-  path = package_path if path_from_package == "" else join(package_path, path_from_package)
+  path = package_path if not path_from_package else join(package_path, path_from_package)
   if extension is not None :
     extension = extension.lower()
-  path_from_package_dot_notation = '.'.join(PurePath(path_from_package).parts)
-  dict = {}
-  entries = scandir(path)
-  for entry in entries :
-    if entry.is_dir() :
-      path_from_package = join(path_from_package, entry.name)
-      if not skip_internal_package or not isfile(join(path_from_package, package_file)) :
-        newkwargs = kwargs.copy()
-        newkwargs["path_from_package"] = path_from_package
-        dict.update(all_files_in_path(package_path, **newkwargs))
-    elif entry.name not in exclude_files :
-      file_name, file_extension = splitext(entry.name)
-      if extension is None or file_extension.lower() == extension :
-        dict[f"{path_from_package_dot_notation}.{file_name}"] = [file_name]
+  try :
+    path_from_package_dot_notation = '.'.join(PurePath(path_from_package).parts)
+    dict = {}
+    entries = scandir(path)
+    for entry in entries :
+      if entry.is_dir() :
+        path_from_package = join(path_from_package, entry.name)
+        if not skip_internal_package or not isfile(join(path_from_package, package_file)) :
+          newkwargs = kwargs.copy()
+          newkwargs["path_from_package"] = path_from_package
+          dict.update(all_files_in_path(package_path, **newkwargs))
+      elif entry.name not in exclude_files :
+        file_name, file_extension = splitext(entry.name)
+        if extension is None or file_extension.lower() == extension :
+          dict[f"{path_from_package_dot_notation}.{file_name}"] = [file_name]
+  except :
+    print(*args, **kwargs)
+    print(traceback.format_exc())
   return dict
 
 class LazyModule(ModuleType) :
