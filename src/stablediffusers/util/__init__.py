@@ -32,7 +32,7 @@ def all_files_in_path(*args, **kwargs) :
       path_from_package = join(path_from_package, entry.name)
       if not skip_internal_package or not isfile(join(path_from_package, package_file)) :
         newkwargs = kwargs.copy()
-        newkwargs["path_from_package"] = join(path_from_package, entry.name)
+        newkwargs["path_from_package"] = path_from_package
         dict.update(all_files_in_path(package_path, **newkwargs))
     elif entry.name not in exclude_files :
       file_name, file_extension = splitext(entry.name)
