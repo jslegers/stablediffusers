@@ -108,13 +108,14 @@ class LazyModule(ModuleType) :
         return value
       try :
         import importlib
-        module_spec = importlib.util.find_spec(name)
+        module_spec = importlib.util.find_spec("." + name, self.__name__)
         module = importlib.util.module_from_spec(module_spec)
         module_spec.loader.exec_module(module)
         setattr(self, name, module)
         return module
-      except :
+      except Exception as e :
         raise AttributeError(f"Package {self.__name__} has no module {name}")
+        ) from e
 
     def __get_module(self, name: str) :
       try :
