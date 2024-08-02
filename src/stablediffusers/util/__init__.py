@@ -1,6 +1,6 @@
 from sys import modules, _getframe
 from os import scandir
-from os.path import join, dirname, splitext, is_file, isdir
+from os.path import join, dirname, splitext, isfile, isdir
 from pathlib import PurePath
 from importlib import import_module
 from types import ModuleType, SimpleNamespace
