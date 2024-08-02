@@ -74,7 +74,7 @@ class LazyModule(ModuleType) :
       self.__objects = {} if extra_objects is None else extra_objects
       self.__package__ = package_name
       self.__import_structure = import_structure
-      name_with_dot = stablediffusers.__name__+'.'
+      name_with_dot = self.__name__+'.'
       for loader, module_name, is_pkg in walk_packages(self.__path__, name_with_dot):
         sub_package_name = module_name.replace(name_with_dot, '')
         sub_package = self.__get_module(sub_package_name)
