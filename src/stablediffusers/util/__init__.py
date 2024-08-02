@@ -7,7 +7,7 @@ from types import ModuleType, SimpleNamespace
 from itertools import chain
 from pkgutil import walk_packages
 
-def import(module_name) :
+def LazyLoad(module_name) :
   spec = importlib.util.find_spec(module_name)
   loader = importlib.util.LazyLoader(spec.loader)
   spec.loader = loader
@@ -16,12 +16,13 @@ def import(module_name) :
   loader.exec_module(module)
   return module
 
-class from() :
-  def __init__(self, module_name) :
-    self.module = import(module_name)
+class from_module() :
 
-  def import(self, *args) :
-    return (getattr(self.module, arg) for arg in args)
+  def __init__(self, module_name) :
+    self.module = module_name
+
+  def load(self, *args) :
+    return LazyLoad(f"{module_name}.{arg}") for arg in args)
 
 def snake_to_camel(word) :
   return ''.join(x.capitalize() or '_' for x in word.split('_'))
