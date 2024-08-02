@@ -42,7 +42,7 @@ def all_files_in_path(*args, **kwargs) :
       elif entry_name not in exclude_files :
         file_name, file_extension = splitext(entry_name)
         if extension is None or file_extension.lower() == extension :
-          dict['.'.join(filter(None, [path_from_package_dot_notation, file_name]))}] = [file_name]
+          dict['.'.join(filter(None, [path_from_package_dot_notation, file_name]))] = [file_name]
   except Exception :
     for entry in args :
       print (f"arg = {entry}")
