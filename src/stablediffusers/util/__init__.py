@@ -85,7 +85,7 @@ class LazyModule(ModuleType) :
       self.__spec__ = package_spec
       self.__path__ = [package_dir]
       self.__objects = {} if extra_objects is None else extra_objects
-      self.__name = package_name
+      self.__package__ = package_name
       self.__import_structure = import_structure
       self.__allow_module_imports = True
 
@@ -123,7 +123,7 @@ class LazyModule(ModuleType) :
 
     def __reduce__(self) :
       return (self.__class__, (
-        self.__name,
+        self.__package__,
         self.__file__,
         self.__import_structure
       ))
