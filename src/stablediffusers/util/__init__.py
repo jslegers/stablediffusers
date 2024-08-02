@@ -33,10 +33,6 @@ def all_files_in_path(*args, **kwargs) :
       entry_name = entry.name
       if isdir(entry) :
         kwargs["path_from_package"] = join(path_from_package, entry_name)
-        print(f"TEST : {skip_internal_package}")
-        print(f"TEST : {kwargs['path_from_package']}")
-        print(f"TEST : {join(package_path, kwargs['path_from_package'], package_file)}")
-        print(f"TEST : {isfile(join(package_path, kwargs['path_from_package'], package_file))}")
         if not skip_internal_package or not isfile(join(package_path, kwargs["path_from_package"], package_file)) :
           dict.update(all_files_in_path(package_path, **kwargs))
       elif entry_name not in exclude_files :
@@ -80,11 +76,12 @@ class LazyModule(ModuleType) :
         for class_name in classlist:
           self.__class_to_module[class_name] = module
       # Needed for autocompletion in an IDE
-      self.__all__ = list(modules) + list(chain(*classes))
+      self.__all__ = list(self.__all__ | set(modules) | set(chain(*classes)))
       self.__file__ = package_file
       self.__spec__ = package_spec
       self.__path__ = [package_dir]
       self.__objects = {} if extra_objects is None else extra_objects
+      self.__name = package_name
       self.__package__ = package_name
       self.__import_structure = import_structure
       self.__allow_module_imports = True
@@ -123,7 +120,7 @@ class LazyModule(ModuleType) :
 
     def __reduce__(self) :
       return (self.__class__, (
-        self.__package__,
+        self.__name,
         self.__file__,
         self.__import_structure
       ))
@@ -137,25 +134,6 @@ def AutoLoad(name, file, spec, **kwargs) :
   #name = module_info["__name__"]
   #file = module_info["__file__"]
   #spec = module_info["__spec__"]
-  import pprint
-  import inspect
   module = LazyModule(name, file, spec = spec, **kwargs)
-  pprint.pp('---------------------------------------------------')
-  pprint.pp('---------------------------------------------------')
-  pprint.pp('---------------------------------------------------')
-  pprint.pp('---------------------------------------------------')
-  pprint.pp('---------------------------------------------------')
-  pprint.pp('---------------------------------------------------')
-  pprint.pp(inspect.getmembers('module'))
-  pprint.pp('---------------------------------------------------')
-  pprint.pp('---------------------------------------------------')
-  pprint.pp('---------------------------------------------------')
-  # modules[name] = module
-  pprint.pp(modules[name])
-  pprint.pp('---------------------------------------------------')
-  pprint.pp('---------------------------------------------------')
-  pprint.pp('---------------------------------------------------')
-  pprint.pp('---------------------------------------------------')
-  pprint.pp('---------------------------------------------------')
-  pprint.pp('---------------------------------------------------')
+  modules[name] = module
   return module
