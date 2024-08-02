@@ -105,7 +105,7 @@ class LazyModule(ModuleType) :
         value = getattr(self.__get_module(self.__class_to_module[name]), name)
         setattr(self, name, value)
         return value
-      raise AttributeError(f"Package {self.__name__} has no module {name}") from e
+      raise AttributeError(f"Package {self.__name__} has no module {name}")
 
     def __get_module(self, name: str) :
       try :
