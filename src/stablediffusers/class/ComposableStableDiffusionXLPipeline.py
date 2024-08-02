@@ -1,4 +1,5 @@
-from torch import bfloat16, float16, device as dev, Generator
+from diffusers import util
+bfloat16, float16, dev, Generator = util.from('torch').import('bfloat16', 'float16', 'device', 'Generator')
 from torch.cuda import is_available, ipc_collect, empty_cache
 from numba.cuda import select_device, get_current_device
 from gc import collect

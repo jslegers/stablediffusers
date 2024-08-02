@@ -2,10 +2,26 @@ from sys import modules, _getframe
 from os import scandir
 from os.path import join, dirname, splitext, isfile, isdir
 from pathlib import PurePath
-from importlib import import_module
+from importlib import import_module, util
 from types import ModuleType, SimpleNamespace
 from itertools import chain
 from pkgutil import walk_packages
+
+def import(module_name) :
+  spec = importlib.util.find_spec(module_name)
+  loader = importlib.util.LazyLoader(spec.loader)
+  spec.loader = loader
+  module = importlib.util.module_from_spec(spec)
+  modules[name] = module
+  loader.exec_module(module)
+  return module
+
+class from() :
+  def __init__(self, module_name) :
+    self.module = import(module_name)
+
+  def import(self, *args) :
+    return (getattr(self.module, arg) for arg in args)
 
 def snake_to_camel(word) :
   return ''.join(x.capitalize() or '_' for x in word.split('_'))
