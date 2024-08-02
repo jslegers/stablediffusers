@@ -62,7 +62,6 @@ class LazyModule(ModuleType) :
         import_structure = all_files_in_path(package_dir, extension = ".py")
       modules = import_structure.keys()
       classes = import_structure.values()
-      self.__modules = set(modules)
       self.__class_to_module = {}
       for module, classlist in import_structure.items():
         for class_name in classlist:
@@ -89,10 +88,6 @@ class LazyModule(ModuleType) :
     def __getattr__(self, name: str) :
       if name in self.__objects:
         return self.__objects[name]
-      if name in self.__modules:
-        value = self.__get_module(name)
-        setattr(self, name, value)
-        return value
       if name in self.__class_to_module.keys():
         value = getattr(self.__get_module(self.__class_to_module[name]), name)
         setattr(self, name, value)
@@ -106,9 +101,9 @@ class LazyModule(ModuleType) :
 
     def __get_module(self, name: str) :
       try :
-        name = "." + name, self.__name__
-        module = import_module(name)
-        modules[name] = module
+        name = "." + name
+        module = import_module(name, self.__name__)
+        modules[self.__name__ + name] = module
         return module
       except Exception as e :
         raise RuntimeError(
