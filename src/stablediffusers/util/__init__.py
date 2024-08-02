@@ -98,7 +98,7 @@ class LazyModule(ModuleType) :
       if name in self.__objects:
         return self.__objects[name]
       if name in self.__class_to_module.keys():
-        value = self.__get_module(self.__class_to_module[name]))
+        value = self.__get_module(self.__class_to_module[name])
         modules[self.__name__ + '.' + name] = value
         setattr(self, name, getattr(value, name))
         return value
