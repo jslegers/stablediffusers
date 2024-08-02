@@ -31,16 +31,9 @@ def all_files_in_path(*args, **kwargs) :
     entries = scandir(path)
     for entry in entries :
       if entry.is_dir() :
-        path_from_package = join(path_from_package, entry.name)
-        if not skip_internal_package or not isfile(join(path_from_package, package_file)) :
-          newkwargs = kwargs.copy()
-          newkwargs["path_from_package"] = path_from_package
-          dict.update(all_files_in_path(
-            package_path
-            skip_internal_package = skip_internal_package
-            extension = extension,
-            exclude_files = exclude_files
-          ))
+        kwargs["path_from_package"] = join(path_from_package, entry.name)
+        if not skip_internal_package or not isfile(join(kwargs["path_from_package"], package_file)) :
+          dict.update(all_files_in_path(package_path, **kwargs))
       elif entry.name not in exclude_files :
         file_name, file_extension = splitext(entry.name)
         if extension is None or file_extension.lower() == extension :
@@ -50,6 +43,7 @@ def all_files_in_path(*args, **kwargs) :
       print (f"arg = {entry}")
     for key, value in kwargs.items():
       print (f"kwargs = <{key} : {value}>")
+    print(*args, **kwargs)
     print(traceback.format_exc())
   return dict
 
