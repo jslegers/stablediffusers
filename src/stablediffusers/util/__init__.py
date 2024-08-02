@@ -76,7 +76,7 @@ class LazyModule(ModuleType) :
         for class_name in classlist:
           self.__class_to_module[class_name] = module
       # Needed for autocompletion in an IDE
-      self.__all__ = list(modules) + list(chain(*classes)))
+      self.__all__ = list(modules) + list(chain(*classes))
       self.__file__ = package_file
       self.__spec__ = package_spec
       self.__path__ = [package_dir]
