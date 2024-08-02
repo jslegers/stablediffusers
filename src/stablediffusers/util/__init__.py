@@ -106,15 +106,19 @@ class LazyModule(ModuleType) :
         value = getattr(self.__get_module(self.__class_to_module[name]), name)
         setattr(self, name, value)
         return value
-      raise AttributeError(f"Package {self.__name__} has no module {name}")
-
-    def __get_module(self, name: str) :
       try :
         import importlib
         module_spec = importlib.util.find_spec(name)
         module = importlib.util.module_from_spec(module_spec)
         module_spec.loader.exec_module(module)
+        setattr(self, name, module)
         return module
+      except :
+        raise AttributeError(f"Package {self.__name__} has no module {name}")
+
+    def __get_module(self, name: str) :
+      try :
+        return import_module("." + name, self.__name__)
       except Exception as e :
         raise RuntimeError(
           f"Failed to import {self.__name__}.{name} because of the following error (look up to see its"
@@ -133,8 +137,6 @@ class LazyModule(ModuleType) :
 
 
 def AutoLoad(name, file, spec, **kwargs) :
-  import importlib
-  module_spec = importlib.util.find_spec(name)
-  module = LazyModule(name, file, spec = module_spec, **kwargs)
+  module = LazyModule(name.__name__, module.__file__, spec = module_spec, **kwargs)
   modules[name] = module
   return module
