@@ -1,8 +1,9 @@
-import sys
+from sys import modules
 from os import scandir
-from os.path import join, dirname, splitext
+from os.path import join, dirname, splitext, isfile
+from pathlib import PurePath
 from importlib import import_module
-from types import ModuleType
+from types import ModuleType, SimpleNamespace
 from itertools import chain
 
 def snake_to_camel(word):
@@ -11,17 +12,34 @@ def snake_to_camel(word):
 def camel_to_snake(s):
   return ''.join(['_'+c.lower() if c.isupper() else c for c in s]).lstrip('_')
 
-def import_structure(path, prefix = "class") :
+def all_files_in_path(
+  package_path,
+  path_from_package = None,
+  skip_internal_package = False,
+  extension = None,
+  exclude_files = []
+) :
+  package_file = "__init__.py"
+  path = join(package_path, path_from_package)
+  if extension is not None :
+    extension = extension.lower()
+  path_from_package_dot_notation = '.'.join(PurePath.parts(path_from_package))
   dict = {}
-  obj = scandir(path)
-  for entry in obj :
+  entries = scandir(path)
+  for entry in entries :
     if entry.is_dir() :
-      dir_name = entry.name
-      dict.update(import_structure(join(path, dir_name), f"{prefix}.{dir_name}"))
-    else :
+      path_from_package = join(path_from_package, entry.name)
+      if not skip_internal_package or not isfile(join(path_from_package, package_file)) :
+        dict.update(all_files_in_path(
+          package_path,
+          join(path_from_package, entry.name),
+          extension,
+          skip_internal_package
+        ))
+    elif entry.name not in exclude_files
       file_name, file_extension = splitext(entry.name)
-      if file_extension.lower() == ".py":
-        dict[f"{prefix}.{file_name}"] = [file_name]
+      if file_extension.lower() == extension
+        dict[f"{path_from_package_dot_notation}.{file_name}"] = [file_name]
   return dict
 
 class LazyModule(ModuleType):
@@ -31,53 +49,85 @@ class LazyModule(ModuleType):
 
     # Very heavily inspired by optuna.integration._IntegrationModule
     # https://github.com/optuna/optuna/blob/master/optuna/integration/__init__.py
-    def __init__(self, name, module_file, import_structure, module_spec=None, extra_objects=None):
-        super().__init__(name)
-        self._modules = set(import_structure.keys())
-        self._class_to_module = {}
-        for key, values in import_structure.items():
-            for value in values:
-                self._class_to_module[value] = key
-        # Needed for autocompletion in an IDE
-        self.__all__ = list(import_structure.keys()) + list(chain(*import_structure.values()))
-        self.__file__ = module_file
-        self.__spec__ = module_spec
-        self.__path__ = [dirname(module_file)]
-        self._objects = {} if extra_objects is None else extra_objects
-        self._name = name
-        self._import_structure = import_structure
+    def __init__(
+      self,
+      package_name,
+      package_file,
+      package_spec = None,
+      import_structure = None,
+      extra_objects = None
+    ):
+      super().__init__(package_name)
+      package_dir = dirname(package_file)
+      if import_structure is None or isinstance(import_structure, str) :
+        import_structure = all_files_in_path(
+          package_dir,
+          import_structure,
+          extension = ".py",
+          exclude_files = ["__init__.py"],
+          skip_internal_package = True
+        )
+      modules = import_structure.keys()
+      classes = import_structure.values()
+      self.__modules = set(modules)
+      self.__class_to_module = {}
+      for module, classlist in import_structure.items():
+        for class in classlist:
+          self.__class_to_module[class] = module
+      # Needed for autocompletion in an IDE
+      self.__all__ = list(modules) + list(chain(*classes))
+      self.__file__ = package_file
+      self.__spec__ = package_spec
+      self.__path__ = [package_dir]
+      self.__objects = {} if extra_objects is None else extra_objects
+      self.__name = package_name
+      self.__import_structure = import_structure
+      self.__allow_module_imports = True
 
     # Needed for autocompletion in an IDE
     def __dir__(self):
-        result = super().__dir__()
-        # The elements of self.__all__ that are submodules may or may not be in the dir already, depending on whether
-        # they have been accessed or not. So we only add the elements of self.__all__ that are not already in the dir.
-        for attr in self.__all__:
-            if attr not in result:
-                result.append(attr)
-        return result
+      result = super().__dir__()
+      # The elements of self.__all__ that are submodules may or may not be in the dir already, depending on whether
+      # they have been accessed or not. So we only add the elements of self.__all__ that are not already in the dir.
+      for attr in self.__all__:
+        if attr not in result:
+          result.append(attr)
+      return result
 
     def __getattr__(self, name: str):
-        if name in self._objects:
-            return self._objects[name]
-        if name in self._modules:
-            value = self._get_module(name)
-        elif name in self._class_to_module.keys():
-            value = getattr(self._get_module(self._class_to_module[name]), name)
-        else:
-            raise AttributeError(f"module {self.__name__} has no attribute {name}")
-
+      if name in self.__objects:
+        return self.__objects[name]
+      if self.__allow_module_imports and name in self.__modules:
+        value = self.__get_module(name)
         setattr(self, name, value)
         return value
+      if name in self.__class_to_module.keys():
+        value = getattr(self.__get_module(self.__class_to_module[name]), name)
+        setattr(self, name, value)
+        return value
+      raise AttributeError(f"Package {self.__name__} has no module {name}")
 
-    def _get_module(self, module_name: str):
-        try:
-            return import_module("." + module_name, self.__name__)
-        except Exception as e:
-            raise RuntimeError(
-                f"Failed to import {self.__name__}.{module_name} because of the following error (look up to see its"
-                f" traceback):\n{e}"
-            ) from e
+    def __get_module(self, name: str):
+      try:
+        return import_module("." + name, self.__name__)
+      except Exception as e:
+        raise RuntimeError(
+          f"Failed to import {self.__name__}.{name} because of the following error (look up to see its"
+          f" traceback):\n{e}"
+        ) from e
 
     def __reduce__(self):
-        return (self.__class__, (self._name, self.__file__, self._import_structure))
+      return (self.__class__, (
+        self.__name,
+        self.__file__,
+        self.__import_structure
+      ))
+
+    def allow_module_imports(enabled = True) :
+      self.__allow_module_imports = enabled
+
+
+AutoLoad(*args, **kwargs) :
+  module = LazyModule(*arg, **kwargs)
+  modules[package_name] = module
+  return module
