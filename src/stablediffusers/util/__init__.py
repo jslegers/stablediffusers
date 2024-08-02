@@ -20,7 +20,6 @@ def all_files_in_path(*args, **kwargs) :
   package_file = "__init__.py"
   exclude_files = kwargs.setdefault("exclude_files", [package_file])
   extension = kwargs.setdefault("extension", None)
-  skip_internal_package = kwargs.setdefault("skip_internal_package", True)
   path_from_package = kwargs.setdefault("path_from_package", "")
   path = package_path if not path_from_package else join(package_path, path_from_package)
   if extension is not None :
@@ -32,7 +31,9 @@ def all_files_in_path(*args, **kwargs) :
     entry_name = entry.name
     if isdir(entry) :
       kwargs["path_from_package"] = join(path_from_package, entry_name)
-      if not skip_internal_package or not isfile(join(package_path, kwargs["path_from_package"], package_file)) :
+      if isfile(join(package_path, kwargs["path_from_package"], package_file)) :
+        dict['.'.join(filter(None, [path_from_package_dot_notation, entry_name]))] = [entry_name]
+      else :
         dict.update(all_files_in_path(package_path, **kwargs))
     elif entry_name not in exclude_files :
       file_name, file_extension = splitext(entry_name)
@@ -75,12 +76,12 @@ class LazyModule(ModuleType) :
       self.__package__ = package_name
       self.__import_structure = import_structure
       name_with_dot = self.__name__+'.'
-      for loader, module_name, is_pkg in walk_packages(self.__path__, name_with_dot):
-        sub_package_name = module_name.replace(name_with_dot, '')
-        sub_package = self.__get_module(sub_package_name)
-        setattr(self, sub_package_name, sub_package)
-        self.__all__.append(sub_package)
-        print(sub_package_name)
+      #for loader, module_name, is_pkg in walk_packages(self.__path__, name_with_dot):
+      #  sub_package_name = module_name.replace(name_with_dot, '')
+      #  sub_package = self.__get_module(sub_package_name)
+      #  setattr(self, sub_package_name, sub_package)
+      #  self.__all__.append(sub_package)
+      #  print(sub_package_name)
 
     # Needed for autocompletion in an IDE
     def __dir__(self) :
