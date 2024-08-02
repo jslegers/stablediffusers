@@ -41,6 +41,10 @@ def all_files_in_path(*args, **kwargs) :
         if extension is None or file_extension.lower() == extension :
           dict[f"{path_from_package_dot_notation}.{file_name}"] = [file_name]
   except Exception :
+    for entry in args :
+      print (f"arg = {entry}")
+    for key, value in kwargs.items():
+      print (f"kwargs = <{key} : {value}>")
     print(*args, **kwargs)
     print(traceback.format_exc())
   return dict
