@@ -40,7 +40,7 @@ def all_files_in_path(*args, **kwargs) :
         file_name, file_extension = splitext(entry.name)
         if extension is None or file_extension.lower() == extension :
           dict[f"{path_from_package_dot_notation}.{file_name}"] = [file_name]
-  except :
+  except Exception :
     print(*args, **kwargs)
     print(traceback.format_exc())
   return dict
