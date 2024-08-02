@@ -78,7 +78,7 @@ class LazyModule(ModuleType) :
       for loader, module_name, is_pkg in walk_packages(self.__path__, name_with_dot):
         sub_package_name = module_name.replace(name_with_dot, '')
         sub_package = self.__get_module(sub_package_name)
-        setattr(self, sub_package_name, sub_package_name)
+        setattr(self, sub_package_name, sub_package)
         self.__all__.append(sub_package)
         print(sub_package_name)
 
