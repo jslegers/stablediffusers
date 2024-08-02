@@ -49,6 +49,7 @@ def all_files_in_path(*args, **kwargs) :
     for key, value in kwargs.items():
       print (f"kwargs = <{key} : {value}>")
     print(traceback.format_exc())
+  print(dict)
   return dict
 
 class LazyModule(ModuleType) :
