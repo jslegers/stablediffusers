@@ -33,9 +33,9 @@ def all_files_in_path(*args, **kwargs) :
       if entry.is_dir() :
         kwargs["path_from_package"] = join(path_from_package, entry.name)
         print(f"TEST : {skip_internal_package}")
-        print(f"TEST : {kwargs["path_from_package"]}")
-        print(f"TEST : {join(kwargs["path_from_package"], package_file)}")
-        print(f"TEST : {isfile(join(kwargs["path_from_package"], package_file))}")
+        print(f"TEST : {kwargs['path_from_package']}")
+        print(f"TEST : {join(kwargs['path_from_package'], package_file)}")
+        print(f"TEST : {isfile(join(kwargs['path_from_package'], package_file))}")
         if not skip_internal_package or not isfile(join(kwargs["path_from_package"], package_file)) :
           dict.update(all_files_in_path(package_path, **kwargs))
       elif entry.name not in exclude_files :
