@@ -25,27 +25,19 @@ def all_files_in_path(*args, **kwargs) :
   path = package_path if not path_from_package else join(package_path, path_from_package)
   if extension is not None :
     extension = extension.lower()
-  try :
-    path_from_package_dot_notation = '.'.join(PurePath(path_from_package).parts)
-    dict = {}
-    entries = scandir(path)
-    for entry in entries :
-      entry_name = entry.name
-      if isdir(entry) :
-        kwargs["path_from_package"] = join(path_from_package, entry_name)
-        if not skip_internal_package or not isfile(join(package_path, kwargs["path_from_package"], package_file)) :
-          dict.update(all_files_in_path(package_path, **kwargs))
-      elif entry_name not in exclude_files :
-        file_name, file_extension = splitext(entry_name)
-        if extension is None or file_extension.lower() == extension :
-          dict['.'.join(filter(None, [path_from_package_dot_notation, file_name]))] = [file_name]
-  except Exception :
-    for entry in args :
-      print (f"arg = {entry}")
-    for key, value in kwargs.items():
-      print (f"kwargs = <{key} : {value}>")
-    print(traceback.format_exc())
-  print(dict)
+  path_from_package_dot_notation = '.'.join(PurePath(path_from_package).parts)
+  dict = {}
+  entries = scandir(path)
+  for entry in entries :
+    entry_name = entry.name
+    if isdir(entry) :
+      kwargs["path_from_package"] = join(path_from_package, entry_name)
+      if not skip_internal_package or not isfile(join(package_path, kwargs["path_from_package"], package_file)) :
+        dict.update(all_files_in_path(package_path, **kwargs))
+    elif entry_name not in exclude_files :
+      file_name, file_extension = splitext(entry_name)
+      if extension is None or file_extension.lower() == extension :
+        dict['.'.join(filter(None, [path_from_package_dot_notation, file_name]))] = [file_name]
   return dict
 
 class LazyModule(ModuleType) :
@@ -83,7 +75,6 @@ class LazyModule(ModuleType) :
       self.__objects = {} if extra_objects is None else extra_objects
       self.__package__ = package_name
       self.__import_structure = import_structure
-      self.__allow_module_imports = True
 
     # Needed for autocompletion in an IDE
     def __dir__(self) :
@@ -98,7 +89,7 @@ class LazyModule(ModuleType) :
     def __getattr__(self, name: str) :
       if name in self.__objects:
         return self.__objects[name]
-      if self.__allow_module_imports and name in self.__modules:
+      if name in self.__modules:
         value = self.__get_module(name)
         setattr(self, name, value)
         return value
@@ -107,18 +98,18 @@ class LazyModule(ModuleType) :
         setattr(self, name, value)
         return value
       try :
-        import importlib
-        module_spec = importlib.util.find_spec("." + name, self.__name__)
-        module = importlib.util.module_from_spec(module_spec)
-        module_spec.loader.exec_module(module)
-        setattr(self, name, module)
-        return module
+        value = self.__get_module(name)
+        setattr(self, name, value)
+        return value
       except Exception as e :
         raise AttributeError(f"Package {self.__name__} has no module {name}") from e
 
     def __get_module(self, name: str) :
       try :
-        return import_module("." + name, self.__name__)
+        name = "." + name, self.__name__
+        module = import_module(name)
+        modules[name] = module
+        return module
       except Exception as e :
         raise RuntimeError(
           f"Failed to import {self.__name__}.{name} because of the following error (look up to see its"
@@ -131,9 +122,6 @@ class LazyModule(ModuleType) :
         self.__file__,
         self.__import_structure
       ))
-
-    def allow_module_imports(enabled = True) :
-      self.__allow_module_imports = enabled
 
 
 def AutoLoad(name, file, spec, **kwargs) :
