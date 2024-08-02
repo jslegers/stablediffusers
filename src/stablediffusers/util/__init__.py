@@ -6,10 +6,10 @@ from importlib import import_module
 from types import ModuleType, SimpleNamespace
 from itertools import chain
 
-def snake_to_camel(word):
+def snake_to_camel(word) :
   return ''.join(x.capitalize() or '_' for x in word.split('_'))
 
-def camel_to_snake(s):
+def camel_to_snake(s) :
   return ''.join(['_'+c.lower() if c.isupper() else c for c in s]).lstrip('_')
 
 def all_files_in_path(
@@ -36,13 +36,13 @@ def all_files_in_path(
           extension,
           skip_internal_package
         ))
-    elif entry.name not in exclude_files
+    elif entry.name not in exclude_files :
       file_name, file_extension = splitext(entry.name)
       if file_extension.lower() == extension
         dict[f"{path_from_package_dot_notation}.{file_name}"] = [file_name]
   return dict
 
-class LazyModule(ModuleType):
+class LazyModule(ModuleType) :
     """
     Module class that surfaces all objects but only performs associated imports when the objects are requested.
     """
@@ -56,7 +56,7 @@ class LazyModule(ModuleType):
       package_spec = None,
       import_structure = None,
       extra_objects = None
-    ):
+    ) :
       super().__init__(package_name)
       package_dir = dirname(package_file)
       if import_structure is None or isinstance(import_structure, str) :
@@ -85,16 +85,16 @@ class LazyModule(ModuleType):
       self.__allow_module_imports = True
 
     # Needed for autocompletion in an IDE
-    def __dir__(self):
+    def __dir__(self) :
       result = super().__dir__()
       # The elements of self.__all__ that are submodules may or may not be in the dir already, depending on whether
       # they have been accessed or not. So we only add the elements of self.__all__ that are not already in the dir.
       for attr in self.__all__:
-        if attr not in result:
+        if attr not in result :
           result.append(attr)
       return result
 
-    def __getattr__(self, name: str):
+    def __getattr__(self, name: str) :
       if name in self.__objects:
         return self.__objects[name]
       if self.__allow_module_imports and name in self.__modules:
@@ -107,16 +107,16 @@ class LazyModule(ModuleType):
         return value
       raise AttributeError(f"Package {self.__name__} has no module {name}")
 
-    def __get_module(self, name: str):
-      try:
+    def __get_module(self, name: str) :
+      try :
         return import_module("." + name, self.__name__)
-      except Exception as e:
+      except Exception as e :
         raise RuntimeError(
           f"Failed to import {self.__name__}.{name} because of the following error (look up to see its"
           f" traceback):\n{e}"
         ) from e
 
-    def __reduce__(self):
+    def __reduce__(self) :
       return (self.__class__, (
         self.__name,
         self.__file__,
