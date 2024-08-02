@@ -129,23 +129,10 @@ class LazyModule(ModuleType) :
 
 
 def AutoLoad(name, file, spec, **kwargs) :
-  module_info = _getframe(1).f_globals
-  import pprint
-  import inspect
-  pprint.pp(inspect.getmembers(name))
-  pprint.pp(inspect.getmembers(file))
-  pprint.pp(inspect.getmembers(spec))
-  name = module_info["__name__"]
-  file = module_info["__file__"]
-  spec = module_info["__spec__"]
-  pprint.pp(inspect.getmembers(name))
-  pprint.pp(inspect.getmembers(file))
-  pprint.pp(inspect.getmembers(spec))
   import importlib
   module_spec = importlib.util.find_spec(name)
-  pprint.pp(inspect.getmembers(module_spec))
   module = importlib.util.module_from_spec(module_spec)
   module_spec.loader.exec_module(module)
-  module = LazyModule(name, file, spec = spec, **kwargs)
+  # module = LazyModule(name.__name__, module.__file__, spec = module_spec, **kwargs)
   modules[name] = module
   return module
