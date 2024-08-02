@@ -31,7 +31,10 @@ def all_files_in_path(*args, **kwargs) :
     entry_name = entry.name
     if isdir(entry) :
       kwargs["path_from_package"] = join(path_from_package, entry_name)
-      dict.update(all_files_in_path(package_path, **kwargs))
+      if isfile(join(package_path, kwargs["path_from_package"], package_file)) :
+        dict['.'.join(filter(None, [path_from_package_dot_notation, entry_name]))] = [entry_name]
+      else :
+        dict.update(all_files_in_path(package_path, **kwargs))
     elif entry_name not in exclude_files :
       file_name, file_extension = splitext(entry_name)
       if extension is None or file_extension.lower() == extension :
@@ -93,12 +96,12 @@ class LazyModule(ModuleType) :
     def __getattr__(self, name: str) :
       if name in self.__objects:
         return self.__objects[name]
-      if name in self.__class_to_module.keys():
-        value = getattr(self.__get_module(self.__class_to_module[name]), name)
+      if name in self._modules:
+        value = self.__get_module(name)
         setattr(self, name, value)
         return value
-      try :
-        value = self.__get_module(name)
+      if name in self.__class_to_module.keys():
+        value = getattr(self.__get_module(self.__class_to_module[name]), name)
         setattr(self, name, value)
         return value
       except Exception as e :
