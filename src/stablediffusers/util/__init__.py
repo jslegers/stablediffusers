@@ -22,7 +22,7 @@ class from_module() :
     self.module = module_name
 
   def load(self, *args) :
-    return (LazyLoad(f"{module_name}.{arg}") for arg in args)
+    return (LazyLoad(f"{self.module}.{arg}") for arg in args)
 
 def snake_to_camel(word) :
   return ''.join(x.capitalize() or '_' for x in word.split('_'))
