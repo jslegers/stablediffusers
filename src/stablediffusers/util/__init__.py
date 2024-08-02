@@ -78,7 +78,7 @@ class LazyModule(ModuleType) :
       # Needed for autocompletion in an IDE
       self.__all__ = list(modules) + list(chain(*classes))
       self.__file__ = package_file
-      self.__spec__ = package_spec
+#      self.__spec__ = package_spec
       self.__path__ = [package_dir]
       self.__objects = {} if extra_objects is None else extra_objects
       self.__package__ = package_name
