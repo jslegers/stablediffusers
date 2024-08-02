@@ -78,7 +78,7 @@ class LazyModule(ModuleType) :
       # Needed for autocompletion in an IDE
       self.__all__ = list(modules) + list(chain(*classes))
       self.__file__ = package_file
-#      self.__spec__ = package_spec
+      self.__spec__ = package_spec
       self.__path__ = [package_dir]
       self.__objects = {} if extra_objects is None else extra_objects
       self.__package__ = package_name
@@ -129,10 +129,35 @@ class LazyModule(ModuleType) :
 
 
 def AutoLoad(name, file, spec, **kwargs) :
-  #module_info = _getframe(1).f_globals
-  #name = module_info["__name__"]
-  #file = module_info["__file__"]
-  #spec = module_info["__spec__"]
+  module_info = _getframe(1).f_globals
+  import pprint
+  import inspect
+  pprint.pp("---------------------------------------------")
+  pprint.pp("---------------------------------------------")
+  pprint.pp("---------------------------------------------")
+  pprint.pp(inspect.getmembers(name))
+  pprint.pp(inspect.getmembers(file))
+  pprint.pp(inspect.getmembers(spec))
+  pprint.pp("---------------------------------------------")
+  name = module_info["__name__"]
+  file = module_info["__file__"]
+  spec = module_info["__spec__"]
+  pprint.pp(inspect.getmembers(name))
+  pprint.pp(inspect.getmembers(file))
+  pprint.pp(inspect.getmembers(spec))
+  pprint.pp("---------------------------------------------")
+  import importlib
+  module_spec = importlib.util.find_spec(name)
+  pprint.pp(inspect.getmembers(module_spec))
+  pprint.pp("---------------------------------------------")
+  module = importlib.util.module_from_spec(module_spec)
+  pprint.pp(inspect.getmembers(module))
+  pprint.pp("---------------------------------------------")
+  module_spec.loader.exec_module(module)
+  pprint.pp(inspect.getmembers(module))
+  pprint.pp("---------------------------------------------")
   module = LazyModule(name, file, spec = spec, **kwargs)
+  pprint.pp(inspect.getmembers(module))
+  pprint.pp("---------------------------------------------")
   modules[name] = module
   return module
