@@ -32,7 +32,7 @@ def all_files_in_path(*args, **kwargs) :
     if isdir(entry) :
       kwargs["path_from_package"] = join(path_from_package, entry_name)
       if isfile(join(package_path, kwargs["path_from_package"], package_file)) :
-        dict[kwargs["path_from_package"]] = [entry_name]
+        dict['.'.join(filter(None, [path_from_package_dot_notation, entry_name]))] = [entry_name]
       else :
         dict.update(all_files_in_path(package_path, **kwargs))
     elif entry_name not in exclude_files :
