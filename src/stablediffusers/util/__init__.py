@@ -12,15 +12,13 @@ def snake_to_camel(word) :
 def camel_to_snake(s) :
   return ''.join(['_'+c.lower() if c.isupper() else c for c in s]).lstrip('_')
 
-def all_files_in_path(
-  package_path,
-  path_from_package = None,
-  skip_internal_package = False,
-  extension = None,
-  exclude_files = []
-) :
+def all_files_in_path(package_path, **kwargs) :
   package_file = "__init__.py"
-  path = join(package_path, path_from_package)
+  exclude_files = kwargs.get("exclude_files", [])
+  extension = kwargs.get("extension", None)
+  skip_internal_package = kwargs.get("skip_internal_package", False)
+  path_from_package = kwargs.get("path_from_package", "")
+  path = path if path_from_package == "" else join(package_path, path_from_package)
   if extension is not None :
     extension = extension.lower()
   path_from_package_dot_notation = '.'.join(PurePath.parts(path_from_package))
@@ -38,7 +36,7 @@ def all_files_in_path(
         ))
     elif entry.name not in exclude_files :
       file_name, file_extension = splitext(entry.name)
-      if file_extension.lower() == extension :
+      if extension is None or file_extension.lower() == extension :
         dict[f"{path_from_package_dot_notation}.{file_name}"] = [file_name]
   return dict
 
@@ -62,7 +60,7 @@ class LazyModule(ModuleType) :
       if import_structure is None or isinstance(import_structure, str) :
         import_structure = all_files_in_path(
           package_dir,
-          import_structure,
+          import_structure = import_structure,
           extension = ".py",
           exclude_files = ["__init__.py"],
           skip_internal_package = True
