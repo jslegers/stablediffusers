@@ -127,7 +127,11 @@ class LazyModule(ModuleType) :
       self.__allow_module_imports = enabled
 
 
-AutoLoad(*args, **kwargs) :
+def AutoLoad(*args, **kwargs) :
+  if not isinstance(arg[0], str) :
+    raise RuntimeError("Autoload failed because package name is missing") from e
+  if not isinstance(arg[1], str) :
+    raise RuntimeError(f"Autoload failed because package file name is missing or not a string") from e
   module = LazyModule(*arg, **kwargs)
-  modules[package_name] = module
+  modules[arg[0]] = module
   return module
