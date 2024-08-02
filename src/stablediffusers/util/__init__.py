@@ -80,7 +80,7 @@ class LazyModule(ModuleType) :
         for class_name in classlist:
           self.__class_to_module[class_name] = module
       # Needed for autocompletion in an IDE
-      self.__all__ = list(modules) + list(chain(*classes))
+      self.__all__ = self.__all__ + list(modules) + list(chain(*classes))
       self.__file__ = package_file
       self.__spec__ = package_spec
       self.__path__ = [package_dir]
@@ -136,6 +136,7 @@ def AutoLoad(*args, **kwargs) :
   module_info = _getframe(1).f_globals
   name = module_info["__name__"]
   file = module_info["__file__"]
-  module = LazyModule(name, file, **kwargs)
+  spec = module_info["__spec__"]
+  module = LazyModule(name, file, spec = spec, **kwargs)
   modules[name] = module
   return module
