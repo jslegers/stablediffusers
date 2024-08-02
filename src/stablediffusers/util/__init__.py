@@ -95,19 +95,19 @@ class LazyModule(ModuleType) :
       return result
 
     def __getattr__(self, name: str) :
-      if name in self.__objects:
+      if name in self.__objects :
         return self.__objects[name]
-      if name in self.__class_to_module.keys():
-        value = getattr(self.__get_module(self.__class_to_module[name]), name)
-        modules[self.__name__ + '.' + name] = value
-        setattr(self, name, value)
-        return value
-      if name in self._modules:
+      if name in self.__class_to_module.keys() :
+        module = self.__get_module(self.__class_to_module[name])
+        value = name if name.lower == name else getattr(module, name)
+      elif name in self._modules :
         value = self.__get_module(name)
-        modules[self.__name__ + '.' + name] = value
-        setattr(self, name, value)
-        return value
-      raise AttributeError(f"Package {self.__name__} has no module {name}")
+      else :
+        raise AttributeError(f"Package {self.__name__} has no module {name}")
+      modules[self.__name__ + '.' + name] = value
+      setattr(self, name, value)
+      return value
+
 
     def __get_module(self, name: str) :
       try :
