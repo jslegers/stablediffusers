@@ -65,7 +65,7 @@ class LazyModule(ModuleType) :
         raise RuntimeError("Autoload failed because package name is missing or not a string") from e
       if not isinstance(package_file, str) :
         raise RuntimeError("Autoload failed because package file name is missing or not a string") from e
-      package_spec = kwargs.get("package_spec", None)
+      #package_spec = kwargs.get("package_spec", None)
       import_structure = kwargs.get("import_structure", None)
       extra_objects = kwargs.get("extra_objects", None)
       super().__init__(package_name)
@@ -82,7 +82,7 @@ class LazyModule(ModuleType) :
       # Needed for autocompletion in an IDE
       self.__all__ = list(modules) + list(chain(*classes))
       self.__file__ = package_file
-      self.__spec__ = package_spec
+      #self.__spec__ = package_spec
       self.__path__ = [package_dir]
       self.__objects = {} if extra_objects is None else extra_objects
       self.__package__ = package_name
