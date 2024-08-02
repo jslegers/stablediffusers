@@ -24,7 +24,7 @@ def all_files_in_path(*args, **kwargs) :
   path = package_path if path_from_package == "" else join(package_path, path_from_package)
   if extension is not None :
     extension = extension.lower()
-  path_from_package_dot_notation = '.'.join(PurePath.parts(path_from_package))
+  path_from_package_dot_notation = '.'.join(PurePath(path_from_package).parts)
   dict = {}
   entries = scandir(path)
   for entry in entries :
