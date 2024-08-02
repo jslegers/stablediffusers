@@ -58,6 +58,7 @@ class LazyModule(ModuleType) :
       import_structure = kwargs.get("import_structure", None)
       extra_objects = kwargs.get("extra_objects", None)
       super().__init__(package_name)
+      self._modules = set(import_structure.keys())
       package_dir = dirname(package_file)
       if import_structure is None :
         import_structure = all_files_in_path(package_dir, extension = ".py")
