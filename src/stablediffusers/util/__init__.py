@@ -254,5 +254,5 @@ class LazyModule(ModuleType) :
 def AutoLoad(**kwargs) :
   module = get_caller_module()
   module = LazyModule(module, **kwargs)
-  sys.modules['.'.join(filter(None, [module.__package__, module.__name__]))] = module
+  sys.modules[module.__name__] = module
   return module
