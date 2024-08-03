@@ -215,7 +215,7 @@ class LazyModule(ModuleType) :
     def __getattr__(self, name: str) :
       if name in self.__LAZY_MODULE__objects :
         return self.__LAZY_MODULE__objects[name]
-      full_name = name if name[0] != '.' else self.__name__ + '.' + name
+      full_name = name if name[0] != '.' else self.__name__ + name
       if full_name in sys.modules :
         return sys.modules[full_name]
       if name in self.__LAZY_MODULE__class_to_module.keys() :
