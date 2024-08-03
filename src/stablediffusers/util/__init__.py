@@ -183,7 +183,9 @@ class LazyModule(ModuleType) :
       import_structure = kwargs.get("import_structure", None)
       extra_objects = kwargs.get("extra_objects", None)
       super().__init__(module.__name__)
-      # package_dir = dirname(module_file)
+      pprint.pp(module)
+      pprint.pp(self)
+      module.__path__ = [dirname(module_file)]
       if import_structure is None :
         import_structure = []
         for directory in module.__path__ :
