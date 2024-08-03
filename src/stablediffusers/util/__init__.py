@@ -212,6 +212,9 @@ class LazyModule(ModuleType) :
           result.append(attr)
       return result
 
+    def load(self, name: str) :
+      return getattr(self, name)
+
     def __getattr__(self, name: str) :
       if name in self.__LAZY_MODULE__objects :
         return self.__LAZY_MODULE__objects[name]

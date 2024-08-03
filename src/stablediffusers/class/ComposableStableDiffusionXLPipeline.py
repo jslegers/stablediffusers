@@ -1,7 +1,7 @@
 from stablediffusers.util import AutoLoad
 import sys
 
-sys.modules[__name__] = AutoLoad(import_structure = {
+module = AutoLoad(import_structure = {
   "torch" : ["bfloat16", "float16", "device"],
   "torch.cuda" : ["is_available", "ipc_collect", "empty_cache"],
   "numba.cuda" : ["select_device", "get_current_device"],
@@ -34,14 +34,14 @@ from PIL import Image, ImageDraw, ImageFont
 from os.path import join
 """
 import cv2
-# dev = device
+dev = module.load('device')
 
 class ComposableStableDiffusionXLPipeline:
 
-  logger = logging.get_logger(__name__)
+  logger = module.load('logging').get_logger(__name__)
   logger.setLevel("ERROR")
 
-  cuda_is_available = is_available()
+  cuda_is_available = module.load('is_available')()
 
   default = {
     "model" : "stabilityai/stable-diffusion-xl-base-1.0",
@@ -83,7 +83,7 @@ class ComposableStableDiffusionXLPipeline:
   })
 
   device = dev(default["device"])
-  generator = Generator(device = device)
+  generator = module.load('Generator')(device = device)
 
   name = {}
   path = {}
