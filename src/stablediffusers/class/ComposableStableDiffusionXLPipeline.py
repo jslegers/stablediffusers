@@ -15,7 +15,7 @@ module = AutoLoad(import_structure = {
   "sd_embed.embedding_funcs" : ["get_weighted_text_embeddings_sdxl"],
   "PIL" : ["Image", "ImageDraw", "ImageFont"],
   "os.path" : ["join"]
-}).load('device').load('logging').get_logger(__name__)
+})
 
 # bfloat16, float16, dev, Generator = util.from_module('torch').load('bfloat16', 'float16', 'device', 'Generator')
 """
@@ -34,10 +34,8 @@ from PIL import Image, ImageDraw, ImageFont
 from os.path import join
 """
 import cv2
-#dev = module.load('device')
+dev = module.load('device')
 
 class ComposableStableDiffusionXLPipeline:
 
-  test = None
-
-#  logger = module.load('logging').get_logger(__name__)
+  logger = module.load('logging').get_logger(__name__)
