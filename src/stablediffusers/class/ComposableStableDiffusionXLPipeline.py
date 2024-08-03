@@ -35,3 +35,7 @@ from os.path import join
 """
 import cv2
 dev = module.load('device')
+
+class ComposableStableDiffusionXLPipeline:
+
+  logger = module.load('logging').get_logger(__name__)
