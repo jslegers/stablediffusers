@@ -65,9 +65,13 @@ def import_from_string(module_name, source_code):
   try :
     print(module_name)
     print(source_code)
+    print("POSITION 1")
     spec = util.spec_from_loader(module_name, loader=None)
+    print("POSITION 2")
     module = util.module_from_spec(spec)
+    print("POSITION 3")
     exec(source_code, module.__dict__)
+    print("POSITION 4")
     return module
   except Exception as e :
     print(e)
