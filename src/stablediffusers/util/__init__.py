@@ -193,9 +193,9 @@ class LazyModule(ModuleType) :
       classes = import_structure.values()
       self._modules = set(modules)
       self.__class_to_module = {}
-      for module, classlist in import_structure.items():
+      for module_name, classlist in import_structure.items():
         for class_name in classlist:
-          self.__class_to_module[class_name] = module
+          self.__class_to_module[class_name] = module_name
       # Needed for autocompletion in an IDE
       self.__all__ = list(modules) + list(chain(*classes))
       self.__file__ = module.__file__
