@@ -114,7 +114,7 @@ def caller_info(depth = 1):
   return get_module_from_frame(previous_frame)
 
   try :
-    previous_frame = sys.get_frame(depth)
+    previous_frame = get_frame(depth)
   finally :
     # https://bugs.python.org/issue543148
     del previous_frame
