@@ -186,7 +186,7 @@ class LazyModule(ModuleType) :
       module.__path__ = [dirname(module.__file__)]
       if import_structure is None :
         import_structure = []
-        for directory in module.__path__ :
+        for directory in self.__path__ :
           pprint.pp(directory)
           import_structure = all_files_in_path(directory, extension = ".py")
       modules = import_structure.keys()
