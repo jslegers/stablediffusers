@@ -145,13 +145,14 @@ def lazy_load_module(module_name : str) -> ModuleType :
   print("Can't lazy load module")
 
 def load_module(module_name : str) -> ModuleType :
+  print("MODULE NAME" + module_name)
   if module_name in sys.modules:
     print(f"{module_name} already in sys.modules")
     return sys.modules[module_name]
   if (spec := util.find_spec(module_name)) is not None :
     module = util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    print(module_name)
+    print("MODULE NAME" + module_name)
     sys.modules[module_name] = module
     return module
   print("Can't load module")
@@ -271,6 +272,8 @@ class LazyModule(ModuleType) :
         pprint.pp(self.__LAZY_MODULE__class_to_module)
         pprint.pp(self.__LAZY_MODULE__modules)
         raise AttributeError(f"Attribute {name} unknown for module {self.__name__}.")
+      print("FULL NAME " + full_name)
+      pprint.pp(value)
       sys.modules[full_name] = value
       setattr(self, name, value)
       return value
