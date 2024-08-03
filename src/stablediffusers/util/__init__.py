@@ -151,6 +151,7 @@ def load_module(module_name : str) -> ModuleType :
   if (spec := util.find_spec(module_name)) is not None :
     module = util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    print(module_name)
     sys.modules[module_name] = module
     return module
   print("Can't load module")
