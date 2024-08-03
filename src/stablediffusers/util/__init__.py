@@ -47,10 +47,11 @@ def get_stack(max_depth: int = None):
 
     try :
       stack = list(islice(frame_infos(inspect.currentframe()), max_depth))
-      pprint.pp("Success")
+      pprint.p("Success")
     except Exception as e :
       pprint.pp(e)
       stack = inspect.stack()
+      stack = stack[1:(max_depth+1)]
     return stack
 
 def get_module_from_frame(frame) :
