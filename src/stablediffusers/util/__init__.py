@@ -56,10 +56,10 @@ def get_stack(max_depth: int = None):
 def get_module_from_frame(frame) :
   try :
     module = modules[frame.f_globals["__name__"]]
-    pprint("get_module_from_frame succeeded")
+    pprint.pp("get_module_from_frame succeeded")
     return module
   except Exception :
-    pprint("get_module_from_frame failed")
+    pprint.pp("get_module_from_frame failed")
     return inspect.getmodule(frame)
 
 def caller_name(depth = 2):
