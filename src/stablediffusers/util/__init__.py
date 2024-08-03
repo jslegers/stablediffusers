@@ -253,8 +253,8 @@ class LazyModule(ModuleType) :
 
 def AutoLoad(**kwargs) :
   module = get_caller_module()
-  pprint.pp("Package " + module.__package__)
-  pprint.pp("Name " + module.__name__)
+  print("Package " + module.__package__)
+  print("Name " + module.__name__)
   #module_name = '.'.join(filter(None, [module.__package__, module.__name__]))
   module = LazyModule(module, **kwargs)
   sys.modules[module.__name__] = module
