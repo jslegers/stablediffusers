@@ -216,8 +216,8 @@ class LazyModule(ModuleType) :
       if name in self.__LAZY_MODULE__objects :
         return self.__LAZY_MODULE__objects[name]
       full_name = self.__name__ + '.' + name
-      if full_name in modules :
-        return modules[full_name]
+      if full_name in sys.modules :
+        return sys.modules[full_name]
       if name in self.__LAZY_MODULE__class_to_module.keys() :
         module = self.__get_module(self.__LAZY_MODULE__class_to_module[name])
         value = module if name.lower() == name else getattr(module, name)
@@ -225,7 +225,7 @@ class LazyModule(ModuleType) :
         value = self.__get_module(name)
       else :
         raise AttributeError(f"Module {self.__name__} can't load submodule {name}")
-      modules[full_name] = value
+      sys.modules[full_name] = value
       setattr(self, name, value)
       return value
 
