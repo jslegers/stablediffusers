@@ -232,7 +232,23 @@ class LazyModule(ModuleType) :
       return result
 
     def load(self, name: str) :
-      return getattr(self, name)
+      if hasattr(self, '__LAZY_MODULE__module__'+name) :
+        return getattr(self, '__LAZY_MODULE__module__'+name)
+      if name in self.__LAZY_MODULE__class_to_module.keys() :
+        module_name = self.__LAZY_MODULE__class_to_module[name]
+        if module_name[0] != '.' :
+          source_code = f"from {module_name} import {name}"
+          module = import_from_string(module_name+'.'+name, source_code)
+          print("POSITION 7")
+          value = getattr(module, name)
+          print("POSITION 8")
+          sys.modules[self.__name__ + '.' + name] = module
+          print("POSITION 9")
+          setattr(self, '__LAZY_MODULE__module__'+name, value)
+          print("POSITION 10")
+          print(value)
+          return value
+      return getattr(self, '__LAZY_MODULE__module__'+name)
 
     def __getattr__(self, name: str) :
       if name in self.__LAZY_MODULE__objects :
