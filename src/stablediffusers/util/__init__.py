@@ -86,7 +86,7 @@ def get_module_from_frame(frame) :
   try :
     pprint.pp(frame.f_globals["__name__"])
     module = sys.modules[frame.f_globals["__name__"]]
-    pprint.pp(frame.f_globals["__name__"])
+    pprint.pp(module)
     return module
   except Exception as e :
     # Fallback in case f_globals not available
