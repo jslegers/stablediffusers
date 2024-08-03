@@ -1,6 +1,6 @@
 from stablediffusers.util import AutoLoad
 
-AutoLoad(import_structure = {
+sys.modules[__name__] = AutoLoad(import_structure = {
   "torch" : ["bfloat16", "float16", "device"],
   "torch.cuda" : ["is_available", "ipc_collect", "empty_cache"],
   "numba.cuda" : ["select_device", "get_current_device"],
@@ -15,8 +15,6 @@ AutoLoad(import_structure = {
   "PIL" : ["Image", "ImageDraw", "ImageFont"],
   "os.path" : ["join"]
 })
-
-__getattr__
 
 # bfloat16, float16, dev, Generator = util.from_module('torch').load('bfloat16', 'float16', 'device', 'Generator')
 """
