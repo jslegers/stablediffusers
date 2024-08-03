@@ -80,12 +80,8 @@ def get_module_from_frame(frame) :
   Retrieve a module from a `frame`
   """
   try :
-    test = sys.modules[frame.f_globals["__name__"]]
-    pprint.pp("YEEEEY")
-    return test
+    return sys.modules[frame.f_globals["__name__"]]
   except Exception as e :
-    pprint.pp(e)
-    pprint.pp("Aaaaaaaaw")
     # Fallback in case f_globals not available
     return inspect.getmodule(frame)
 
@@ -100,7 +96,6 @@ def get_caller_module(depth : int = 1):
   depth = depth + 1
   try :
     previous_frame = get_frame(depth)
-    boom
     pprint.pp("IT WORKS!!")
   except Exception as e :
     pprint.pp(e)
