@@ -96,10 +96,7 @@ def get_caller_module(depth : int = 1):
   depth = depth + 1
   try :
     previous_frame = get_frame(depth)
-    pprint.pp("IT WORKS!!")
   except Exception as e :
-    pprint.pp(e)
-    pprint.pp("BOOOOOOOM")
     stack_size = depth + 1
     stack = get_stack(stack_size)
     if len(stack) < stack_size:
@@ -120,8 +117,8 @@ def lazy_load_module(module_name) :
     loader = util.LazyLoader(spec.loader)
     spec.loader = loader
     loader.exec_module(module)
-    sys.modules[name] = module
-    return module_name
+    sys.modules[module_name] = module
+    return module
   print("Can't lazy load module")
 
 def load_module(module_name) :
@@ -132,7 +129,7 @@ def load_module(module_name) :
     module = util.module_from_spec(spec)
     spec.loader.exec_module(module)
     sys.modules[name] = module
-    return module_name
+    return module
   print("Can't load module")
 
 def snake_to_camel(word) :
@@ -177,16 +174,15 @@ class LazyModule(ModuleType) :
     # Very heavily inspired by optuna.integration._IntegrationModule
     # https://github.com/optuna/optuna/blob/master/optuna/integration/__init__.py
     def __init__(self, *args, **kwargs) :
-      package_name, package_file, *_ = list(args) + [None] * 2
-      if not isinstance(package_name, str) :
+      module_name, module_file, module_spec *_ = list(args) + [None] * 2
+      if not isinstance(module_name, str) :
         raise RuntimeError("Autoload failed because package name is missing or not a string") from e
-      if not isinstance(package_file, str) :
+      if not isinstance(module_file, str) :
         raise RuntimeError("Autoload failed because package file name is missing or not a string") from e
-      package_spec = kwargs.get("package_spec", None)
       import_structure = kwargs.get("import_structure", None)
       extra_objects = kwargs.get("extra_objects", None)
-      super().__init__(package_name)
-      package_dir = dirname(package_file)
+      super().__init__(module_name)
+      package_dir = dirname(module_file)
       if import_structure is None :
         import_structure = all_files_in_path(package_dir, extension = ".py")
       modules = import_structure.keys()
@@ -198,19 +194,14 @@ class LazyModule(ModuleType) :
           self.__class_to_module[class_name] = module
       # Needed for autocompletion in an IDE
       self.__all__ = list(modules) + list(chain(*classes))
-      self.__file__ = package_file
-      self.__spec__ = package_spec
+      self.__file__ = module_file
+      self.__spec__ = module_spec
       self.__path__ = [package_dir]
       self.__objects = {} if extra_objects is None else extra_objects
-      self.__package__ = package_name
+      self.__package__ = module_name
       self.__import_structure = import_structure
       name_with_dot = self.__name__+'.'
-      #for loader, module_name, is_pkg in walk_packages(self.__path__, name_with_dot):
-      #  sub_package_name = module_name.replace(name_with_dot, '')
-      #  sub_package = self.__get_module(sub_package_name)
-      #  setattr(self, sub_package_name, sub_package)
-      #  self.__all__.append(sub_package)
-      #  print(sub_package_name)
+      sys.modules[module_name] = self
 
     # Needed for autocompletion in an IDE
     def __dir__(self) :
@@ -262,10 +253,4 @@ class LazyModule(ModuleType) :
 
 def AutoLoad(**kwargs) :
   module = get_caller_module()
-  pprint.pp(module)
-  module_name = module.__name__
-  module_file = module.__file__
-  module_spec = module.__spec__
-  module = LazyModule(module_name, module_file, spec = module_spec, **kwargs)
-  sys.modules[module_name] = module
-  return module
+  return LazyModule(module.__name__, module.__file__, module.__spec__, **kwargs)
