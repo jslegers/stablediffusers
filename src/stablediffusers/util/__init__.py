@@ -181,7 +181,7 @@ class LazyModule(ModuleType) :
       module, *_ = unpack(*args)
       import_structure = kwargs.get("import_structure", None)
       extra_objects = kwargs.get("extra_objects", None)
-      self.__package__ = module.__name__.split()[0]
+      self.__package__ = module.__name__.split('.')[0]
       module_dir = dirname(module.__package__)
       super().__init__(module.__name__)
       if import_structure is None :
