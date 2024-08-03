@@ -221,7 +221,7 @@ class LazyModule(ModuleType) :
         value = module if name.lower() == name else getattr(module, name)
         sys.modules[self.__name__ + '.' + name] = value
       if (spec := util.find_spec(name)) is not None :
-        value = load_module(name)
+        value = load_module(name, self.__name__)
       else :
         raise AttributeError(f"Package {self.__name__} has no module {name}")
       setattr(self, name, value)
