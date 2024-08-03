@@ -61,6 +61,13 @@ def get_stack(max_depth : int = None) :
   finally :
     return stack
 
+def import_from_string(module_name, source_code):
+    spec = util.spec_from_loader(module_name, loader=None)
+    module = util.module_from_spec(spec)
+    exec(source_code, module.__dict__)
+    sys.modules[spec.name] = module
+    return module
+
 def get_frame(depth: int = 0) :
   """
   Get a frame at a certain depth
@@ -224,7 +231,8 @@ class LazyModule(ModuleType) :
       if name in self.__LAZY_MODULE__class_to_module.keys() :
         module_name = self.__LAZY_MODULE__class_to_module[name]
         if module_name[0] != '.' :
-          module = lazy_load_module(module_name)
+          source_code = f"from {module_name} import {name}"
+          module = import_from_string(module_name+'.'+name, source_code)
           value = getattr(module, name)
         else :
           module = self.__get_module(self.__name__+module_name)
