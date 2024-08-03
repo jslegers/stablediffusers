@@ -12,7 +12,7 @@ import inspect
 def func():
   stack = inspect.stack()
   calling_context = next(context for context in stack if context.filename != __file__)
-  pprint(calling_context)
+  pprint.pp(calling_context)
 
 def caller_info(skip=2):
     """Get the name of a caller in the format module.class.method.
