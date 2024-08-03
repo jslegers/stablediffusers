@@ -50,6 +50,7 @@ def get_stack(max_depth: int = None):
 
   try :
     stack = list(islice(frame_infos(get_frame()), max_depth))
+    boom
     pprint.pp("SUCCESS")
   except Exception as e :
     pprint.pp(e)
@@ -70,6 +71,7 @@ def get_frame(depth: int = 0) :
     # Fairly fast, but internal function
     # Add 1 to the depth to compensate for this wrapper function
     test = sys._getframe(depth + 1)
+    boom
     pprint.pp("YEEEEY")
     return test
   except Exception as e :
@@ -89,6 +91,7 @@ def get_module_from_frame(frame) :
   """
   try :
     test = sys.modules[frame.f_globals["__name__"]]
+    boom
     pprint.pp("YEEEEY")
     return test
   except Exception as e :
@@ -97,7 +100,7 @@ def get_module_from_frame(frame) :
     # Fallback in case f_globals not available
     return inspect.getmodule(frame)
 
-def caller_info(depth = 1):
+def get_caller_module(depth : int = 1):
   """
   Get a module of a caller
   `depth` specifies how many levels of stack to skip while getting caller
@@ -106,16 +109,18 @@ def caller_info(depth = 1):
   Based on https://gist.github.com/techtonik/2151727
   """
   depth = depth + 1
-
-  stack_size = depth + 1
-  stack = get_stack(stack_size)
-  if len(stack) < stack_size:
-    raise Exception("Stack limit reached")
-  previous_frame = stack[depth][0]
-  return get_module_from_frame(previous_frame)
-
   try :
     previous_frame = get_frame(depth)
+    boom
+    pprint.pp("IT WORKS!!")
+  except Exception e :
+    pprint.pp(e)
+    pprint.pp("BOOOOOOOM")
+    stack_size = depth + 1
+    stack = get_stack(stack_size)
+    if len(stack) < stack_size:
+      raise Exception("Stack limit reached")
+    previous_frame = stack[depth][0]
   finally :
     # https://bugs.python.org/issue543148
     del previous_frame
@@ -271,11 +276,11 @@ class LazyModule(ModuleType) :
 
 
 def AutoLoad(**kwargs) :
-  module = caller_info()
+  module = get_caller_module()
   pprint.pp(module)
   module_name = module.__name__
   module_file = module.__file__
-  module_spec = util.find_spec(module_name)
+  module_spec = module.__spec__
   module = LazyModule(module_name, module_file, spec = module_spec, **kwargs)
   sys.modules[module_name] = module
   return module
