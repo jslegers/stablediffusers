@@ -155,7 +155,7 @@ def load_module(module_name : str) -> ModuleType :
       pprint.pp(spec)
       module = util.module_from_spec(spec)
       print("MODULE NAME 3" + module_name)
-      pprint.pp(module)
+      pprint.pp(inspect.getmembers(module))
       spec.loader.exec_module(module)
       print("MODULE NAME 4" + module_name)
       sys.modules[module_name] = module
