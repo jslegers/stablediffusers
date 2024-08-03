@@ -12,16 +12,16 @@ import inspect
 
 def caller_info():
   previous_frame = None
-  previous_frame = stack()[2]
-  module = inspect.getmodule(previous_frame)
-  return module
+  previous_frame = inspect.currentframe().f_back.f_back
+  module_name = previous_frame.f_globals["__name__"]
+  return sys.modules[module_name]
   try :
     previous_frame = _getframe(2)
   except Exception :
     previous_frame = inspect.currentframe().f_back.f_back
   finally :
     try :
-      module = inspect.getmodule(previous_frame)
+      module = sys.modules[module_name]
     finally :
       # https://bugs.python.org/issue543148
       del previous_frame
