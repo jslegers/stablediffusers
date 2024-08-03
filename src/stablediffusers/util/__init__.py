@@ -158,7 +158,7 @@ def load_module(module_name : str) -> ModuleType :
       sys.modules[module_name] = module
       return module
     print("MODULE NAME 4" + module_name)
-  except Exception e :
+  except Exception as e :
     print(e)
   print("Can't load module")
 
