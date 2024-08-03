@@ -224,15 +224,15 @@ class LazyModule(ModuleType) :
       if name in self.__LAZY_MODULE__class_to_module.keys() :
         module_name = self.__LAZY_MODULE__class_to_module[name]
         if module_name[0] != '.' :
-          module = self.__get_module(name, module_name)
+          module = lazy_load_module(module_name)
           value = getattr(module, name)
         else :
-          module = self.__get_module(module_name, self.__name__)
+          module = self.__get_module(self.__name__+module_name)
           value = module if name.lower() == name else getattr(module, name)
       elif full_name in self.__LAZY_MODULE__modules :
         value = self.__get_module(full_name)
       elif f".{name}" in self.__LAZY_MODULE__modules :
-        value = self.__get_module(name, self.__name__)
+        value = self.__get_module(self.__name__+name)
       else :
         raise AttributeError(f"Attribute {name} unknown for module {self.__name__}.")
       sys.modules[full_name] = value
@@ -240,11 +240,10 @@ class LazyModule(ModuleType) :
       return value
 
 
-    def __get_module(self, name: str, package = None) :
+    def __get_module(self, name: str) :
       #try :
         print("NAME " + name)
-        print("PACKAGE " + package)
-        return import_module(name if not package else package + name)
+        return import_module(name)
       #except Exception as e :
       #  raise RuntimeError(
       #    f"Failed to import {self.__name__}.{name} because of the following error (look up to see its"
