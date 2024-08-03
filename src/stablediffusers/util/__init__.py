@@ -123,8 +123,9 @@ def get_caller_module(depth : int = 1):
     previous_frame = stack[depth][0]
   finally :
     # https://bugs.python.org/issue543148
+    module = get_module_from_frame(previous_frame)
     del previous_frame
-    return get_module_from_frame(previous_frame)
+    return module
 
 def lazy_load_module(module_name) :
   if module_name in sys.modules:
