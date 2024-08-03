@@ -111,7 +111,7 @@ def get_caller_module(depth : int = 1) -> ModuleType :
     previous_frame = stack[depth][0]
   finally :
     # https://bugs.python.org/issue543148
-    module = get_module_from_frame(previous_frame)
+    module = inspect.getmodule(previous_frame)
     del previous_frame
     return module
 
