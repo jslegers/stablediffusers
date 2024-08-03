@@ -231,6 +231,9 @@ class LazyModule(ModuleType) :
 
     def __get_module(self, name: str, package = None) :
       try :
+        pprint.pp(self.__LAZY_MODULE__modules)
+        pprint.pp(self.__LAZY_MODULE__class_to_module)
+        pprint.pp(name)
         return import_module(name, package)
       except Exception as e :
         raise RuntimeError(
