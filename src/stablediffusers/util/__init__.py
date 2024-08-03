@@ -257,8 +257,6 @@ class LazyModule(ModuleType) :
 
 def AutoLoad(**kwargs) :
   module = get_caller_module()
-  pprint.pp(inspect.getmembers(module))
   module = LazyModule(module, **kwargs)
-  pprint.pp(inspect.getmembers(module))
   sys.modules[module.__name__] = module
   return module
