@@ -9,11 +9,12 @@ from pkgutil import walk_packages
 import pprint
 from inspect import stack
 import inspect
+from typing import Any
 
-def unpack(*args, default = None, items = 1) :
-  return list(args) + [None] * len(items)
+def unpack(*args, default : Any = None, items : int = 1) -> list[Any] :
+  return list(args) + [None] * items
 
-def get_stack(max_depth: int = None) :
+def get_stack(max_depth : int = None) :
   """
   Fast alternative to `inspect.stack()`
   Use optional `max_depth` to limit search depth
@@ -88,7 +89,7 @@ def get_module_from_frame(frame) :
     # Fallback in case f_globals not available
     return inspect.getmodule(frame)
 
-def get_caller_module(depth : int = 1):
+def get_caller_module(depth : int = 1) -> ModuleType :
   """
   Get a module of a caller
   `depth` specifies how many levels of stack to skip while getting caller
@@ -111,7 +112,7 @@ def get_caller_module(depth : int = 1):
     del previous_frame
     return module
 
-def lazy_load_module(module_name) :
+def lazy_load_module(module_name : str) -> ModuleType :
   if module_name in sys.modules:
     print(f"{module_name} already in sys.modules")
     return sys.modules[module_name]
@@ -124,7 +125,7 @@ def lazy_load_module(module_name) :
     return module
   print("Can't lazy load module")
 
-def load_module(module_name) :
+def load_module(module_name : str) -> ModuleType :
   if module_name in sys.modules:
     print(f"{module_name} already in sys.modules")
     return sys.modules[module_name]
@@ -135,10 +136,10 @@ def load_module(module_name) :
     return module
   print("Can't load module")
 
-def snake_to_camel(word) :
+def snake_to_camel(word : str) -> str :
   return ''.join(x.capitalize() or '_' for x in word.split('_'))
 
-def camel_to_snake(s) :
+def camel_to_snake(s : str) -> str :
   return ''.join(['_'+c.lower() if c.isupper() else c for c in s]).lstrip('_')
 
 def all_files_in_path(*args, **kwargs) :
