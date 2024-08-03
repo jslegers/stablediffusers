@@ -113,7 +113,7 @@ def get_caller_module(depth : int = 1):
     previous_frame = get_frame(depth)
     boom
     pprint.pp("IT WORKS!!")
-  except Exception e :
+  except Exception as e :
     pprint.pp(e)
     pprint.pp("BOOOOOOOM")
     stack_size = depth + 1
