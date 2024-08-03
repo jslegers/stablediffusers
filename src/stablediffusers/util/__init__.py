@@ -105,7 +105,7 @@ def caller_info(depth = 1):
 
   Based on https://gist.github.com/techtonik/2151727
   """
-  depth++
+  depth = depth + 1
 
   stack_size = depth + 1
   stack = get_stack(stack_size)
