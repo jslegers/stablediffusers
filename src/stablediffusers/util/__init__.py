@@ -74,7 +74,6 @@ def import_from_string(module_name, source_code):
     print("POSITION 4")
     pprint.pp(module)
     print("POSITION 5")
-    pprint.pp(getattr(module, "device"))
     print("POSITION 6")
     return module
   except Exception as e :
