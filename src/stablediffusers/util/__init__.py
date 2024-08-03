@@ -10,10 +10,12 @@ import pprint
 import inspect
 
 def caller_info():
-    """
-    Inspired by: https://gist.github.com/techtonik/2151727
-    """
-    return inspect.getmodule(inspect.stack(0)[start][0])
+  previous_frame = inspect.currentframe().f_back
+  try:
+    module = inspect.getmodule(previous_frame)
+  finally:
+    del previous_frame
+  return module
 
 def lazy_load_module(module_name) :
   if module_name in sys.modules:
