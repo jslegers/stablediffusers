@@ -252,6 +252,7 @@ class LazyModule(ModuleType) :
           print("POSITION 9")
           setattr(self, name, value)
           print("POSITION 10")
+          print(value)
           return value
         else :
           module = self.__get_module(self.__name__+module_name)
