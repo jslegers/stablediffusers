@@ -182,24 +182,22 @@ class LazyModule(ModuleType) :
       module, *_ = unpack(*args)
       import_structure = kwargs.get("import_structure", None)
       extra_objects = kwargs.get("extra_objects", None)
+      module_dir = dirname(module.__file__)
       super().__init__(module.__name__)
-      self.__path__ = [dirname(module.__file__)]
       if import_structure is None :
-        import_structure = []
-        for directory in module.__path__ :
-          pprint.pp(directory)
-          import_structure = all_files_in_path(directory, extension = ".py")
+        import_structure = all_files_in_path(module_dir, extension = ".py")
       modules = import_structure.keys()
       classes = import_structure.values()
       self.__LAZY_MODULE__modules = set(modules)
-      self.__class_to_module = {}
+      self.__LAZY_MODULE__class_to_module = {}
       for module_name, classlist in import_structure.items():
         for class_name in classlist:
-          self.__class_to_module[class_name] = module_name
+          self.__LAZY_MODULE__class_to_module[class_name] = module_name
       # Needed for autocompletion in an IDE
       self.__all__ = list(modules) + list(chain(*classes))
-      self.__file__ = module.__file__
       self.__spec__ = module.__spec__
+      self.__file__ = module.__file__
+      self.__path__ = [module_dir]
       self.__package__ = module.__package__
       self.__LAZY_MODULE__import_structure = import_structure
       self.__LAZY_MODULE__objects = {} if extra_objects is None else extra_objects
@@ -219,8 +217,8 @@ class LazyModule(ModuleType) :
         value = self.__LAZY_MODULE__objects[name]
       elif (spec := util.find_spec(name)) is not None :
         value = lazy_load_module(name)
-      elif name in self.__class_to_module.keys() :
-        module = self.__get_module(self.__class_to_module[name])
+      elif name in self.__LAZY_MODULE__class_to_module.keys() :
+        module = self.__get_module(self.__LAZY_MODULE__class_to_module[name])
         value = module if name.lower() == name else getattr(module, name)
         sys.modules[self.__name__ + '.' + name] = value
       elif name in self.__LAZY_MODULE__modules :
@@ -253,8 +251,6 @@ class LazyModule(ModuleType) :
 
 def AutoLoad(**kwargs) :
   module = get_caller_module()
-  pprint.pp(module)
   module = LazyModule(module, **kwargs)
-  pprint.pp(module)
   sys.modules[module.__name__] = module
   return module
