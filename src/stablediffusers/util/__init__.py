@@ -218,13 +218,15 @@ class LazyModule(ModuleType) :
         return self.__LAZY_MODULE__children[name]
       if name in self.__LAZY_MODULE__objects :
         return self.__LAZY_MODULE__objects[name]
-      elif name in self.__LAZY_MODULE__class_to_module.keys() :
+      if name in self.__LAZY_MODULE__class_to_module.keys() :
         module = self.__get_module(self.__LAZY_MODULE__class_to_module[name])
         value = module if name.lower() == name else getattr(module, name)
         sys.modules[self.__name__ + '.' + name] = value
-        self.__LAZY_MODULE__children[name] = value
+      #elif name in self.__LAZY_MODULE__modules :
+      #  value = self.__get_module(name)
+      #  sys.modules[self.__name__ + '.' + name] = value
       elif (spec := util.find_spec(name)) is not None :
-        value = lazy_load_module(name)
+        value = load_module(name)
       else :
         raise AttributeError(f"Package {self.__name__} has no module {name}")
       setattr(self, name, value)
