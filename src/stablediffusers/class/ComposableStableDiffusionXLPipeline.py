@@ -48,22 +48,22 @@ class ComposableStableDiffusionXLPipeline:
     "device" : "cuda" if cuda_is_available else "cpu",
     "merging" : {
       "text_encoder" : {
-        "model" : CLIPTextModel,
+        "model" : module.load('CLIPTextModel'),
         "alpha" : 0.5,
         "skip_config_check" : True
       },
       "text_encoder_2" : {
-        "model" : CLIPTextModelWithProjection,
+        "model" : module.load('CLIPTextModelWithProjection'),
         "alpha" : 0.5,
         "skip_config_check" : True
       },
       "unet" : {
-        "model" : UNet2DConditionModel,
+        "model" : module.load('UNet2DConditionModel'),
         "alpha" : 0.5,
         "skip_config_check" : True
       },
       "vae" : {
-        "model" : AutoencoderKL,
+        "model" : module.load('AutoencoderKL'),
         "alpha" : 0.5,
         "skip_config_check" : True
       }
@@ -72,11 +72,11 @@ class ComposableStableDiffusionXLPipeline:
 
   default.update({
     "inference" : {
-      "torch_dtype" : float16,
+      "torch_dtype" : module.load('float16'),
       "variant" : "fp16",
       "use_safetensors" : True
     } if default["device"] == "cuda" else {
-      "torch_dtype" : bfloat16,
+      "torch_dtype" : module.load('bfloat16'),
       "variant" : "bf16",
       "use_safetensors" : True
     }
@@ -132,9 +132,9 @@ class ComposableStableDiffusionXLPipeline:
 
   @classmethod
   def flush(cls, *args, **kwargs):
-    collect()
-    empty_cache()
-    ipc_collect()
+    module.load('collect')()
+    module.load('empty_cache')()
+    module.load('ipc_collect')()
 
   @classmethod
   def load_model(cls, *args, **kwargs):
@@ -161,7 +161,7 @@ class ComposableStableDiffusionXLPipeline:
     except :
       cls.logger.info("Logging default variant instead")
       inference.pop("variant")
-      pipeline = StableDiffusionXLPipeline.from_pretrained(path, **kwargs, **inference).to(dtype=cls.default["inference"]["torch_dtype"])
+      pipeline = module.load('StableDiffusionXLPipeline').from_pretrained(path, **kwargs, **inference).to(dtype=cls.default["inference"]["torch_dtype"])
     cls.name[name] = [None, [name], pipeline]
     cls.current = cls.name[name]
     if "unet" in kwargs or "text_encoder" in kwargs or "text_encoder_2" in kwargs or "vae" in kwargs :
@@ -218,7 +218,7 @@ class ComposableStableDiffusionXLPipeline:
       "prompt_neg_embeds",
       "pooled_prompt_embeds",
       "negative_pooled_prompt_embeds"
-    ), get_weighted_text_embeddings_sdxl(cls.current[2], prompt = ', '.join(filter(None, (
+    ), module.load('get_weighted_text_embeddings_sdxl')(cls.current[2], prompt = ', '.join(filter(None, (
       prompt,
       kwargs.pop("prompt_2", None)
     ))), neg_prompt = ', '.join(filter(None, (
@@ -268,15 +268,15 @@ class ComposableStableDiffusionXLPipeline:
     w, h = imgs[0].size
     prompt_height = h * rows // 2 - (2 * text_margin)
     prompt_width = cols*w - (2 * text_margin)
-    grid = Image.new('RGB', size=(cols*w, rows*h + prompt_height))
+    grid = module.load('Image').new('RGB', size=(cols*w, rows*h + prompt_height))
     grid_w, grid_h = grid.size
     grid.paste((255,255,255, 255), (0, 0, grid_w, grid_h))
-    draw = ImageDraw.Draw(grid)
+    draw = module.load('ImageDraw').Draw(grid)
     # requires a newer version of pillow
     # use a truetype font
-    font_path = join(cv2.__path__[0],'qt','fonts','DejaVuSans.ttf')
+    font_path = module.load('join')(cv2.__path__[0],'qt','fonts','DejaVuSans.ttf')
     font_size = 30
-    font = ImageFont.truetype(font_path, font_size)
+    font = module.load('ImageFont').truetype(font_path, font_size)
     draw.text((text_margin, text_margin), cls.wrap_text(prompt, prompt_width, font), font = font, fill=(0,0,0, 255))
     for i, img in enumerate(imgs):
       grid.paste(img, box=(i%cols*w, prompt_height + (i//cols*h)))
@@ -344,7 +344,7 @@ class ComposableStableDiffusionXLPipeline:
 
     merged_state_dict = {}
 
-    for key in logging.tqdm(model_a.state_dict().keys(), desc=f"Merging {model} models"):
+    for key in module.load('logging').tqdm(model_a.state_dict().keys(), desc=f"Merging {model} models"):
       if key not in model_b.state_dict():
         raise ValueError(f"Key {key} not found in vae B")
 
@@ -360,12 +360,12 @@ class ComposableStableDiffusionXLPipeline:
       # Clear GPU memory
       del tensor_a
       del tensor_b
-      empty_cache()
+      module.load('empty_cache')()
 
     cls.logger.info(f"Creating merged {model} model...")
-    with init_empty_weights():
+    with module.load('init_empty_weights')():
       merged_model = cls.__load_component_from_config(model_a.config, name = model)
 
-    load_model_dict_into_meta(merged_model, merged_state_dict, device = cls.device, dtype = cls.default["inference"]["torch_dtype"])
+    module.load('load_model_dict_into_meta')(merged_model, merged_state_dict, device = cls.device, dtype = cls.default["inference"]["torch_dtype"])
 
     return merged_model
