@@ -57,22 +57,29 @@ def caller_info(skip=2):
 
     return package, module, klass, caller, line
 
-def LazyLoad(module_name) :
-  spec = util.find_spec(module_name)
-  loader = util.LazyLoader(spec.loader)
-  spec.loader = loader
-  module = util.module_from_spec(spec)
-  modules[name] = module
-  loader.exec_module(module)
-  return module
+def lazy_load_module(module_name) :
+  if module_name in sys.modules:
+    print(f"{module_name} already in sys.modules")
+    return sys.modules[module_name]
+  if (spec := util.find_spec(module_name)) is not None:
+    module = util.module_from_spec(spec)
+    loader = util.LazyLoader(spec.loader)
+    spec.loader = loader
+    loader.exec_module(module)
+    modules[name] = module
+    return module_name
+  print("Can't lazy load module")
 
-class from_module() :
-
-  def __init__(self, module_name) :
-    self.module = module_name
-
-  def load(self, *args) :
-    return (LazyLoad(f"{self.module}.{arg}") for arg in args)
+def load_module(module_name) :
+  if module_name in sys.modules:
+    print(f"{module_name} already in sys.modules")
+    return sys.modules[module_name]
+  if (spec := util.find_spec(module_name)) is not None:
+    module = util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    modules[name] = module
+    return module_name
+  print("Can't load module")
 
 def snake_to_camel(word) :
   return ''.join(x.capitalize() or '_' for x in word.split('_'))
@@ -164,7 +171,9 @@ class LazyModule(ModuleType) :
     def __getattr__(self, name: str) :
       if name in self.__objects :
         return self.__objects[name]
-      if name in self.__class_to_module.keys() :
+      if (spec := util.find_spec(module_name)) is not None
+        value = load_module(name)
+      elif name in self.__class_to_module.keys() :
         module = self.__get_module(self.__class_to_module[name])
         value = module if name.lower() == name else getattr(module, name)
       elif name in self._modules :
