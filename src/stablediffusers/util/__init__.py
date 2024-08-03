@@ -10,7 +10,7 @@ import pprint
 from inspect import stack
 import inspect
 
-def stack(max_depth: int = None):
+def get_stack(max_depth: int = None):
     """Fast alternative to `inspect.stack()`
 
     Use optional `max_depth` to limit search depth
@@ -36,14 +36,14 @@ def stack(max_depth: int = None):
     14.1 µs ± 33.4 ns per loop (mean ± std. dev. of 7 runs, 100,000 loops each)
     """
     def frame_infos(frame: FrameType | None):
-        while frame := frame and frame.f_back:
-            yield inspect.FrameInfo(
-                frame,
-                inspect.getfile(frame),
-                frame.f_lineno,
-                frame.f_code.co_name,
-                None, None,
-            )
+      while frame := frame and frame.f_back:
+        yield inspect.FrameInfo(
+          frame,
+          inspect.getfile(frame),
+          frame.f_lineno,
+          frame.f_code.co_name,
+          None, None,
+        )
 
     try :
       stack = list(it.islice(frame_infos(inspect.currentframe()), max_depth))
@@ -69,7 +69,7 @@ def caller_name(depth = 2):
 
      https://gist.github.com/techtonik/2151727
   """
-  stack = stack(2)
+  stack = get_stack(2)
   start = 0 + skip
   if len(stack) < start + 1:
     raise Exception("Stack limit reached")
