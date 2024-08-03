@@ -242,6 +242,8 @@ class LazyModule(ModuleType) :
 
     def __get_module(self, name: str, package = None) :
       #try :
+        print("NAME " + name)
+        print("PACKAGE " + package)
         return import_module(name if not package else package + name)
       #except Exception as e :
       #  raise RuntimeError(
