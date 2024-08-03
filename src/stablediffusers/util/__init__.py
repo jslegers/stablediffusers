@@ -12,7 +12,7 @@ import inspect
 def caller_info():
   previous_frame = None
   try:
-    previous_frame = inspect.currentframe().f_back
+    previous_frame = inspect.currentframe().f_back.f_back
     module = inspect.getmodule(previous_frame)
   finally:
     # https://bugs.python.org/issue543148
