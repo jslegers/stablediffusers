@@ -38,7 +38,7 @@ def get_stack(max_depth: int = None):
   In [6]: %timeit stack_depth(100, lambda: fast_stack(10))
   14.1 µs ± 33.4 ns per loop (mean ± std. dev. of 7 runs, 100,000 loops each)
   """
-  def frame_infos(frame: FrameType | None):
+  def frame_info(frame: FrameType | None):
     while frame := frame and frame.f_back:
       yield inspect.FrameInfo(
         frame,
@@ -47,9 +47,8 @@ def get_stack(max_depth: int = None):
         frame.f_code.co_name,
         None, None,
       )
-
   try :
-    stack = list(islice(frame_infos(get_frame()), max_depth))
+    stack = list(islice(frame_info(get_frame()), max_depth))
   except Exception as e :
     # Fallback to `inspect.stack()` in case of error
     stack = inspect.stack()
@@ -66,12 +65,8 @@ def get_frame(depth: int = 0) :
   try :
     # Fairly fast, but internal function
     # Add 1 to the depth to compensate for this wrapper function
-    test = sys._getframe(depth + 1)
-    pprint.pp("YEEEEY")
-    return test
+    return sys._getframe(depth + 1)
   except Exception as e :
-    pprint.pp("FAILURE")
-    pprint.pp(e)
     # Fallback in case `sys._getframe` is not available
     # Use `f_back` to get earlier frames as far as needed
     frame = inspect.currentframe().f_back
@@ -86,7 +81,6 @@ def get_module_from_frame(frame) :
   """
   try :
     test = sys.modules[frame.f_globals["__name__"]]
-    boom
     pprint.pp("YEEEEY")
     return test
   except Exception as e :
