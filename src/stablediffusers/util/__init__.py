@@ -243,7 +243,7 @@ class LazyModule(ModuleType) :
 
     def __reduce__(self) :
       return (self.__class__, (
-        self.__package__,
+        self.__name__,
         self.__file__,
         self.__LAZY_MODULE__import_structure
       ))
