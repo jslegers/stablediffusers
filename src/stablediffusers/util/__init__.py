@@ -196,7 +196,6 @@ class LazyModule(ModuleType) :
       # Needed for autocompletion in an IDE
       self.__all__ = list(modules) + list(chain(*classes))
       self.__loader__ = module.__loader__
-      self.__builtins__ = module.__builtins__
       self.__spec__ = module.__spec__
       self.__file__ = module.__file__
       self.__path__ = [module_dir]
