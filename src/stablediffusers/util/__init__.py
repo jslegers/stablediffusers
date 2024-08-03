@@ -61,7 +61,7 @@ def lazy_load_module(module_name) :
   if module_name in sys.modules:
     print(f"{module_name} already in sys.modules")
     return sys.modules[module_name]
-  if (spec := util.find_spec(module_name)) is not None:
+  if (spec := util.find_spec(module_name)) is not None :
     module = util.module_from_spec(spec)
     loader = util.LazyLoader(spec.loader)
     spec.loader = loader
@@ -74,7 +74,7 @@ def load_module(module_name) :
   if module_name in sys.modules:
     print(f"{module_name} already in sys.modules")
     return sys.modules[module_name]
-  if (spec := util.find_spec(module_name)) is not None:
+  if (spec := util.find_spec(module_name)) is not None :
     module = util.module_from_spec(spec)
     spec.loader.exec_module(module)
     modules[name] = module
@@ -171,7 +171,7 @@ class LazyModule(ModuleType) :
     def __getattr__(self, name: str) :
       if name in self.__objects :
         return self.__objects[name]
-      if (spec := util.find_spec(module_name)) is not None
+      if (spec := util.find_spec(module_name)) is not None :
         value = load_module(name)
       elif name in self.__class_to_module.keys() :
         module = self.__get_module(self.__class_to_module[name])
