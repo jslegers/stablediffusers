@@ -38,4 +38,6 @@ import cv2
 
 class ComposableStableDiffusionXLPipeline:
 
+  test = None
+
 #  logger = module.load('logging').get_logger(__name__)
