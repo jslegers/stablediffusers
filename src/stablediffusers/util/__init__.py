@@ -48,7 +48,7 @@ def get_stack(max_depth: int = None):
     try :
       stack = list(it.islice(frame_infos(inspect.currentframe()), max_depth))
       pprint.pp("Success")
-    except :
+    except Exception :
       pprint.pp("Failure")
       stack = inspect.stack()
     return stack
@@ -58,7 +58,7 @@ def get_module_from_frame(frame) :
     module = modules[frame.f_globals["__name__"]]
     pprint("get_module_from_frame succeeded")
     return module
-  except :
+  except Exception :
     pprint("get_module_from_frame failed")
     return inspect.getmodule(frame)
 
@@ -70,7 +70,7 @@ def caller_name(depth = 2):
      https://gist.github.com/techtonik/2151727
   """
   stack = get_stack(2)
-  start = 0 + skip
+  start = 0 + depth
   if len(stack) < start + 1:
     raise Exception("Stack limit reached")
   previous_frame = stack[start][0]
