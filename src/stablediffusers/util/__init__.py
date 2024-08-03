@@ -63,6 +63,8 @@ def get_stack(max_depth : int = None) :
 
 def import_from_string(module_name, source_code):
   try :
+    print(module_name)
+    print(source_code)
     spec = util.spec_from_loader(module_name, loader=None)
     module = util.module_from_spec(spec)
     exec(source_code, module.__dict__)
