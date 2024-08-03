@@ -214,8 +214,10 @@ class LazyModule(ModuleType) :
 
 
 def AutoLoad(name, file, **kwargs) :
-  func()
-  module_spec = util.find_spec(name)
-  module = LazyModule(name, file, spec = module_spec, **kwargs)
+  module = func()
+  module_name = module.__name__
+  module_file = module.__file__
+  module_spec = util.find_spec(module_name)
+  module = LazyModule(module_name, module_file, spec = module_spec, **kwargs)
   modules[name] = module
   return module

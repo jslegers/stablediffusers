@@ -1,2 +1,2 @@
-from .util import AutoLoad
-AutoLoad(__name__, globals()["__file__"])
+from stablediffusers.util import AutoLoad
+AutoLoad()
