@@ -89,7 +89,8 @@ def get_module_from_frame(frame) :
     # Fallback in case f_globals not available
     module = inspect.getmodule(frame)
   finally :
-    return util.find_spec(module.__name__, module.__package__)
+    spec = util.find_spec(module.__name__, module.__package__)
+    return util.module_from_spec(spec)
 
 def get_caller_module(depth : int = 1) -> ModuleType :
   """
