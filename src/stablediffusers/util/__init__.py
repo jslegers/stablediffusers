@@ -276,7 +276,7 @@ class LazyModule(ModuleType) :
     def __get_module(self, name: str) :
       #try :
         print("NAME " + name)
-        return import_module(name)
+        return load_module(name)
       #except Exception as e :
       #  raise RuntimeError(
       #    f"Failed to import {self.__name__}.{name} because of the following error (look up to see its"
