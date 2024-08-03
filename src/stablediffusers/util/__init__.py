@@ -213,7 +213,7 @@ class LazyModule(ModuleType) :
       ))
 
 
-def AutoLoad(name, file, **kwargs) :
+def AutoLoad(**kwargs) :
   module = func()
   module_name = module.__name__
   module_file = module.__file__
