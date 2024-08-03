@@ -11,7 +11,7 @@ import inspect
 
 def caller_info():
   previous_frame = None
-  previous_frame = inspect.getouterframes(inspect.currentframe(), 3)
+  previous_frame = inspect.stack()[2]
   module = inspect.getmodule(previous_frame)
   return module
   try :
