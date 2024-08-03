@@ -160,13 +160,13 @@ def all_files_in_path(*args, **kwargs) :
     if isdir(entry) :
       kwargs["path_from_package"] = join(path_from_package, entry_name)
       if isfile(join(package_path, kwargs["path_from_package"], package_file)) :
-        dict['.'.join(filter(None, [path_from_package_dot_notation, entry_name]))] = [entry_name]
+        dict['.'.join(filter(None, ['.', path_from_package_dot_notation, entry_name]))] = [entry_name]
       else :
         dict.update(all_files_in_path(package_path, **kwargs))
     elif entry_name not in exclude_files :
       file_name, file_extension = splitext(entry_name)
       if extension is None or file_extension.lower() == extension :
-        dict['.'.join(filter(None, [path_from_package_dot_notation, file_name]))] = [file_name]
+        dict['.'.join(filter(None, ['.', path_from_package_dot_notation, file_name]))] = [file_name]
   return dict
 
 class LazyModule(ModuleType) :
@@ -215,7 +215,7 @@ class LazyModule(ModuleType) :
     def __getattr__(self, name: str) :
       if name in self.__LAZY_MODULE__objects :
         return self.__LAZY_MODULE__objects[name]
-      full_name = self.__name__ + '.' + name
+      full_name = name if name[0] != '.' else self.__name__ + '.' + name
       if full_name in sys.modules :
         return sys.modules[full_name]
       if name in self.__LAZY_MODULE__class_to_module.keys() :
@@ -224,7 +224,7 @@ class LazyModule(ModuleType) :
       elif name in self.__LAZY_MODULE__modules :
         value = self.__get_module(name)
       else :
-        raise AttributeError(f"Module {self.__name__} can't load submodule {name}")
+        raise AttributeError(f"Attribute {name} unknown for module {self.__name__}.")
       sys.modules[full_name] = value
       setattr(self, name, value)
       return value
@@ -232,7 +232,7 @@ class LazyModule(ModuleType) :
 
     def __get_module(self, name: str) :
       try :
-        return import_module(self.__name__ + "." + name)
+        return import_module(name)
       except Exception as e :
         raise RuntimeError(
           f"Failed to import {self.__name__}.{name} because of the following error (look up to see its"
