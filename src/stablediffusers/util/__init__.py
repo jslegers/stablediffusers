@@ -10,12 +10,14 @@ import pprint
 import inspect
 
 def caller_info():
-  previous_frame = inspect.currentframe().f_back
+  previous_frame = None
   try:
-    module = inspect.getmodule(previous_frame)
+    previous_frame = inspect.currentframe().f_back
+    namespace = previous_frame.f_globals
   finally:
+    # https://bugs.python.org/issue543148
     del previous_frame
-  return module
+  return namespace
 
 def lazy_load_module(module_name) :
   if module_name in sys.modules:
@@ -172,5 +174,5 @@ def AutoLoad(**kwargs) :
   module_file = module.__file__
   module_spec = util.find_spec(module_name)
   module = LazyModule(module_name, module_file, spec = module_spec, **kwargs)
-  modules[name] = module
+  modules[module_name] = module
   return module
