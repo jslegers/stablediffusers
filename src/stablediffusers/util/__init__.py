@@ -50,7 +50,6 @@ def get_stack(max_depth: int = None):
 
   try :
     stack = list(islice(frame_infos(get_frame()), max_depth))
-    boom
     pprint.pp("SUCCESS")
   except Exception as e :
     pprint.pp(e)
