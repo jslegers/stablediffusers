@@ -232,7 +232,7 @@ class LazyModule(ModuleType) :
     def __get_module(self, name: str) :
       try :
         name = "." + name
-        module = import_module(name, self.__package__)
+        module = import_module(name, self.__name__)
         return module
       except Exception as e :
         raise RuntimeError(
