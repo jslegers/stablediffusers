@@ -34,7 +34,7 @@ from PIL import Image, ImageDraw, ImageFont
 from os.path import join
 """
 import cv2
-dev = device
+# dev = device
 
 class ComposableStableDiffusionXLPipeline:
 
