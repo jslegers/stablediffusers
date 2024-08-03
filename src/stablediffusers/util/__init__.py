@@ -49,7 +49,7 @@ def get_stack(max_depth: int = None):
       )
 
   try :
-    stack = list(islice(frame_infos(inspect.currentframe()), max_depth))
+    stack = list(islice(frame_infos(get_frame()), max_depth))
     pprint.pp("SUCCESS")
   except Exception as e :
     pprint.pp(e)
@@ -80,7 +80,7 @@ def get_frame(depth: int = 0) :
     frame = inspect.currentframe().f_back
     while depth > 0:
       frame = frame.f_back
-      depth--
+      depth = depth - 1
     return frame
 
 def get_module_from_frame(frame) :
@@ -107,8 +107,9 @@ def caller_info(depth = 1):
   """
   depth++
 
-  stack = get_stack(depth + 1)
-  if len(stack) < depth + 1:
+  stack_size = depth + 1
+  stack = get_stack(stack_size)
+  if len(stack) < stack_size:
     raise Exception("Stack limit reached")
   previous_frame = stack[depth][0]
   return get_module_from_frame(previous_frame)
