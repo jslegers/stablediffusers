@@ -50,10 +50,7 @@ def get_stack(max_depth: int = None):
 
   try :
     stack = list(islice(frame_infos(get_frame()), max_depth))
-    pprint.pp("SUCCESS")
   except Exception as e :
-    pprint.pp(e)
-    pprint.pp("Aaaaaaw")
     # Fallback to `inspect.stack()` in case of error
     stack = inspect.stack()
     # Remove 1 frame from the start because of extra call to this wrapper
@@ -70,7 +67,6 @@ def get_frame(depth: int = 0) :
     # Fairly fast, but internal function
     # Add 1 to the depth to compensate for this wrapper function
     test = sys._getframe(depth + 1)
-    boom
     pprint.pp("YEEEEY")
     return test
   except Exception as e :
