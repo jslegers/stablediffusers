@@ -9,14 +9,7 @@ from pkgutil import walk_packages
 import pprint
 import inspect
 
-def func():
-  stack = inspect.stack()
-  calling_context = next(context for context in stack if context.filename != __file__)
-  pprint.pp(calling_context.filename)
-  pprint.pp(calling_context.function)
-  return (calling_context.function)
-
-def caller_info(skip=2):
+def caller_info(skip=1):
     """Get the name of a caller in the format module.class.method.
     Copied from: https://gist.github.com/techtonik/2151727
     :arguments:
@@ -214,7 +207,7 @@ class LazyModule(ModuleType) :
 
 
 def AutoLoad(**kwargs) :
-  module = func()
+  package, module, klass, caller, line = caller_info()
   module_name = module.__name__
   module_file = module.__file__
   module_spec = util.find_spec(module_name)
