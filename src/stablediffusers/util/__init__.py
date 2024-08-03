@@ -152,14 +152,18 @@ def load_module(module_name : str) -> ModuleType :
       return sys.modules[module_name]
     if (spec := util.find_spec(module_name)) is not None :
       print("MODULE NAME 2" + module_name)
+      pprint.pp(spec)
       module = util.module_from_spec(spec)
-      spec.loader.exec_module(module)
       print("MODULE NAME 3" + module_name)
+      pprint.pp(module)
+      spec.loader.exec_module(module)
+      print("MODULE NAME 4" + module_name)
       sys.modules[module_name] = module
       return module
-    print("MODULE NAME 4" + module_name)
+    print("MODULE NAME 5" + module_name)
   except Exception as e :
     print(e)
+  print("MODULE NAME 6" + module_name)
   print("Can't load module")
 
 def snake_to_camel(word : str) -> str :
