@@ -45,22 +45,36 @@ def stack(max_depth: int = None):
                 None, None,
             )
 
-    return list(it.islice(frame_infos(inspect.currentframe()), max_depth))
+    try :
+      stack = list(it.islice(frame_infos(inspect.currentframe()), max_depth))
+      pprint.pp("Success")
+    except :
+      pprint.pp("Failure")
+      stack = inspect.stack()
+    return stack
 
-def caller_name(skip=2):
+def get_module_from_frame(frame) :
+  try :
+    module = modules[frame.f_globals["__name__"]]
+    pprint("get_module_from_frame succeeded")
+    return module
+  except :
+    pprint("get_module_from_frame failed")
+    return inspect.getmodule(frame)
+
+def caller_name(depth = 2):
   """Get a module of a caller
-     `skip` specifies how many levels of stack to skip while getting caller
-     name. skip=1 means "who calls me", skip=2 "who calls my caller" etc.
+     `depth` specifies how many levels of stack to skip while getting caller
+     name. depth=1 means "who calls me", depth=2 "who calls my caller" etc.
 
      https://gist.github.com/techtonik/2151727
   """
-  stack = inspect.stack()
+  stack = stack(2)
   start = 0 + skip
   if len(stack) < start + 1:
     raise Exception("Stack limit reached")
   previous_frame = stack[start][0]
-  module_name = previous_frame.f_globals["__name__"]
-  return modules[module_name]
+  return get_module_from_frame(previous_frame)
 
 def caller_info():
   previous_frame = None
