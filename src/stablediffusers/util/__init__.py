@@ -6,8 +6,13 @@ from importlib import import_module, util
 from types import ModuleType, SimpleNamespace
 from itertools import chain
 from pkgutil import walk_packages
-
+import pprint
 import inspect
+
+def func():
+  stack = inspect.stack()
+  calling_context = next(context for context in stack if context.filename != __file__)
+  pprint(calling_context)
 
 def caller_info(skip=2):
     """Get the name of a caller in the format module.class.method.
@@ -207,8 +212,8 @@ class LazyModule(ModuleType) :
 
 
 def AutoLoad(name, file, **kwargs) :
-  import importlib
-  module_spec = importlib.util.find_spec(name)
+  func()
+  module_spec = util.find_spec(name)
   module = LazyModule(name, file, spec = module_spec, **kwargs)
   modules[name] = module
   return module
