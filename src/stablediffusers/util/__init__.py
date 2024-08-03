@@ -145,17 +145,19 @@ def lazy_load_module(module_name : str) -> ModuleType :
   print("Can't lazy load module")
 
 def load_module(module_name : str) -> ModuleType :
-  print("MODULE NAME" + module_name)
+  print("MODULE NAME 1" + module_name)
   try :
     if module_name in sys.modules:
       print(f"{module_name} already in sys.modules")
       return sys.modules[module_name]
     if (spec := util.find_spec(module_name)) is not None :
+      print("MODULE NAME 2" + module_name)
       module = util.module_from_spec(spec)
       spec.loader.exec_module(module)
-      print("MODULE NAME" + module_name)
+      print("MODULE NAME 3" + module_name)
       sys.modules[module_name] = module
       return module
+    print("MODULE NAME 4" + module_name)
   except Exception e :
     print(e)
   print("Can't load module")
