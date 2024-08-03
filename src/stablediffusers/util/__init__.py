@@ -7,11 +7,12 @@ from types import ModuleType, SimpleNamespace
 from itertools import chain
 from pkgutil import walk_packages
 import pprint
+from inspect import stack
 import inspect
 
 def caller_info():
   previous_frame = None
-  previous_frame = inspect.stack()[1]
+  previous_frame = stack()[2]
   module = inspect.getmodule(previous_frame)
   return module
   try :
