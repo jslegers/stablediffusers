@@ -218,10 +218,10 @@ class LazyModule(ModuleType) :
       if name in sys.modules :
         return sys.modules[full_name]
       if name in self.__LAZY_MODULE__class_to_module.keys() :
-        module = self.__get_module(f"{self.__name__}{self.__LAZY_MODULE__class_to_module[name]}")
+        module = self.__get_module(self.__LAZY_MODULE__class_to_module[name][1:], self.__name__)
         value = module if name.lower() == name else getattr(module, name)
       elif f".{name}" in self.__LAZY_MODULE__modules :
-        value = self.__get_module(f"{self.__name__}{name}")
+        value = self.__get_module(name[1:], self.__name__)
       else :
         raise AttributeError(f"Attribute {name} unknown for module {self.__name__}.")
       sys.modules[name] = value
