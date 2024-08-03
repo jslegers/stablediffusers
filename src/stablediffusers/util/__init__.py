@@ -10,7 +10,10 @@ import pprint
 from inspect import stack
 import inspect
 
-def get_stack(max_depth: int = None):
+def unpack(*args, default = None, items = 1) :
+  return list(args) + [None] * len(items)
+
+def get_stack(max_depth: int = None) :
   """
   Fast alternative to `inspect.stack()`
   Use optional `max_depth` to limit search depth
@@ -169,22 +172,22 @@ def all_files_in_path(*args, **kwargs) :
 class LazyModule(ModuleType) :
     """
     Module class that surfaces all objects but only performs associated imports when the objects are requested.
-    """
 
-    # Very heavily inspired by optuna.integration._IntegrationModule
-    # https://github.com/optuna/optuna/blob/master/optuna/integration/__init__.py
+    Based on :
+    https://github.com/huggingface/diffusers/blob/main/src/diffusers/utils/import_utils.py
+    https://github.com/optuna/optuna/blob/master/optuna/integration/__init__.py
+    """
     def __init__(self, *args, **kwargs) :
-      module_name, module_file, module_spec *_ = list(args) + [None] * 2
-      if not isinstance(module_name, str) :
-        raise RuntimeError("Autoload failed because package name is missing or not a string") from e
-      if not isinstance(module_file, str) :
-        raise RuntimeError("Autoload failed because package file name is missing or not a string") from e
+      module, *_ = unpack(*args)
       import_structure = kwargs.get("import_structure", None)
       extra_objects = kwargs.get("extra_objects", None)
-      super().__init__(module_name)
-      package_dir = dirname(module_file)
+      super().__init__(module.__name__)
+      # package_dir = dirname(module_file)
       if import_structure is None :
-        import_structure = all_files_in_path(package_dir, extension = ".py")
+        import_structure = []
+        for directory in module.__path__ :
+          pprint.pp(directory)
+          import_structure = all_files_in_path(directory, extension = ".py")
       modules = import_structure.keys()
       classes = import_structure.values()
       self._modules = set(modules)
@@ -194,14 +197,13 @@ class LazyModule(ModuleType) :
           self.__class_to_module[class_name] = module
       # Needed for autocompletion in an IDE
       self.__all__ = list(modules) + list(chain(*classes))
-      self.__file__ = module_file
-      self.__spec__ = module_spec
-      self.__path__ = [package_dir]
+      self.__file__ = module.__file__
+      self.__spec__ = module.__spec__
+      self.__path__ = module.__path__
       self.__objects = {} if extra_objects is None else extra_objects
-      self.__package__ = module_name
+      self.__package__ = module.__package__
       self.__import_structure = import_structure
-      name_with_dot = self.__name__+'.'
-      sys.modules[module_name] = self
+      sys.modules[module.__name__] = self
 
     # Needed for autocompletion in an IDE
     def __dir__(self) :
@@ -252,5 +254,4 @@ class LazyModule(ModuleType) :
 
 
 def AutoLoad(**kwargs) :
-  module = get_caller_module()
-  return LazyModule(module.__name__, module.__file__, module.__spec__, **kwargs)
+  return LazyModule(get_caller_module(), **kwargs)
