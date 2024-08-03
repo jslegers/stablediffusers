@@ -165,7 +165,7 @@ class LazyModule(ModuleType) :
 
 
 def AutoLoad(**kwargs) :
-  package, module, klass, caller, line = caller_info()
+  module = caller_info()
   module_name = module.__name__
   module_file = module.__file__
   module_spec = util.find_spec(module_name)
