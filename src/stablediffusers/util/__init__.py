@@ -206,7 +206,6 @@ class LazyModule(ModuleType) :
       self.__objects = {} if extra_objects is None else extra_objects
       self.__package__ = module.__package__
       self.__import_structure = import_structure
-      sys.modules[module.__name__] = self
 
     # Needed for autocompletion in an IDE
     def __dir__(self) :
@@ -257,4 +256,6 @@ class LazyModule(ModuleType) :
 
 
 def AutoLoad(**kwargs) :
-  return LazyModule(get_caller_module(), **kwargs)
+  module = get_caller_module()
+  sys.modules[module.__name__] = LazyModule(module, **kwargs)
+  return module
