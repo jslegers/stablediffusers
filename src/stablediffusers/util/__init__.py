@@ -181,6 +181,8 @@ class LazyModule(ModuleType) :
       module, *_ = unpack(*args)
       import_structure = kwargs.get("import_structure", None)
       extra_objects = kwargs.get("extra_objects", None)
+      pprint.pp(module.__name__)
+      pprint.pp(module.__package__)
       self.__package__ = module.__name__.split('.')[0]
       module_dir = dirname(self.__package__)
       super().__init__(module.__name__)
