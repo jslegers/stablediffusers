@@ -168,20 +168,22 @@ class LazyModule(ModuleType) :
           result.append(attr)
       return result
 
-    def __getattr__(self, name: str) :
-      if name in self.__objects :
-        return self.__objects[name]
+    def __getattr__(self, module_name: str) :
+      if module_name in self.__objects :
+        return self.__objects[module_name]
       if (spec := util.find_spec(module_name)) is not None :
-        value = load_module(name)
-      elif name in self.__class_to_module.keys() :
-        module = self.__get_module(self.__class_to_module[name])
-        value = module if name.lower() == name else getattr(module, name)
-      elif name in self._modules :
-        value = self.__get_module(name)
+        value = lazy_load_module(module_name)
+        setattr(self, module_name, value)
+        return value
+      if module_name in self.__class_to_module.keys() :
+        module = self.__get_module(self.__class_to_module[module_name])
+        value = module if module_name.lower() == module_name else getattr(module, module_name)
+      elif module_name in self._modules :
+        value = self.__get_module(module_name)
       else :
         raise AttributeError(f"Package {self.__name__} has no module {name}")
-      modules[self.__name__ + '.' + name] = value
-      setattr(self, name, value)
+      modules[self.__name__ + '.' + module_name] = value
+      setattr(self, module_name, value)
       return value
 
 
