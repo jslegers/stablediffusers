@@ -16,6 +16,7 @@ AutoLoad(import_structure = {
   "os.path" : ["join"]
 })
 
+__getattr__
 
 # bfloat16, float16, dev, Generator = util.from_module('torch').load('bfloat16', 'float16', 'device', 'Generator')
 """
