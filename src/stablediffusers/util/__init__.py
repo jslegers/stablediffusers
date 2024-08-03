@@ -5,7 +5,6 @@ from pathlib import PurePath
 from importlib import import_module, util
 from types import ModuleType, FrameType
 from itertools import chain, islice
-from pkgutil import walk_packages
 import pprint
 from inspect import stack
 import inspect
@@ -195,7 +194,6 @@ class LazyModule(ModuleType) :
           self.__LAZY_MODULE__class_to_module[class_name] = module_name
       # Needed for autocompletion in an IDE
       self.__all__ = list(modules) + list(chain(*classes))
-      self.__loader__ = module.__loader__
       self.__spec__ = module.__spec__
       self.__file__ = module.__file__
       self.__path__ = [module_dir]
