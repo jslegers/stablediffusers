@@ -66,7 +66,6 @@ def import_from_string(module_name, source_code):
     spec = util.spec_from_loader(module_name, loader=None)
     module = util.module_from_spec(spec)
     exec(source_code, module.__dict__)
-    sys.modules[spec.name] = module
     return module
   except Exception as e :
     print(e)
