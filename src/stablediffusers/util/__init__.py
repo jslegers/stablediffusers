@@ -224,7 +224,7 @@ class LazyModule(ModuleType) :
       if name in self.__LAZY_MODULE__class_to_module.keys() :
         module_name = self.__LAZY_MODULE__class_to_module[name]
         if module_name[0] != '.' :
-          module = self.__get_module(module_name)
+          module = self.__get_module(name, module_name)
           value = getattr(module, name)
         else :
           module = self.__get_module(module_name, self.__name__)
