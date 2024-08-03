@@ -11,12 +11,16 @@ import inspect
 
 def caller_info():
   previous_frame = None
-  try:
+  try :
+    previous_frame = _getframe(2)
+  except Exception :
     previous_frame = inspect.currentframe().f_back.f_back
-    module = inspect.getmodule(previous_frame)
-  finally:
-    # https://bugs.python.org/issue543148
-    del previous_frame
+  finally :
+    try :
+      module = inspect.getmodule(previous_frame)
+    finally :
+      # https://bugs.python.org/issue543148
+      del previous_frame
   return module
 
 def lazy_load_module(module_name) :
