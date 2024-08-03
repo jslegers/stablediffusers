@@ -68,7 +68,7 @@ def import_from_string(module_name, source_code):
     exec(source_code, module.__dict__)
     sys.modules[spec.name] = module
     return module
-  except Exception e :
+  except Exception as e :
     print(e)
 
 def get_frame(depth: int = 0) :
