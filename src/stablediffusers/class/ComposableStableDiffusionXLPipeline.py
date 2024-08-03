@@ -1,7 +1,7 @@
 from stablediffusers.util import AutoLoad
 import sys
 
-AutoLoad(import_structure = {
+module = AutoLoad(import_structure = {
   "torch" : ["bfloat16", "float16", "device"],
   "torch.cuda" : ["is_available", "ipc_collect", "empty_cache"],
   "numba.cuda" : ["select_device", "get_current_device"],
@@ -15,7 +15,7 @@ AutoLoad(import_structure = {
   "sd_embed.embedding_funcs" : ["get_weighted_text_embeddings_sdxl"],
   "PIL" : ["Image", "ImageDraw", "ImageFont"],
   "os.path" : ["join"]
-})
+}).load('device').load('logging').get_logger(__name__)
 
 # bfloat16, float16, dev, Generator = util.from_module('torch').load('bfloat16', 'float16', 'device', 'Generator')
 """
@@ -34,8 +34,8 @@ from PIL import Image, ImageDraw, ImageFont
 from os.path import join
 """
 import cv2
-dev = module.load('device')
+#dev = module.load('device')
 
 class ComposableStableDiffusionXLPipeline:
 
-  logger = module.load('logging').get_logger(__name__)
+#  logger = module.load('logging').get_logger(__name__)
