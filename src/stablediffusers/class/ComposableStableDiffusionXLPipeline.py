@@ -1,4 +1,5 @@
 from stablediffusers.util import AutoLoad
+import sys
 
 sys.modules[__name__] = AutoLoad(import_structure = {
   "torch" : ["bfloat16", "float16", "device"],
