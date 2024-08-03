@@ -1,2 +1,2 @@
 from stablediffusers.util import AutoLoad
-AutoLoad()
+AutoLoad(import_structure = [])

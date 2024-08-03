@@ -181,10 +181,7 @@ class LazyModule(ModuleType) :
       module, *_ = unpack(*args)
       import_structure = kwargs.get("import_structure", None)
       extra_objects = kwargs.get("extra_objects", None)
-      pprint.pp(module.__name__)
-      pprint.pp(module.__package__)
-      self.__package__ = module.__name__.split('.')[0]
-      module_dir = dirname(self.__package__)
+      module_dir = dirname(self.__file__)
       super().__init__(module.__name__)
       if import_structure is None :
         import_structure = all_files_in_path(module_dir, extension = ".py")
@@ -200,6 +197,7 @@ class LazyModule(ModuleType) :
       self.__spec__ = module.__spec__
       self.__file__ = module.__file__
       self.__path__ = [module_dir]
+      self.__package__ = module.__name__.split('.')[0]
       self.__LAZY_MODULE__import_structure = import_structure
       self.__LAZY_MODULE__objects = {} if extra_objects is None else extra_objects
 
