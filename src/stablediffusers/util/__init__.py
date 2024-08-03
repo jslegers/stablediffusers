@@ -13,11 +13,11 @@ def caller_info():
   previous_frame = None
   try:
     previous_frame = inspect.currentframe().f_back
-    namespace = previous_frame.f_globals
+    module = inspect.getmodule(previous_frame)
   finally:
     # https://bugs.python.org/issue543148
     del previous_frame
-  return namespace
+  return module
 
 def lazy_load_module(module_name) :
   if module_name in sys.modules:
