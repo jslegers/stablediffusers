@@ -233,13 +233,13 @@ class LazyModule(ModuleType) :
 
 
     def __get_module(self, name: str, package = None) :
-      try :
+      #try :
         return load_module(name if not package else package + name)
-      except Exception as e :
-        raise RuntimeError(
-          f"Failed to import {self.__name__}.{name} because of the following error (look up to see its"
-          f" traceback):\n{e}"
-        ) from e
+      #except Exception as e :
+      #  raise RuntimeError(
+      #    f"Failed to import {self.__name__}.{name} because of the following error (look up to see its"
+      #    f" traceback):\n{e}"
+      #  ) from e
 
     def __reduce__(self) :
       return (self.__class__, (
