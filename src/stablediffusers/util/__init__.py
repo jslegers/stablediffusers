@@ -255,11 +255,9 @@ def AutoLoad(**kwargs) :
   module = get_caller_module()
   print("Package " + module.__package__)
   print("Name " + module.__name__)
-  print("Spec " + module.__spec__)
   module = util.module_from_spec(module.__spec__)
   print("Package " + module.__package__)
   print("Name " + module.__name__)
-  print("Spec " + module.__spec__)
   #module_name = '.'.join(filter(None, [module.__package__, module.__name__]))
   module = LazyModule(module, **kwargs)
   sys.modules[module.__name__] = module
