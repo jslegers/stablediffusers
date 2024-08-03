@@ -193,7 +193,7 @@ class LazyModule(ModuleType) :
         for class_name in classlist:
           self.__LAZY_MODULE__class_to_module[class_name] = module_name
       # Needed for autocompletion in an IDE
-      self.__all__ = list(modules) + list(chain(*classes))
+      self.__all__ = list(chain(*classes))
       self.__spec__ = module.__spec__
       self.__file__ = module.__file__
       self.__loader__ = module.__loader__
@@ -214,15 +214,8 @@ class LazyModule(ModuleType) :
       return result
 
     def __getattr__(self, name: str) :
-      if name in self.__LAZY_MODULE__children :
-        return self.__LAZY_MODULE__children[name]
       if name in self.__LAZY_MODULE__objects :
         return self.__LAZY_MODULE__objects[name]
-      if name in self.__LAZY_MODULE__modules :
-        value = self.__get_module(name)
-        sys.modules[self.__name__ + '.' + name] = value
-        self.__LAZY_MODULE__children[name] = value
-        return value
       if name in self.__LAZY_MODULE__class_to_module.keys() :
         module = self.__get_module(self.__LAZY_MODULE__class_to_module[name])
         value = module if name.lower() == name else getattr(module, name)
