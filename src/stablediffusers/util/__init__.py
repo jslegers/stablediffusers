@@ -222,11 +222,12 @@ class LazyModule(ModuleType) :
       if full_name in sys.modules :
         return sys.modules[full_name]
       if name in self.__LAZY_MODULE__class_to_module.keys() :
-        if(full_name == name) :
-          value = self.__get_module(self.__LAZY_MODULE__class_to_module[name])
+        module_name = self.__LAZY_MODULE__class_to_module[name]
+        if name[0] != '.' :
+          module = self.__get_module(module_name)
           value = getattr(module, name)
         else :
-          module = self.__get_module(self.__LAZY_MODULE__class_to_module[name], self.__name__)
+          module = self.__get_module(module, self.__name__)
           value = module if name.lower() == name else getattr(module, name)
       elif full_name in self.__LAZY_MODULE__modules :
         value = self.__get_module(full_name)
