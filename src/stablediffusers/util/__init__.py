@@ -10,6 +10,58 @@ import pprint
 from inspect import stack
 import inspect
 
+def stack(max_depth: int = None):
+    """Fast alternative to `inspect.stack()`
+
+    Use optional `max_depth` to limit search depth
+    Based on: github.com/python/cpython/blob/3.11/Lib/inspect.py
+
+    Compared to `inspect.stack()`:
+     * Does not read source files to load neighboring context
+     * Less accurate filename determination, still correct for most cases
+     * Does not compute 3.11+ code positions (PEP 657)
+
+    Compare:
+
+    In [3]: %timeit stack_depth(100, lambda: inspect.stack())
+    67.7 ms ± 1.35 ms per loop (mean ± std. dev. of 7 runs, 10 loops each)
+
+    In [4]: %timeit stack_depth(100, lambda: inspect.stack(0))
+    22.7 ms ± 747 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)
+
+    In [5]: %timeit stack_depth(100, lambda: fast_stack())
+    108 µs ± 180 ns per loop (mean ± std. dev. of 7 runs, 10,000 loops each)
+
+    In [6]: %timeit stack_depth(100, lambda: fast_stack(10))
+    14.1 µs ± 33.4 ns per loop (mean ± std. dev. of 7 runs, 100,000 loops each)
+    """
+    def frame_infos(frame: FrameType | None):
+        while frame := frame and frame.f_back:
+            yield inspect.FrameInfo(
+                frame,
+                inspect.getfile(frame),
+                frame.f_lineno,
+                frame.f_code.co_name,
+                None, None,
+            )
+
+    return list(it.islice(frame_infos(inspect.currentframe()), max_depth))
+
+def caller_name(skip=2):
+  """Get a module of a caller
+     `skip` specifies how many levels of stack to skip while getting caller
+     name. skip=1 means "who calls me", skip=2 "who calls my caller" etc.
+
+     https://gist.github.com/techtonik/2151727
+  """
+  stack = inspect.stack()
+  start = 0 + skip
+  if len(stack) < start + 1:
+    raise Exception("Stack limit reached")
+  previous_frame = stack[start][0]
+  module_name = previous_frame.f_globals["__name__"]
+  return modules[module_name]
+
 def caller_info():
   previous_frame = None
   previous_frame = inspect.currentframe().f_back.f_back
@@ -21,7 +73,7 @@ def caller_info():
     previous_frame = inspect.currentframe().f_back.f_back
   finally :
     try :
-      module = sys.modules[module_name]
+      module = modules[module_name]
     finally :
       # https://bugs.python.org/issue543148
       del previous_frame
@@ -177,7 +229,7 @@ class LazyModule(ModuleType) :
 
 
 def AutoLoad(**kwargs) :
-  module = caller_info()
+  module = caller_name()
   pprint.pp(module)
   module_name = module.__name__
   module_file = module.__file__
