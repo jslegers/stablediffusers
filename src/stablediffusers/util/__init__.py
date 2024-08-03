@@ -198,8 +198,6 @@ class LazyModule(ModuleType) :
           self.__class_to_module[class_name] = module_name
       # Needed for autocompletion in an IDE
       self.__all__ = list(modules) + list(chain(*classes))
-      pprint.pp(module)
-      pprint.pp(self)
       self.__file__ = module.__file__
       self.__spec__ = module.__spec__
       self.__path__ = module.__path__
