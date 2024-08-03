@@ -84,13 +84,12 @@ def get_module_from_frame(frame) :
   Retrieve a module from a `frame`
   """
   try :
-    pprint.pp(frame.f_globals["__name__"])
     module = sys.modules[frame.f_globals["__name__"]]
-    pprint.pp(module)
-    return module
   except Exception as e :
     # Fallback in case f_globals not available
-    return inspect.getmodule(frame)
+    module = inspect.getmodule(frame)
+  finally :
+    return util.find_spec(module.__name__, module.__package__)
 
 def get_caller_module(depth : int = 1) -> ModuleType :
   """
@@ -111,7 +110,7 @@ def get_caller_module(depth : int = 1) -> ModuleType :
     previous_frame = stack[depth][0]
   finally :
     # https://bugs.python.org/issue543148
-    module = inspect.getmodule(previous_frame)
+    module = get_module_from_frame(previous_frame)
     del previous_frame
     return module
 
@@ -257,6 +256,8 @@ class LazyModule(ModuleType) :
 
 def AutoLoad(**kwargs) :
   module = get_caller_module()
+  pprint.pp(module)
   module = LazyModule(module, **kwargs)
+  pprint.pp(module)
   sys.modules[module.__name__] = module
   return module
