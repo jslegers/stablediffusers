@@ -246,6 +246,9 @@ class LazyModule(ModuleType) :
           source_code = f"from {module_name} import {name}"
           module = import_from_string(module_name+'.'+name, source_code)
           value = getattr(module, name)
+          sys.modules[module_name+'.'+name] = module
+          setattr(self, name, value)
+          return value
         else :
           module = self.__get_module(self.__name__+module_name)
           value = module if name.lower() == name else getattr(module, name)
