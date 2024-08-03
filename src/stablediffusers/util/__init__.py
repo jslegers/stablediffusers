@@ -245,9 +245,13 @@ class LazyModule(ModuleType) :
         if module_name[0] != '.' :
           source_code = f"from {module_name} import {name}"
           module = import_from_string(module_name+'.'+name, source_code)
+          print("POSITION 7")
           value = getattr(module, name)
-          sys.modules[module_name+'.'+name] = module
+          print("POSITION 8")
+          sys.modules[self.__name__ + '.' + name] = module
+          print("POSITION 9")
           setattr(self, name, value)
+          print("POSITION 10")
           return value
         else :
           module = self.__get_module(self.__name__+module_name)
