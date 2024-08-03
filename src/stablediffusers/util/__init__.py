@@ -232,7 +232,7 @@ class LazyModule(ModuleType) :
 
     def __get_module(self, name: str) :
       try :
-        return load_module(self.__name__ + "." + name)
+        return import_module("." + name, self.__name__)
       except Exception as e :
         raise RuntimeError(
           f"Failed to import {self.__name__}.{name} because of the following error (look up to see its"
