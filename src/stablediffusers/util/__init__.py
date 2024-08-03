@@ -264,6 +264,8 @@ class LazyModule(ModuleType) :
       elif f".{name}" in self.__LAZY_MODULE__modules :
         value = self.__get_module(self.__name__+name)
       else :
+        pprint.pp(self.__LAZY_MODULE__class_to_module)
+        pprint.pp(self.__LAZY_MODULE__modules)
         raise AttributeError(f"Attribute {name} unknown for module {self.__name__}.")
       sys.modules[full_name] = value
       setattr(self, name, value)
