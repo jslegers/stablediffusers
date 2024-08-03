@@ -142,7 +142,7 @@ def camel_to_snake(s : str) -> str :
   return ''.join(['_'+c.lower() if c.isupper() else c for c in s]).lstrip('_')
 
 def all_files_in_path(*args, **kwargs) :
-  if not isinstance(args[0], str) :
+  if not args[0] :
     raise RuntimeError("all_files_in_path failed because package name is missing") from e
   package_path = args[0]
   package_file = "__init__.py"
