@@ -183,8 +183,6 @@ class LazyModule(ModuleType) :
       import_structure = kwargs.get("import_structure", None)
       extra_objects = kwargs.get("extra_objects", None)
       super().__init__(module.__name__)
-      pprint.pp(module)
-      pprint.pp(self)
       module.__path__ = [dirname(module_file)]
       if import_structure is None :
         import_structure = []
@@ -207,6 +205,8 @@ class LazyModule(ModuleType) :
       self.__package__ = module.__package__
       self.__import_structure = import_structure
       sys.modules[module.__name__] = self
+      pprint.pp(module)
+      pprint.pp(self)
 
     # Needed for autocompletion in an IDE
     def __dir__(self) :
