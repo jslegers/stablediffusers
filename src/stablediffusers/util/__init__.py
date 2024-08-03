@@ -200,6 +200,7 @@ class LazyModule(ModuleType) :
       self.__path__ = [module_dir]
       self.__package__ = module.__name__.split('.')[0]
       self.__LAZY_MODULE__import_structure = import_structure
+      self.__LAZY_MODULE__children = {}
       self.__LAZY_MODULE__objects = {} if extra_objects is None else extra_objects
 
     # Needed for autocompletion in an IDE
@@ -213,15 +214,15 @@ class LazyModule(ModuleType) :
       return result
 
     def __getattr__(self, name: str) :
+      if name in self.__LAZY_MODULE__children :
+        return self.__LAZY_MODULE__children[name]
       if name in self.__LAZY_MODULE__objects :
-        value = self.__LAZY_MODULE__objects[name]
+        return self.__LAZY_MODULE__objects[name]
       elif name in self.__LAZY_MODULE__class_to_module.keys() :
         module = self.__get_module(self.__LAZY_MODULE__class_to_module[name])
         value = module if name.lower() == name else getattr(module, name)
         sys.modules[self.__name__ + '.' + name] = value
-      elif name in self.__LAZY_MODULE__modules :
-        value = self.__get_module(name)
-        sys.modules[self.__name__ + '.' + name] = value
+        self.__LAZY_MODULE__children[name] = value
       elif (spec := util.find_spec(name)) is not None :
         value = lazy_load_module(name)
       else :
