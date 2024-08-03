@@ -220,18 +220,17 @@ class LazyModule(ModuleType) :
     def __getattr__(self, name: str) :
       if name in self.__objects :
         value = self.__objects[name]
-      if (spec := util.find_spec(name)) is not None :
+      elif (spec := util.find_spec(name)) is not None :
         value = lazy_load_module(name)
-        setattr(self, name, value)
-        return value
-      if name in self.__class_to_module.keys() :
+      elif name in self.__class_to_module.keys() :
         module = self.__get_module(self.__class_to_module[name])
         value = module if name.lower() == name else getattr(module, name)
+        sys.modules[self.__name__ + '.' + name] = value
       elif name in self._modules :
         value = self.__get_module(name)
+        sys.modules[self.__name__ + '.' + name] = value
       else :
         raise AttributeError(f"Package {self.__name__} has no module {name}")
-      sys.modules[self.__name__ + '.' + name] = value
       setattr(self, name, value)
       return value
 
