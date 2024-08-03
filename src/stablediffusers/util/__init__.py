@@ -84,7 +84,10 @@ def get_module_from_frame(frame) :
   Retrieve a module from a `frame`
   """
   try :
-    return sys.modules[frame.f_globals["__name__"]]
+    pprint.pp(frame.f_globals["__name__"])
+    module = sys.modules[frame.f_globals["__name__"]]
+    pprint.pp(frame.f_globals["__name__"])
+    return module
   except Exception as e :
     # Fallback in case f_globals not available
     return inspect.getmodule(frame)
