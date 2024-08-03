@@ -14,7 +14,7 @@ def caller_info():
   previous_frame = None
   previous_frame = inspect.currentframe().f_back.f_back
   module_name = previous_frame.f_globals["__name__"]
-  return sys.modules[module_name]
+  return modules[module_name]
   try :
     previous_frame = _getframe(2)
   except Exception :
