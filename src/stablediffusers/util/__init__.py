@@ -148,7 +148,7 @@ def all_files_in_path(*args, **kwargs) :
   package_file = "__init__.py"
   exclude_files = kwargs.setdefault("exclude_files", [package_file])
   extension = kwargs.setdefault("extension", None)
-  path_from_package = kwargs.setdefault("path_from_package", "")
+  path_from_package = kwargs.setdefault("path_from_package", ".")
   path = package_path if not path_from_package else join(package_path, path_from_package)
   if extension is not None :
     extension = extension.lower()
@@ -196,6 +196,7 @@ class LazyModule(ModuleType) :
       self.__all__ = list(modules) + list(chain(*classes))
       self.__spec__ = module.__spec__
       self.__file__ = module.__file__
+      self.__loader__ = module.__loader__
       self.__path__ = [module_dir]
       self.__package__ = module.__name__.split('.')[0]
       self.__LAZY_MODULE__import_structure = import_structure
