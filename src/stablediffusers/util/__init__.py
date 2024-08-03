@@ -11,6 +11,8 @@ import inspect
 
 def caller_info():
   previous_frame = None
+  previous_frame = inspect.getmodule(inspect.getouterframes(inspect.currentframe(), 2)[2])
+  return module
   try :
     previous_frame = _getframe(2)
   except Exception :
