@@ -223,11 +223,11 @@ class LazyModule(ModuleType) :
         return sys.modules[full_name]
       if name in self.__LAZY_MODULE__class_to_module.keys() :
         module_name = self.__LAZY_MODULE__class_to_module[name]
-        if name[0] != '.' :
+        if module_name[0] != '.' :
           module = self.__get_module(module_name)
           value = getattr(module, name)
         else :
-          module = self.__get_module(module, self.__name__)
+          module = self.__get_module(module_name, self.__name__)
           value = module if name.lower() == name else getattr(module, name)
       elif full_name in self.__LAZY_MODULE__modules :
         value = self.__get_module(full_name)
