@@ -195,11 +195,12 @@ class LazyModule(ModuleType) :
           self.__LAZY_MODULE__class_to_module[class_name] = module_name
       # Needed for autocompletion in an IDE
       self.__all__ = list(modules) + list(chain(*classes))
+      self.__loader__ = module.__loader__
+      self.__builtins__ = module.__builtins__
       self.__spec__ = module.__spec__
       self.__file__ = module.__file__
       self.__path__ = [module_dir]
       self.__package__ = module.__package__
-      self.__LAZY_MODULE__name = module.__name__
       self.__LAZY_MODULE__import_structure = import_structure
       self.__LAZY_MODULE__objects = {} if extra_objects is None else extra_objects
 
@@ -244,7 +245,7 @@ class LazyModule(ModuleType) :
 
     def __reduce__(self) :
       return (self.__class__, (
-        self.__LAZY_MODULE__name,
+        self.__name__,
         self.__file__,
         self.__LAZY_MODULE__import_structure
       ))
@@ -253,5 +254,5 @@ class LazyModule(ModuleType) :
 def AutoLoad(**kwargs) :
   module = get_caller_module()
   module = LazyModule(module, **kwargs)
-  sys.modules[module.__name__] = module
+  sys.modules['.'.join(filter(None, [module.__package__, module.__name__]))] = module
   return module
