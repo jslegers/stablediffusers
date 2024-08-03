@@ -4,7 +4,7 @@ from os.path import join, dirname, splitext, isfile, isdir
 from pathlib import PurePath
 from importlib import import_module, util
 from types import ModuleType, FrameType
-from itertools import chain
+from itertools import chain, islice
 from pkgutil import walk_packages
 import pprint
 from inspect import stack
@@ -46,7 +46,7 @@ def get_stack(max_depth: int = None):
         )
 
     try :
-      stack = list(it.islice(frame_infos(inspect.currentframe()), max_depth))
+      stack = list(islice(frame_infos(inspect.currentframe()), max_depth))
       pprint.pp("Success")
     except Exception as e :
       pprint.pp(e)
