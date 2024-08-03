@@ -257,5 +257,5 @@ def AutoLoad(**kwargs) :
   pprint.pp("Name " + module.__name__)
   #module_name = '.'.join(filter(None, [module.__package__, module.__name__]))
   module = LazyModule(module, **kwargs)
-  sys.modules[] = module
+  sys.modules[module.__name__] = module
   return module
