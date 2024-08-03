@@ -170,6 +170,7 @@ class LazyModule(ModuleType) :
 
 def AutoLoad(**kwargs) :
   module = caller_info()
+  pprint.pp(module)
   module_name = module.__name__
   module_file = module.__file__
   module_spec = util.find_spec(module_name)
