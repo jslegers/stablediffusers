@@ -69,7 +69,7 @@ def caller_name(depth = 2):
 
      https://gist.github.com/techtonik/2151727
   """
-  stack = get_stack(2)
+  stack = get_stack()
   start = 0 + depth
   if len(stack) < start + 1:
     raise Exception("Stack limit reached")
