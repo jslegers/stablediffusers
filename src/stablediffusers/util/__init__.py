@@ -1,4 +1,4 @@
-from sys import modules, _getframe
+import sys
 from os import scandir
 from os.path import join, dirname, splitext, isfile, isdir
 from pathlib import PurePath
@@ -11,88 +11,114 @@ from inspect import stack
 import inspect
 
 def get_stack(max_depth: int = None):
-    """Fast alternative to `inspect.stack()`
+  """
+  Fast alternative to `inspect.stack()`
+  Use optional `max_depth` to limit search depth
 
-    Use optional `max_depth` to limit search depth
-    Based on: github.com/python/cpython/blob/3.11/Lib/inspect.py
+  Based on :
+  https://stackoverflow.com/questions/17407119/python-inspect-stack-is-slow
+  https://github.com/python/cpython/blob/3.11/Lib/inspect.py
 
-    Compared to `inspect.stack()`:
-     * Does not read source files to load neighboring context
-     * Less accurate filename determination, still correct for most cases
-     * Does not compute 3.11+ code positions (PEP 657)
+  Compared to `inspect.stack()`:
+   * Does not read source files to load neighboring context
+   * Less accurate filename determination, still correct for most cases
+   * Does not compute 3.11+ code positions (PEP 657)
 
-    Compare:
+  Compare:
 
-    In [3]: %timeit stack_depth(100, lambda: inspect.stack())
-    67.7 ms ± 1.35 ms per loop (mean ± std. dev. of 7 runs, 10 loops each)
+  In [3]: %timeit stack_depth(100, lambda: inspect.stack())
+  67.7 ms ± 1.35 ms per loop (mean ± std. dev. of 7 runs, 10 loops each)
 
-    In [4]: %timeit stack_depth(100, lambda: inspect.stack(0))
-    22.7 ms ± 747 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)
+  In [4]: %timeit stack_depth(100, lambda: inspect.stack(0))
+  22.7 ms ± 747 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)
 
-    In [5]: %timeit stack_depth(100, lambda: fast_stack())
-    108 µs ± 180 ns per loop (mean ± std. dev. of 7 runs, 10,000 loops each)
+  In [5]: %timeit stack_depth(100, lambda: fast_stack())
+  108 µs ± 180 ns per loop (mean ± std. dev. of 7 runs, 10,000 loops each)
 
-    In [6]: %timeit stack_depth(100, lambda: fast_stack(10))
-    14.1 µs ± 33.4 ns per loop (mean ± std. dev. of 7 runs, 100,000 loops each)
-    """
-    def frame_infos(frame: FrameType | None):
-      while frame := frame and frame.f_back:
-        yield inspect.FrameInfo(
-          frame,
-          inspect.getfile(frame),
-          frame.f_lineno,
-          frame.f_code.co_name,
-          None, None,
-        )
+  In [6]: %timeit stack_depth(100, lambda: fast_stack(10))
+  14.1 µs ± 33.4 ns per loop (mean ± std. dev. of 7 runs, 100,000 loops each)
+  """
+  def frame_infos(frame: FrameType | None):
+    while frame := frame and frame.f_back:
+      yield inspect.FrameInfo(
+        frame,
+        inspect.getfile(frame),
+        frame.f_lineno,
+        frame.f_code.co_name,
+        None, None,
+      )
 
-    try :
-      stack = list(islice(frame_infos(inspect.currentframe()), max_depth))
-      pprint.p("Success")
-    except Exception as e :
-      pprint.pp(e)
-      stack = inspect.stack()
-      stack = stack[1:(max_depth+1)]
+  try :
+    stack = list(islice(frame_infos(inspect.currentframe()), max_depth))
+    pprint.pp("SUCCESS")
+  except Exception as e :
+    pprint.pp(e)
+    pprint.pp("Aaaaaaw")
+    # Fallback to `inspect.stack()` in case of error
+    stack = inspect.stack()
+    # Remove 1 frame from the start because of extra call to this wrapper
+    # Remove frames at the end to keep into account `max_depth` calue
+    stack = stack[1:(max_depth+1)]
+  finally :
     return stack
 
-def get_module_from_frame(frame) :
+def get_frame(depth: int = 0) :
+  """
+  Get a frame at a certain depth
+  """
   try :
-    module = modules[frame.f_globals["__name__"]]
-    pprint.pp("get_module_from_frame succeeded")
-    return module
-  except Exception :
-    pprint.pp("get_module_from_frame failed")
+    # Fairly fast, but internal function
+    # Add 1 to the depth to compensate for this wrapper function
+    test = sys._getframe(depth + 1)
+    pprint.pp("YEEEEY")
+    return test
+  except Exception as e :
+    pprint.pp("FAILURE")
+    pprint.pp(e)
+    # Fallback in case `sys._getframe` is not available
+    # Use `f_back` to get earlier frames as far as needed
+    frame = inspect.currentframe().f_back
+    while depth > 0:
+      frame = frame.f_back
+      depth--
+    return frame
+
+def get_module_from_frame(frame) :
+  """
+  Retrieve a module from a `frame`
+  """
+  try :
+    test = sys.modules[frame.f_globals["__name__"]]
+    pprint.pp("YEEEEY")
+    return test
+  except Exception as e :
+    pprint.pp(e)
+    pprint.pp("Aaaaaaaaw")
+    # Fallback in case f_globals not available
     return inspect.getmodule(frame)
 
-def caller_name(depth = 2):
-  """Get a module of a caller
-     `depth` specifies how many levels of stack to skip while getting caller
-     name. depth=1 means "who calls me", depth=2 "who calls my caller" etc.
-
-     https://gist.github.com/techtonik/2151727
+def caller_info(depth = 1):
   """
+  Get a module of a caller
+  `depth` specifies how many levels of stack to skip while getting caller
+  name. depth=1 means "who calls me", depth=2 "who calls my caller" etc.
+
+  Based on https://gist.github.com/techtonik/2151727
+  """
+  depth++
+
   stack = get_stack(depth + 1)
-  start = 0 + depth
-  if len(stack) < start + 1:
+  if len(stack) < depth + 1:
     raise Exception("Stack limit reached")
-  previous_frame = stack[start][0]
+  previous_frame = stack[depth][0]
   return get_module_from_frame(previous_frame)
 
-def caller_info():
-  previous_frame = None
-  previous_frame = inspect.currentframe().f_back.f_back
-  module_name = previous_frame.f_globals["__name__"]
-  return modules[module_name]
   try :
-    previous_frame = _getframe(2)
-  except Exception :
-    previous_frame = inspect.currentframe().f_back.f_back
+    previous_frame = sys.get_frame(depth)
   finally :
-    try :
-      module = modules[module_name]
-    finally :
-      # https://bugs.python.org/issue543148
-      del previous_frame
-  return module
+    # https://bugs.python.org/issue543148
+    del previous_frame
+    return get_module_from_frame(previous_frame)
 
 def lazy_load_module(module_name) :
   if module_name in sys.modules:
@@ -103,7 +129,7 @@ def lazy_load_module(module_name) :
     loader = util.LazyLoader(spec.loader)
     spec.loader = loader
     loader.exec_module(module)
-    modules[name] = module
+    sys.modules[name] = module
     return module_name
   print("Can't lazy load module")
 
@@ -114,7 +140,7 @@ def load_module(module_name) :
   if (spec := util.find_spec(module_name)) is not None :
     module = util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    modules[name] = module
+    sys.modules[name] = module
     return module_name
   print("Can't load module")
 
@@ -219,7 +245,7 @@ class LazyModule(ModuleType) :
         value = self.__get_module(module_name)
       else :
         raise AttributeError(f"Package {self.__name__} has no module {name}")
-      modules[self.__name__ + '.' + module_name] = value
+      sys.modules[self.__name__ + '.' + module_name] = value
       setattr(self, module_name, value)
       return value
 
@@ -244,11 +270,11 @@ class LazyModule(ModuleType) :
 
 
 def AutoLoad(**kwargs) :
-  module = caller_name()
+  module = caller_info()
   pprint.pp(module)
   module_name = module.__name__
   module_file = module.__file__
   module_spec = util.find_spec(module_name)
   module = LazyModule(module_name, module_file, spec = module_spec, **kwargs)
-  modules[module_name] = module
+  sys.modules[module_name] = module
   return module
