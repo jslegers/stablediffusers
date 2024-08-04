@@ -219,13 +219,17 @@ class LazyModule(ModuleType) :
       super().__init__(module.__name__)
       if import_structure is None :
         import_structure = all_files_in_path(module_dir, extension = ".py")
-      modules = import_structure.keys()
-      classes = import_structure.values()
-      self.__LAZY_MODULE__modules = set(modules)
       self.__LAZY_MODULE__class_to_module = {}
-      for module_name, classlist in import_structure.items():
-        for class_name in classlist:
-          self.__LAZY_MODULE__class_to_module[class_name] = module_name
+      if import_structure :
+        modules = import_structure.keys()
+        classes = import_structure.values()
+        for module_name, classlist in import_structure.items():
+          for class_name in classlist:
+            self.__LAZY_MODULE__class_to_module[class_name] = module_name
+      else :
+        modules = []
+        classes = []
+      self.__LAZY_MODULE__modules = set(modules)
       # Needed for autocompletion in an IDE
       self.__all__ = list(modules) + list(chain(*classes))
       self.__spec__ = module.__spec__
