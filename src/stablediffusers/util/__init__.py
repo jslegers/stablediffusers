@@ -183,7 +183,7 @@ def lazy(module_name : str) -> ModuleType :
     spec = module.__spec__
     module = util.module_from_spec(spec)
     # Make module with proper locking and get it inserted into sys.modules.
-    loader.exec_module(spec.loader)
+    loader.exec_module(module)
     return module
   except Exception as e :
     print(e)
