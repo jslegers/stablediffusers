@@ -186,7 +186,7 @@ def blabla(code):
     sys.modules[code] = mod
     return mod
 
-def module(module, attrs = None, run_code = None):
+def module(fullname, attrs = None, run_code = None):
   if not attrs :
     code = f"from {fullname} import *"
     return blabla(code)
