@@ -2,7 +2,7 @@ from stablediffusers.util import AutoLoad
 import sys
 
 module = AutoLoad(import_structure = {
-  "torch" : ["bfloat16", "float16", "device"],
+  "torch" : ["bfloat16", "float16", "device", "Generator"],
   "torch.cuda" : ["is_available", "ipc_collect", "empty_cache"],
   "numba.cuda" : ["select_device", "get_current_device"],
   "gc" : ["collect"],
