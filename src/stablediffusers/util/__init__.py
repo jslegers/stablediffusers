@@ -176,9 +176,9 @@ def lazy_2(fullname):
 
 def lazy(module_name : str) -> ModuleType :
   try:
-    return sys.modules[fullname]
+    return sys.modules[module_name]
   except KeyError:
-    module = import_module(fullname)
+    module = import_module(module_name)
     # module_from_spec doesn't work on Google Collab
     spec = module.__spec__
     module = util.module_from_spec(spec)
