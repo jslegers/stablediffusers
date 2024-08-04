@@ -174,27 +174,36 @@ def lazy_old(fullname):
 
 def module(fullname, props = None):
   try:
+    module = sys.modules[fullname]
+    print(f"Module {fullname} exists")
     if not props :
       module = sys.modules[f"{fullname}import"]
+      print(f"PHASE 1")
       return module
     if isinstance(props, str) :
       module = sys.modules[f"{fullname}import.{props}"]
+      print(f"PHASE 2")
       return getattr(module, props)
     module = sys.modules[f"{fullname}import.{':'.join(props)}"]
+    print(f"PHASE 3")
     return (getattr(module, prop) for prop in props)
   except KeyError:
+    print(f"Module {fullname} doesn't exist")
     spec = util.spec_from_loader(fullname, loader=None)
     module = util.module_from_spec(spec)
     if not props :
+      print(f"PHASE 1 prep")
       source_code = f"from {fullname} import *"
       exec(source_code, module.__dict__)
       sys.modules[f"{fullname}import"] = module
       return module
     if isinstance(props, str) :
+      print(f"PHASE 2 prep")
       source_code = f"from {fullname} import {props}"
       exec(source_code, module.__dict__)
       sys.modules[f"{fullname}import.{props}"] = module
       return getattr(module, props)
+    print(f"PHASE 3 prep")
     source_code = f"from {fullname} import {', '.join(props)}"
     exec(source_code, module.__dict__)
     sys.modules[f"{fullname}import.{':'.join(props)}"] = module
