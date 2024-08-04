@@ -1,72 +1,64 @@
-from stablediffusers.util import AutoLoad
-import sys
+from stablediffusers.util import module
 
-module = AutoLoad(import_structure = {
-  "torch" : ["bfloat16", "float16", "device", "Generator"],
-  "torch.cuda" : ["is_available", "ipc_collect", "empty_cache"],
-  "numba.cuda" : ["select_device", "get_current_device"],
-  "gc" : ["collect"],
-  "accelerate" : ["init_empty_weights"],
-  "huggingface_hub" : ["hf_hub_download", "snapshot_download"],
-  "diffusers.models.model_loading_utils" : ["load_model_dict_into_meta"],
-  "diffusers.utils" : ["logging"],
-  "diffusers" : ["StableDiffusionXLPipeline", "UNet2DConditionModel", "AutoencoderKL"],
-  "transformers" : ["CLIPTextModel", "CLIPTextModelWithProjection"],
-  "sd_embed.embedding_funcs" : ["get_weighted_text_embeddings_sdxl"],
-  "PIL" : ["Image", "ImageDraw", "ImageFont"],
-  "os.path" : ["join"]
+cv2 = module("cv2")
+Image, ImageDraw, ImageFont = module("PIL", ["Image", "ImageDraw", "ImageFont"])
+join = module("os.path", "join")
+
+StableDiffusionXLPipeline = module("diffusers", "StableDiffusionXLPipeline")
+
+get_weighted_text_embeddings_sdxl = module("sd_embed.embedding_funcs", "get_weighted_text_embeddings_sdxl")
+
+collect = module("gc", "collect")
+empty_cache, ipc_collect = module("torch.cuda", ["empty_cache", "ipc_collect"])
+init_empty_weights = module("accelerate", "init_empty_weights")
+load_model_dict_into_meta = module("diffusers.models.model_loading_utils", "load_model_dict_into_meta")
+
+logger = module("diffusers.utils", "logging").get_logger(__name__)
+logger.setLevel("ERROR")
+
+default = {
+  "model" : "stabilityai/stable-diffusion-xl-base-1.0",
+  "device" : "cuda" if module("torch.cuda").is_available() else "cpu",
+  "merging" : {
+    "text_encoder" : {
+      "model" : module("transformers", "CLIPTextModel"),
+      "alpha" : 0.5,
+      "skip_config_check" : True
+    },
+    "text_encoder_2" : {
+      "model" : module("transformers", "CLIPTextModelWithProjection"),
+      "alpha" : 0.5,
+      "skip_config_check" : True
+    },
+    "unet" : {
+      "model" : module("diffusers", "UNet2DConditionModel"),
+      "alpha" : 0.5,
+      "skip_config_check" : True
+    },
+    "vae" : {
+      "model" : module("diffusers", "AutoencoderKL"),
+      "alpha" : 0.5,
+      "skip_config_check" : True
+    }
+  }
+}
+
+default.update({
+  "inference" : {
+    "torch_dtype" : module("torch", "float16"),
+    "variant" : "fp16",
+    "use_safetensors" : True
+  } if default["device"] == "cuda" else {
+    "torch_dtype" : module("torch", "bfloat16"),
+    "variant" : "bf16",
+    "use_safetensors" : True
+  }
 })
-
-import cv2
 
 class ComposableStableDiffusionXLPipeline:
 
-  logger = module.load('logging').get_logger(__name__)
-  logger.setLevel("ERROR")
-
-  cuda_is_available = module.load('is_available')()
-
-  default = {
-    "model" : "stabilityai/stable-diffusion-xl-base-1.0",
-    "device" : "cuda" if cuda_is_available else "cpu",
-    "merging" : {
-      "text_encoder" : {
-        "model" : module.load('CLIPTextModel'),
-        "alpha" : 0.5,
-        "skip_config_check" : True
-      },
-      "text_encoder_2" : {
-        "model" : module.load('CLIPTextModelWithProjection'),
-        "alpha" : 0.5,
-        "skip_config_check" : True
-      },
-      "unet" : {
-        "model" : module.load('UNet2DConditionModel'),
-        "alpha" : 0.5,
-        "skip_config_check" : True
-      },
-      "vae" : {
-        "model" : module.load('AutoencoderKL'),
-        "alpha" : 0.5,
-        "skip_config_check" : True
-      }
-    }
-  }
-
-  default.update({
-    "inference" : {
-      "torch_dtype" : module.load('float16'),
-      "variant" : "fp16",
-      "use_safetensors" : True
-    } if default["device"] == "cuda" else {
-      "torch_dtype" : module.load('bfloat16'),
-      "variant" : "bf16",
-      "use_safetensors" : True
-    }
-  })
-
-  device = module.load('device')(default["device"])
-  generator = module.load('Generator')(device = device)
+  device = module("torch", "device")(default["device"])
+  generator = module("torch", "Generator")(device = device)
 
   name = {}
   path = {}
@@ -115,14 +107,14 @@ class ComposableStableDiffusionXLPipeline:
 
   @classmethod
   def flush(cls, *args, **kwargs):
-    module.load('collect')()
-    module.load('empty_cache')()
-    module.load('ipc_collect')()
+    collect()
+    empty_cache()
+    ipc_collect()
 
   @classmethod
   def load_model(cls, *args, **kwargs):
     path, *_ = list(args) + [None]
-    path = path if path else cls.default["model"]
+    path = path if path else default["model"]
     skip_load_from_memory = kwargs.pop("skip_load_from_memory", False)
     name = kwargs.pop("name", path)
     if not skip_load_from_memory :
@@ -133,18 +125,18 @@ class ComposableStableDiffusionXLPipeline:
         if by_name is not by_path :
           cls.current[1].append(name)
           cls.name[name] = cls.current
-        cls.logger.info(f"Loading model {name} from memory")
+        logger.info(f"Loading model {name} from memory")
         return cls
-    cls.logger.info(f"Loading model {name} from {path}")
+    logger.info(f"Loading model {name} from {path}")
     try :
-      inference = cls.default["inference"].copy()
-      return cls.default["merging"][name]["model"].from_pretrained(path, **inference, **{
+      inference = default["inference"].copy()
+      return default["merging"][name]["model"].from_pretrained(path, **inference, **{
         "subfolder" : name
       })
     except :
-      cls.logger.info("Logging default variant instead")
+      logger.info("Logging default variant instead")
       inference.pop("variant")
-      pipeline = module.load('StableDiffusionXLPipeline').from_pretrained(path, **kwargs, **inference).to(dtype=cls.default["inference"]["torch_dtype"])
+      pipeline = StableDiffusionXLPipeline.from_pretrained(path, **kwargs, **inference).to(dtype=cls.default["inference"]["torch_dtype"])
     cls.name[name] = [None, [name], pipeline]
     cls.current = cls.name[name]
     if "unet" in kwargs or "text_encoder" in kwargs or "text_encoder_2" in kwargs or "vae" in kwargs :
@@ -163,7 +155,7 @@ class ComposableStableDiffusionXLPipeline:
     })
     if model is not None :
       name = kwargs["name"] if "name" in kwargs else model[0]
-      cls.logger.info(f"Unloading model '{name}'")
+      logger.info(f"Unloading model '{name}'")
       if model[0] is not None :
         del cls.path[model[0]]
       for name in model[1] :
@@ -201,7 +193,7 @@ class ComposableStableDiffusionXLPipeline:
       "prompt_neg_embeds",
       "pooled_prompt_embeds",
       "negative_pooled_prompt_embeds"
-    ), module.load('get_weighted_text_embeddings_sdxl')(cls.current[2], prompt = ', '.join(filter(None, (
+    ), get_weighted_text_embeddings_sdxl(cls.current[2], prompt = ', '.join(filter(None, (
       prompt,
       kwargs.pop("prompt_2", None)
     ))), neg_prompt = ', '.join(filter(None, (
@@ -218,7 +210,7 @@ class ComposableStableDiffusionXLPipeline:
       raise Exception ("Models must have a unique name")
     path, *_ = list(args) + [None]
     if path is None :
-      path = cls.default["model"] if cls.current is None else cls.current[0]
+      path = default["model"] if cls.current is None else cls.current[0]
     model = cls.__get_model_from_store(path)
     if model is not None :
       model = model[2]
@@ -251,15 +243,15 @@ class ComposableStableDiffusionXLPipeline:
     w, h = imgs[0].size
     prompt_height = h * rows // 2 - (2 * text_margin)
     prompt_width = cols*w - (2 * text_margin)
-    grid = module.load('Image').new('RGB', size=(cols*w, rows*h + prompt_height))
+    grid = Image.new('RGB', size=(cols*w, rows*h + prompt_height))
     grid_w, grid_h = grid.size
     grid.paste((255,255,255, 255), (0, 0, grid_w, grid_h))
-    draw = module.load('ImageDraw').Draw(grid)
+    draw = ImageDraw.Draw(grid)
     # requires a newer version of pillow
     # use a truetype font
-    font_path = module.load('join')(cv2.__path__[0],'qt','fonts','DejaVuSans.ttf')
+    font_path = join(cv2.__path__[0],'qt','fonts','DejaVuSans.ttf')
     font_size = 30
-    font = module.load('ImageFont').truetype(font_path, font_size)
+    font = ImageFont.truetype(font_path, font_size)
     draw.text((text_margin, text_margin), cls.wrap_text(prompt, prompt_width, font), font = font, fill=(0,0,0, 255))
     for i, img in enumerate(imgs):
       grid.paste(img, box=(i%cols*w, prompt_height + (i//cols*h)))
@@ -268,7 +260,7 @@ class ComposableStableDiffusionXLPipeline:
   @classmethod
   def __load_component_from_config(cls, config, **kwargs):
     name = kwargs.setdefault("name", "unet")
-    model = cls.default["merging"][name]["model"]
+    model = default["merging"][name]["model"]
     return model(config) if "text_encoder" in name else model.from_config(config)
 
   @classmethod
@@ -278,16 +270,16 @@ class ComposableStableDiffusionXLPipeline:
       return getattr(cls.path[path][2], name)
     else :
       try :
-        inference = cls.default["inference"].copy()
-        return cls.default["merging"][name]["model"].from_pretrained(path, **inference, **{
+        inference = default["inference"].copy()
+        return default["merging"][name]["model"].from_pretrained(path, **inference, **{
           "subfolder" : name
         })
       except :
-        cls.logger.info("Logging default variant instead")
+        logger.info("Logging default variant instead")
         inference.pop("variant")
-        return cls.default["merging"][name]["model"].from_pretrained(path, **inference, **{
+        return default["merging"][name]["model"].from_pretrained(path, **inference, **{
           "subfolder" : name
-        }).to(dtype=cls.default["inference"]["torch_dtype"])
+        }).to(dtype=default["inference"]["torch_dtype"])
 
   @classmethod
   def __compare_configs(cls, config_a, config_b, skip_keys):
@@ -303,14 +295,14 @@ class ComposableStableDiffusionXLPipeline:
   @classmethod
   def merge(cls, model_a_name, model_b_name, **kwargs):
     model = kwargs.setdefault("model", "unet")
-    alpha = kwargs.setdefault("alpha", cls.default["merging"][model]["alpha"])
-    skip_config_check = kwargs.setdefault("skip_config_check", cls.default["merging"][model]["skip_config_check"])
-    torch_dtype = kwargs.setdefault("torch_dtype", cls.default["inference"]["torch_dtype"])
+    alpha = kwargs.setdefault("alpha", default["merging"][model]["alpha"])
+    skip_config_check = kwargs.setdefault("skip_config_check", default["merging"][model]["skip_config_check"])
+    torch_dtype = kwargs.setdefault("torch_dtype", default["inference"]["torch_dtype"])
 
     model_a = cls.__get_component(model_a_name, name = model)
     model_b = cls.__get_component(model_b_name, name = model)
 
-    cls.logger.info(f"Verifying {model} model compatibility...")
+    logger.info(f"Verifying {model} model compatibility...")
     keys_to_skip = {"_diffusers_version", "_name_or_path", "_use_default_values"}
 
     if not skip_config_check:
@@ -318,12 +310,12 @@ class ComposableStableDiffusionXLPipeline:
       mismatched_keys = cls.__compare_configs(model_a.config, model_b.config, keys_to_skip)
 
       if mismatched_keys:
-        cls.logger.error(f"{model.capitalize()} models have different configurations. Mismatched keys:")
+        logger.error(f"{model.capitalize()} models have different configurations. Mismatched keys:")
         for key in mismatched_keys:
-          cls.logger.error(key)
+          logger.error(key)
         raise ValueError(f"{model.capitalize()} models cannot be merged due to configuration differences.")
 
-      cls.logger.info(f"{model.capitalize()} models are compatible.")
+      logger.info(f"{model.capitalize()} models are compatible.")
 
     merged_state_dict = {}
 
@@ -343,12 +335,12 @@ class ComposableStableDiffusionXLPipeline:
       # Clear GPU memory
       del tensor_a
       del tensor_b
-      module.load('empty_cache')()
+      empty_cache()
 
-    cls.logger.info(f"Creating merged {model} model...")
-    with module.load('init_empty_weights')():
+    logger.info(f"Creating merged {model} model...")
+    with init_empty_weights():
       merged_model = cls.__load_component_from_config(model_a.config, name = model)
 
-    module.load('load_model_dict_into_meta')(merged_model, merged_state_dict, device = cls.device, dtype = cls.default["inference"]["torch_dtype"])
+    load_model_dict_into_meta(merged_model, merged_state_dict, device = cls.device, dtype = default["inference"]["torch_dtype"])
 
     return merged_model
