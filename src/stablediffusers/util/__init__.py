@@ -61,15 +61,6 @@ def get_stack(max_depth : int = None) :
   finally :
     return stack
 
-def import_from_string(module_name, source_code):
-  try :
-    spec = util.spec_from_loader(module_name, loader=None)
-    module = util.module_from_spec(spec)
-    exec(source_code, module.__dict__)
-    return module
-  except Exception as e :
-    print(e)
-
 def get_frame(depth: int = 0) :
   """
   Get a frame at a certain depth
@@ -120,25 +111,50 @@ def get_caller_module(depth : int = 1) -> ModuleType :
     del previous_frame
     return module
 
-def lazy_load_module(module_name : str) -> ModuleType :
-  if module_name in sys.modules:
-    print(f"{module_name} already in sys.modules")
-    return sys.modules[module_name]
-  if (spec := util.find_spec(module_name)) is not None :
-    module = util.module_from_spec(spec)
-    loader = util.LazyLoader(spec.loader)
-    spec.loader = loader
-    loader.exec_module(module)
-    sys.modules[module_name] = module
-    return module
-  print("Can't lazy load module")
-
 def load_module_from_file_path(module_name, file_path):
     """Import a module given its name and file path."""
     spec = util.spec_from_file_location(module_name, file_path)
     module = util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+def import_from_string(module_name, source_code):
+  try :
+    spec = util.spec_from_loader(module_name, loader=None)
+    module = util.module_from_spec(spec)
+    exec(source_code, module.__dict__)
+    return module
+  except Exception as e :
+    print(e)
+
+def lazy_load_module(module_name : str) -> ModuleType :
+  try :
+    if module_name in sys.modules:
+      print(f"{module_name} already in sys.modules")
+      return sys.modules[module_name]
+    if (spec := util.find_spec(module_name)) is not None :
+      module = util.module_from_spec(spec)
+      loader = util.LazyLoader(spec.loader)
+      spec.loader = loader
+      loader.exec_module(module)
+      return module
+  except Exception as e :
+    print(e)
+  print("Can't lazy load module")
+
+def lazy(fullname):
+  try:
+    return sys.modules[fullname]
+  except KeyError:
+    spec = importlib.util.find_spec(fullname)
+    module = importlib.util.module_from_spec(spec)
+    loader = importlib.util.LazyLoader(spec.loader)
+    # Make module with proper locking and get it inserted into sys.modules.
+    loader.exec_module(module)
+    return module
+  except Exception as e :
+    print(e)
+  print("Can't lazy load module")
 
 def load_module(module_name : str) -> ModuleType :
   try :
