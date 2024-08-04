@@ -188,7 +188,7 @@ def module(fullname, props = None):
       source_code = f"from {fullname} import *"
       exec(source_code, module.__dict__)
       return module
-    if props isinstance(props, str) :
+    if isinstance(props, str) :
       source_code = f"from {fullname} import {props}"
       exec(source_code, module.__dict__)
       return getattr(module, prop
