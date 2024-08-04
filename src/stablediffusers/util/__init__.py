@@ -63,18 +63,9 @@ def get_stack(max_depth : int = None) :
 
 def import_from_string(module_name, source_code):
   try :
-    print(module_name)
-    print(source_code)
-    print("POSITION 1")
     spec = util.spec_from_loader(module_name, loader=None)
-    print("POSITION 2")
     module = util.module_from_spec(spec)
-    print("POSITION 3")
     exec(source_code, module.__dict__)
-    print("POSITION 4")
-    pprint.pp(module)
-    print("POSITION 5")
-    print("POSITION 6")
     return module
   except Exception as e :
     print(e)
@@ -101,8 +92,6 @@ def get_module_from_frame(frame) :
   Retrieve a module from a `frame`
   """
   try :
-    print(frame.f_globals["__name__"])
-    pprint.pp(frame)
     return sys.modules[frame.f_globals["__name__"]]
   except Exception as e :
     # Fallback in case f_globals not available
@@ -152,24 +141,16 @@ def load_module_from_file_path(module_name, file_path):
     return module
 
 def load_module(module_name : str) -> ModuleType :
-  print("MODULE NAME 1" + module_name)
   try :
     if module_name in sys.modules:
       print(f"{module_name} already in sys.modules")
       return sys.modules[module_name]
     if (spec := util.find_spec(module_name)) is not None :
-      print("MODULE NAME 2" + module_name)
-      pprint.pp(spec)
       module = util.module_from_spec(spec)
-      print("MODULE NAME 3" + module_name)
-      pprint.pp(inspect.getmembers(module))
       spec.loader.exec_module(module)
-      print("MODULE NAME 4" + module_name)
       return module
-    print("MODULE NAME 5" + module_name)
   except Exception as e :
     print(e)
-  print("MODULE NAME 6" + module_name)
   print("Can't load module")
 
 def snake_to_camel(word : str) -> str :
@@ -257,14 +238,9 @@ class LazyModule(ModuleType) :
         if module_name[0] != '.' :
           source_code = f"from {module_name} import {name}"
           module = import_from_string(module_name+'.'+name, source_code)
-          print("POSITION 7")
           value = getattr(module, name)
-          print("POSITION 8")
           sys.modules[self.__name__ + '.' + name] = module
-          print("POSITION 9")
           setattr(self, '__LAZY_MODULE__module__'+name, value)
-          print("POSITION 10")
-          print(value)
           return value
       return getattr(self, '__LAZY_MODULE__module__'+name)
 
@@ -283,12 +259,7 @@ class LazyModule(ModuleType) :
       elif f".{name}" in self.__LAZY_MODULE__modules :
         value = self.__get_module(self.__name__+name)
       else :
-        pprint.pp(self)
-        pprint.pp(self.__LAZY_MODULE__class_to_module)
-        pprint.pp(self.__LAZY_MODULE__modules)
         raise AttributeError(f"Attribute {name} unknown for module {self.__name__}.")
-      print("FULL NAME " + full_name)
-      pprint.pp(value)
       sys.modules[full_name] = value
       setattr(self, name, value)
       return value
@@ -296,7 +267,6 @@ class LazyModule(ModuleType) :
 
     def __get_module(self, name: str) :
       #try :
-        print("NAME " + name)
         module = import_module(name)
         spec = module.__spec__
         spec.loader.exec_module(module)
@@ -318,7 +288,6 @@ class LazyModule(ModuleType) :
 def AutoLoad(**kwargs) :
   module = get_caller_module()
   module_name = module.__name__
-  print("AUTOLOAD " + module.__name__)
   #module_name = '.'.join(filter(None, [module.__package__, module.__name__]))
   module = LazyModule(module, **kwargs)
   sys.modules[module_name] = module
