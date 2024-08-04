@@ -144,6 +144,13 @@ def lazy_load_module(module_name : str) -> ModuleType :
     return module
   print("Can't lazy load module")
 
+def load_module_from_file_path(module_name, file_path):
+    """Import a module given its name and file path."""
+    spec = util.spec_from_file_location(module_name, file_path)
+    module = util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
 def load_module(module_name : str) -> ModuleType :
   print("MODULE NAME 1" + module_name)
   try :
@@ -158,7 +165,6 @@ def load_module(module_name : str) -> ModuleType :
       pprint.pp(inspect.getmembers(module))
       spec.loader.exec_module(module)
       print("MODULE NAME 4" + module_name)
-      sys.modules[module_name] = module
       return module
     print("MODULE NAME 5" + module_name)
   except Exception as e :
@@ -291,7 +297,10 @@ class LazyModule(ModuleType) :
     def __get_module(self, name: str) :
       #try :
         print("NAME " + name)
-        return load_module(name)
+        module = load_module(name)
+        spec = module.__spec__
+        spec.loader.exec_module(module)
+        return module
       #except Exception as e :
       #  raise RuntimeError(
       #    f"Failed to import {self.__name__}.{name} because of the following error (look up to see its"
