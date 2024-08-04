@@ -20,7 +20,7 @@ logger.setLevel("ERROR")
 
 default = {
   "model" : "stabilityai/stable-diffusion-xl-base-1.0",
-  "device" : "cuda" if module("torch.cuda")() else "cpu",
+  "device" : "cuda" if module("torch.cuda").is_available() else "cpu",
   "merging" : {
     "text_encoder" : {
       "model" : module("transformers", "CLIPTextModel"),
