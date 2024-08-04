@@ -179,11 +179,8 @@ def lazy(fullname):
     module = import_module(fullname)
     # module_from_spec doesn't work on Google Collab
     spec = module.__spec__
-    del sys.modules[fullname]
-    module = util.module_from_spec(spec)
-    loader = util.LazyLoader(spec.loader)
     # Make module with proper locking and get it inserted into sys.modules.
-    loader.exec_module(module)
+    spec.loader.exec_module(module)
     return module
   except Exception as e :
     print(e)
