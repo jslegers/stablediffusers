@@ -1,3 +1,5 @@
+from stablediffusers.util import module
+
 cv2 = module("cv2")
 Image, ImageDraw, ImageFont = module("PIL", ["Image", "ImageDraw", "ImageFont"])
 join = module("os.path", "join")
