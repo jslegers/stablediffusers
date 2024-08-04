@@ -172,10 +172,10 @@ def lazy_old(fullname):
     print(e)
   print("Can't lazy load module")
 
-def get_module_from_code(fullname, source_code):
+def get_module_from_code(fullname, source_code = None):
   spec = util.spec_from_loader(fullname, loader=None)
   module = util.module_from_spec(spec)
-  exec(source_code, module.__dict__)
+  exec(source_code if source_code else fullname, module.__dict__)
   return module
 
 def module(fullname, attrs = None):
