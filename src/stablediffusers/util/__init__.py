@@ -174,12 +174,12 @@ def lazy_old(fullname):
 
 def get_module_attrs(module, attrs = None, run_code = None):
   if not props :
-    return module if not run_code
+    return module if not run_code \
       else run_code(f"from {fullname} import *")
   if isinstance(attrs, str) :
-    return getattr(module, attrs) if not run_code
+    return getattr(module, attrs) if not run_code \
       else run_code(f"from {fullname} import {attrs}")
-  return (getattr(module, attrs) for attr in attrs) if not run_code
+  return (getattr(module, attrs) for attr in attrs) if not run_code \
     else run_code(f"from {fullname} import {', '.join(attrs)}")
 
 def module(fullname, attrs = None):
