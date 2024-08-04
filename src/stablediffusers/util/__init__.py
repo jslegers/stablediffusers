@@ -165,6 +165,7 @@ def lazy(fullname):
     spec = module.__spec__
     # test
     del module
+    module = util.module_from_spec(spec)
     loader = util.LazyLoader(spec.loader)
     # Make module with proper locking and get it inserted into sys.modules.
     loader.exec_module(module)
