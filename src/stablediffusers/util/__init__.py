@@ -178,7 +178,7 @@ def module(fullname, props = None):
     if not props :
       return module
     if isinstance(props, str) :
-      return getattr(module, prop)
+      return getattr(module, props)
     return (getattr(module, prop) for prop in props)
   except KeyError:
     spec = util.spec_from_loader(fullname, loader=None)
@@ -191,7 +191,7 @@ def module(fullname, props = None):
     if isinstance(props, str) :
       source_code = f"from {fullname} import {props}"
       exec(source_code, module.__dict__)
-      return getattr(module, prop)
+      return getattr(module, props)
     source_code = f"from {fullname} import {', '.join(props)}"
     exec(source_code, module.__dict__)
     return (getattr(module, prop) for prop in props)
