@@ -297,7 +297,7 @@ class LazyModule(ModuleType) :
     def __get_module(self, name: str) :
       #try :
         print("NAME " + name)
-        module = load_module(name)
+        module = import_module(name)
         spec = module.__spec__
         spec.loader.exec_module(module)
         return module
