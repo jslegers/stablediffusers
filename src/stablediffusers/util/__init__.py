@@ -161,7 +161,10 @@ def lazy(fullname):
     return sys.modules[fullname]
   except KeyError:
     module = import_module(fullname)
+    # module_from_spec doesn't work on Google Collab
     spec = module.__spec__
+    # test
+    del module
     loader = util.LazyLoader(spec.loader)
     # Make module with proper locking and get it inserted into sys.modules.
     loader.exec_module(module)
