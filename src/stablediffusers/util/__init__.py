@@ -156,7 +156,7 @@ def lazy_old(fullname):
     print(e)
   print("Can't lazy load module")
 
-def lazy(fullname):
+def lazy_2(fullname):
   try:
     return sys.modules[fullname]
   except KeyError:
@@ -173,6 +173,34 @@ def lazy(fullname):
   except Exception as e :
     print(e)
   print("Can't lazy load module")
+
+def lazy(name, package=None):
+    """An approximate implementation of import."""
+    absolute_name = util.resolve_name(name, package)
+    try:
+        return sys.modules[absolute_name]
+    except KeyError:
+        pass
+
+    path = None
+    if '.' in absolute_name:
+        parent_name, _, child_name = absolute_name.rpartition('.')
+        parent_module = import_module(parent_name)
+        path = parent_module.__spec__.submodule_search_locations
+    for finder in sys.meta_path:
+        spec = finder.find_spec(absolute_name, path)
+        if spec is not None:
+            break
+    else:
+        msg = f'No module named {absolute_name!r}'
+        raise ModuleNotFoundError(msg, name=absolute_name)
+    module = util.module_from_spec(spec)
+    sys.modules[absolute_name] = module
+    loader = util.LazyLoader(spec.loader)
+    loader.exec_module(module)
+    if path is not None:
+        setattr(parent_module, child_name, module)
+    return module
 
 def load_module(module_name : str) -> ModuleType :
   try :
