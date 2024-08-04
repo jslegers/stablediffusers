@@ -131,13 +131,14 @@ def lazy(module_name : str) :
   try:
     return sys.modules[module_name]
   except KeyError:
-    module = util.module_from_spec(spec)
-    loader = util.LazyLoader(spec.loader)
-    spec.loader = loader
-    loader.exec_module(module)
-    sys.modules[module_name] = module
-    globals()[module_name] = module
-    return module
+    if (spec := util.find_spec(module_name)) is not None :
+      module = util.module_from_spec(spec)
+      loader = util.LazyLoader(spec.loader)
+      spec.loader = loader
+      loader.exec_module(module)
+      sys.modules[module_name] = module
+      globals()[module_name] = module
+      return module
   except Exception as e :
     print(e)
   print("Can't lazy load module")
