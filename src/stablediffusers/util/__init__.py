@@ -190,12 +190,11 @@ def module(module, attrs = None, run_code = None):
   if not attrs :
     code = f"from {fullname} import *"
     return blabla(code)
-  elif isinstance(attrs, str) :
+  if isinstance(attrs, str) :
     code = f"from {fullname} import {attrs}"
     return getattr(blabla(code), attrs)
-  else
-    code = f"from {fullname} import {', '.join(attrs)}"
-    return (getattr(blabla(code), attr) for attr in attrs)
+  code = f"from {fullname} import {', '.join(attrs)}"
+  return (getattr(blabla(code), attr) for attr in attrs)
 
 def old_module_2(fullname, attrs = None):
   def get_module_attrs(module, attrs = None, run_code = None):
