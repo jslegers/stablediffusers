@@ -174,7 +174,22 @@ def lazy_2(fullname):
     print(e)
   print("Can't lazy load module")
 
-def lazy(name, package=None):
+def lazy(module_name : str) -> ModuleType :
+  try:
+    return sys.modules[fullname]
+  except KeyError:
+    module = import_module(fullname)
+    # module_from_spec doesn't work on Google Collab
+    spec = module.__spec__
+    module = util.module_from_spec(spec)
+    # Make module with proper locking and get it inserted into sys.modules.
+    loader.exec_module(spec.loader)
+    return module
+  except Exception as e :
+    print(e)
+  print("Can't lazy load module")
+
+def lazy_3(name, package=None):
     """An approximate implementation of import."""
     absolute_name = util.resolve_name(name, package)
     try:
