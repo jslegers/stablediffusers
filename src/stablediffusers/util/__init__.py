@@ -173,15 +173,31 @@ def lazy_old(fullname):
   print("Can't lazy load module")
 
 def get_module_from_code(fullname, source_code = None):
-  spec = util.spec_from_loader(fullname, loader=None)
+  spec = util.spec_from_loader(fullname, loader = None)
   module = util.module_from_spec(spec)
   exec(source_code if source_code else fullname, module.__dict__)
-  sys.modules[fullname] = module
-  print(fullname)
-  print(source_code)
   return module
 
-def module(fullname, attrs = None):
+def blabla(code):
+  try:
+    return sys.modules[code]
+  except KeyError:
+    mod = get_module_from_code(code)
+    sys.modules[code] = mod
+    return mod
+
+def module(module, attrs = None, run_code = None):
+  if not attrs :
+    code = f"from {fullname} import *"
+    return blabla(code)
+  elif isinstance(attrs, str) :
+    code = f"from {fullname} import {attrs}"
+    return getattr(blabla(code), attrs)
+  else
+    code = f"from {fullname} import {', '.join(attrs)}"
+    return (getattr(blabla(code), attr) for attr in attrs)
+
+def old_module_2(fullname, attrs = None):
   def get_module_attrs(module, attrs = None, run_code = None):
     print(module)
     print(attrs)
