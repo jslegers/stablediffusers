@@ -184,10 +184,10 @@ def module(fullname, attrs = None):
       return module if not run_code \
         else run_code(f"from {fullname} import *")
     if isinstance(attrs, str) :
-      return getattr(module, attrs) if not run_code \
-        else run_code(f"from {fullname} import {attrs}")
-    return (getattr(module, attrs) for attr in attrs) if not run_code \
-      else run_code(f"from {fullname} import {', '.join(attrs)}")
+      return getattr(module if not run_code \
+        else run_code(f"from {fullname} import {attrs}"), attrs)
+    return (getattr(module if not run_code \
+      else run_code(f"from {fullname} import {', '.join(attrs)}"), attr) for attr in attrs)
   try:
     return get_module_attrs(sys.modules[fullname], attrs)
   except KeyError:
