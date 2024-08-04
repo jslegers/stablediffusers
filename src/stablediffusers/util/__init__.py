@@ -131,10 +131,12 @@ def lazy(module_name : str) :
   try:
     return sys.modules[module_name]
   except KeyError:
-    source_code = f"import {module_name}"
-    spec = util.spec_from_loader(module_name, loader=None)
     module = util.module_from_spec(spec)
-    exec(source_code, module.__dict__)
+    loader = util.LazyLoader(spec.loader)
+    spec.loader = loader
+    loader.exec_module(module)
+    sys.modules[module_name] = module
+    globals()[module_name] = module
     return module
   except Exception as e :
     print(e)
