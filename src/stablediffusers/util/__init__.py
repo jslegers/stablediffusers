@@ -174,26 +174,30 @@ def lazy_old(fullname):
 
 def module(fullname, props = None):
   try:
-    module = sys.modules[f"{fullname}import"]
     if not props :
+      module = sys.modules[f"{fullname}import"]
       return module
     if isinstance(props, str) :
+      module = sys.modules[f"{fullname}import.{props}"]
       return getattr(module, props)
+    module = sys.modules[f"{fullname}import.{':'.join(props)}"]
     return (getattr(module, prop) for prop in props)
   except KeyError:
     spec = util.spec_from_loader(fullname, loader=None)
     module = util.module_from_spec(spec)
-    sys.modules[f"{fullname}import"] = module
     if not props :
       source_code = f"from {fullname} import *"
       exec(source_code, module.__dict__)
+      sys.modules[f"{fullname}import"] = module
       return module
     if isinstance(props, str) :
       source_code = f"from {fullname} import {props}"
       exec(source_code, module.__dict__)
+      sys.modules[f"{fullname}import.{props}"] = module
       return getattr(module, props)
     source_code = f"from {fullname} import {', '.join(props)}"
     exec(source_code, module.__dict__)
+    sys.modules[f"{fullname}import.{':'.join(props)}"] = module
     return (getattr(module, prop) for prop in props)
   except Exception as e :
     print(e)
