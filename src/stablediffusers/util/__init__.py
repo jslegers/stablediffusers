@@ -142,11 +142,26 @@ def lazy_load_module(module_name : str) -> ModuleType :
     print(e)
   print("Can't lazy load module")
 
-def lazy(fullname):
+def lazy_old(fullname):
   try:
     return sys.modules[fullname]
   except KeyError:
     spec = util.find_spec(fullname)
+    module = util.module_from_spec(spec)
+    loader = util.LazyLoader(spec.loader)
+    # Make module with proper locking and get it inserted into sys.modules.
+    loader.exec_module(module)
+    return module
+  except Exception as e :
+    print(e)
+  print("Can't lazy load module")
+
+def lazy(fullname):
+  try:
+    return sys.modules[fullname]
+  except KeyError:
+    module = import_module(fullname)
+    spec = module.__spec__
     module = util.module_from_spec(spec)
     loader = util.LazyLoader(spec.loader)
     # Make module with proper locking and get it inserted into sys.modules.
