@@ -127,7 +127,7 @@ def import_from_string(module_name, source_code):
   except Exception as e :
     print(e)
 
-def lazy(module_name : str) :
+def lazy_another_fail(module_name : str) :
   try:
     return sys.modules[module_name]
   except KeyError:
@@ -172,15 +172,13 @@ def lazy_old(fullname):
     print(e)
   print("Can't lazy load module")
 
-def lazy_2(fullname):
+def lazy(fullname):
   try:
     return sys.modules[fullname]
   except KeyError:
     module = import_module(fullname)
     # module_from_spec doesn't work on Google Collab
     spec = module.__spec__
-    # test
-    del module
     module = util.module_from_spec(spec)
     loader = util.LazyLoader(spec.loader)
     # Make module with proper locking and get it inserted into sys.modules.
