@@ -174,11 +174,12 @@ def lazy_old(fullname):
 
 def lazy(fullname):
   try:
-    return sys.modules[fullname]
+    return sys.modules[f"{fullname}import"]
   except KeyError:
-    source_code = f"from {module_name} import *"
-    spec = util.spec_from_loader(module_name, loader=None)
+    source_code = f"from {fullname} import *"
+    spec = util.spec_from_loader(fullname, loader=None)
     module = util.module_from_spec(spec)
+    sys.modules[f"{fullname}import"] = module
     exec(source_code, module.__dict__)
     return module
   except Exception as e :
