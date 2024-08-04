@@ -183,6 +183,9 @@ def get_module_from_code(fullname, source_code = None):
 
 def module(fullname, attrs = None):
   def get_module_attrs(module, attrs = None, run_code = None):
+    print(module)
+    print(attrs)
+    print(run_code)
     if not attrs :
       return module if not run_code \
         else run_code(f"from {fullname} import *")
