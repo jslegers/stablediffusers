@@ -1,51 +1,42 @@
-from stablediffusers.util import AutoLoad, lazy
+from stablediffusers.util import module
 
-cv2 = lazy("cv2")
-torch = lazy("torch")
-PIL = lazy("PIL")
-path = lazy("os").path
+cv2 = module("cv2")
+Image, ImageDraw, ImageFont = module("PIL", ["Image", "ImageDraw", "ImageFont"])
+join = module("os.path", "join")
 
-StableDiffusionXLPipeline = lazy("diffusers").StableDiffusionXLPipeline
-UNet2DConditionModel = lazy("diffusers").UNet2DConditionModel
-AutoencoderKL = lazy("diffusers").AutoencoderKL
+StableDiffusionXLPipeline = module("diffusers", "StableDiffusionXLPipeline")
 
-CLIPTextModel = lazy("transformers").CLIPTextModel
-CLIPTextModelWithProjection = lazy("transformers").CLIPTextModelWithProjection
+get_weighted_text_embeddings_sdxl = module("sd_embed.embedding_funcs", "get_weighted_text_embeddings_sdxl")
 
-get_weighted_text_embeddings_sdxl = lazy("sd_embed.embedding_funcs").get_weighted_text_embeddings_sdxl
+collect = module("gc", "collect")
+empty_cache, ipc_collect = module("torch.cuda", ["empty_cache", "ipc_collect"])
+init_empty_weights = module("accelerate", "init_empty_weights")
+load_model_dict_into_meta = module("diffusers", "models").model_loading_utils.load_model_dict_into_meta
 
-collect = lazy("gc").collect
-empty_cache = lazy("torch.cuda").empty_cache
-ipc_collect = lazy("torch.cuda").ipc_collect
-init_empty_weights = lazy("accelerate").init_empty_weights
-load_model_dict_into_meta = lazy("diffusers").models.model_loading_utils.load_model_dict_into_meta
-
-logger = lazy("diffusers").utils.logging.get_logger(__name__)
+logger = module("diffusers.utils", "logging").get_logger(__name__)
 logger.setLevel("ERROR")
-
-cuda_is_available = lazy("torch.cuda").is_available()
 
 default = {
   "model" : "stabilityai/stable-diffusion-xl-base-1.0",
-  "device" : "cuda" if cuda_is_available else "cpu",
+  "device" : "cuda" if module("torch.cuda").is_available() else "cpu",
   "merging" : {
     "text_encoder" : {
-      "model" : CLIPTextModel,
+      "model" : module("transformers", "CLIPTextModel"),
       "alpha" : 0.5,
       "skip_config_check" : True
     },
     "text_encoder_2" : {
-      "model" : CLIPTextModelWithProjection,
+      "model" : module("transformers", "CLIPTextModelWithProjection"),
       "alpha" : 0.5,
       "skip_config_check" : True
     },
     "unet" : {
-      "model" : UNet2DConditionModel,
+      "model" : module("diffusers", "UNet2DConditionModel"),
       "alpha" : 0.5,
       "skip_config_check" : True
     },
     "vae" : {
-      "model" : AutoencoderKL,
+      "model" : module("diffusers", "AutoencoderKL"),
       "alpha" : 0.5,
       "skip_config_check" : True
     }
@@ -54,11 +45,11 @@ default = {
 
 default.update({
   "inference" : {
-    "torch_dtype" : torch.float16,
+    "torch_dtype" : module("torch", "float16"),
     "variant" : "fp16",
     "use_safetensors" : True
   } if default["device"] == "cuda" else {
-    "torch_dtype" : torch.bfloat16,
+    "torch_dtype" : module("torch", "bfloat16"),
     "variant" : "bf16",
     "use_safetensors" : True
   }
@@ -66,8 +57,8 @@ default.update({
 
 class ComposableStableDiffusionXLPipeline:
 
-  device = torch.device(default["device"])
-  generator = torch.Generator(device = device)
+  device = module("torch", "device")(default["device"])
+  generator = module("torch", "Generator")(device = device)
 
   name = {}
   path = {}
@@ -252,15 +243,15 @@ class ComposableStableDiffusionXLPipeline:
     w, h = imgs[0].size
     prompt_height = h * rows // 2 - (2 * text_margin)
     prompt_width = cols*w - (2 * text_margin)
-    grid = PIL.Image.new('RGB', size=(cols*w, rows*h + prompt_height))
+    grid = Image.new('RGB', size=(cols*w, rows*h + prompt_height))
     grid_w, grid_h = grid.size
     grid.paste((255,255,255, 255), (0, 0, grid_w, grid_h))
-    draw = PIL.ImageDraw.Draw(grid)
+    draw = ImageDraw.Draw(grid)
     # requires a newer version of pillow
     # use a truetype font
-    font_path = path.join(cv2.__path__[0],'qt','fonts','DejaVuSans.ttf')
+    font_path = join(cv2.__path__[0],'qt','fonts','DejaVuSans.ttf')
     font_size = 30
-    font = Pil.ImageFont.truetype(font_path, font_size)
+    font = ImageFont.truetype(font_path, font_size)
     draw.text((text_margin, text_margin), cls.wrap_text(prompt, prompt_width, font), font = font, fill=(0,0,0, 255))
     for i, img in enumerate(imgs):
       grid.paste(img, box=(i%cols*w, prompt_height + (i//cols*h)))

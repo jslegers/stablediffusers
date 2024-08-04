@@ -172,16 +172,29 @@ def lazy_old(fullname):
     print(e)
   print("Can't lazy load module")
 
-def lazy(fullname):
+def module(fullname, props = None):
   try:
-    return sys.modules[f"{fullname}import"]
+    module = sys.modules[f"{fullname}import"]
+    if not props :
+      return module
+    if props isinstance(props, str) :
+      return getattr(module, prop
+    return (getattr(module) for prop in props)
   except KeyError:
-    source_code = f"from {fullname} import *"
     spec = util.spec_from_loader(fullname, loader=None)
     module = util.module_from_spec(spec)
     sys.modules[f"{fullname}import"] = module
+    if not props :
+      source_code = f"from {fullname} import *"
+      exec(source_code, module.__dict__)
+      return module
+    if props isinstance(props, str) :
+      source_code = f"from {fullname} import {props}"
+      exec(source_code, module.__dict__)
+      return getattr(module, prop
+    source_code = f"from {fullname} import {', '.join(props)}"
     exec(source_code, module.__dict__)
-    return module
+    return (getattr(module) for prop in props)
   except Exception as e :
     print(e)
   print("Can't lazy load module")
