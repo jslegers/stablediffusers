@@ -177,7 +177,7 @@ def module(fullname, props = None):
     module = sys.modules[f"{fullname}import"]
     if not props :
       return module
-    if props isinstance(props, str) :
+    if isinstance(props, str) :
       return getattr(module, prop
     return (getattr(module) for prop in props)
   except KeyError:
