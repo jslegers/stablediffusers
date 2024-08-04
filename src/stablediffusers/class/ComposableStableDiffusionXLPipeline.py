@@ -16,8 +16,8 @@ CLIPTextModelWithProjection = lazy("transformers").CLIPTextModelWithProjection
 get_weighted_text_embeddings_sdxl = lazy("sd_embed.embedding_funcs").get_weighted_text_embeddings_sdxl
 
 collect = lazy("gc").collect
-empty_cache = torch.cuda.empty_cache
-ipc_collect = torch.cuda.ipc_collect
+empty_cache = lazy("torch.cuda").empty_cache
+ipc_collect = lazy("torch.cuda").ipc_collect
 init_empty_weights = lazy("accelerate").init_empty_weights
 load_model_dict_into_meta = lazy("diffusers").models.model_loading_utils.load_model_dict_into_meta
 
@@ -26,7 +26,7 @@ class ComposableStableDiffusionXLPipeline:
   logger = lazy("diffusers").utils.logging.get_logger(__name__)
   logger.setLevel("ERROR")
 
-  cuda_is_available = torch.cuda.is_available()
+  cuda_is_available = lazy("torch.cuda").is_available()
 
   default = {
     "model" : "stabilityai/stable-diffusion-xl-base-1.0",
