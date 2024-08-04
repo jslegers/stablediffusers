@@ -127,6 +127,19 @@ def import_from_string(module_name, source_code):
   except Exception as e :
     print(e)
 
+  def lazy(module_name : str) -> ModuleType :
+    try:
+      return sys.modules[module_name]
+    except KeyError:
+      source_code = f"import {module_name}"
+      spec = util.spec_from_loader(module_name, loader=None)
+      module = util.module_from_spec(spec)
+      exec(source_code, module.__dict__)
+      return module
+    except Exception as e :
+      print(e)
+    print("Can't lazy load module")
+
 def lazy_load_module(module_name : str) -> ModuleType :
   try :
     if module_name in sys.modules:
@@ -174,7 +187,7 @@ def lazy_2(fullname):
     print(e)
   print("Can't lazy load module")
 
-def lazy(module_name : str) -> ModuleType :
+def lazy_4(module_name : str) -> ModuleType :
   try:
     return sys.modules[module_name]
   except KeyError:
