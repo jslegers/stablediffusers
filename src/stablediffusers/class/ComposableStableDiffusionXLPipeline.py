@@ -11,7 +11,7 @@ get_weighted_text_embeddings_sdxl = module("sd_embed.embedding_funcs", "get_weig
 collect = module("gc", "collect")
 empty_cache, ipc_collect = module("torch.cuda", ["empty_cache", "ipc_collect"])
 init_empty_weights = module("accelerate", "init_empty_weights")
-load_model_dict_into_meta = module("diffusers", "models").model_loading_utils.load_model_dict_into_meta
+load_model_dict_into_meta = module("diffusers.models.model_loading_utils", "load_model_dict_into_meta")
 
 logger = module("diffusers.utils", "logging").get_logger(__name__)
 logger.setLevel("ERROR")
