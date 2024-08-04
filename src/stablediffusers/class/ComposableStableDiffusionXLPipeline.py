@@ -13,7 +13,7 @@ AutoencoderKL = lazy("diffusers").AutoencoderKL
 CLIPTextModel = lazy("transformers").CLIPTextModel
 CLIPTextModelWithProjection = lazy("transformers").CLIPTextModelWithProjection
 
-get_weighted_text_embeddings_sdxl = lazy("sd_embed").embedding_funcs.get_weighted_text_embeddings_sdxl
+get_weighted_text_embeddings_sdxl = lazy("sd_embed.embedding_funcs").get_weighted_text_embeddings_sdxl
 
 collect = lazy("gc").collect
 empty_cache = torch.cuda.empty_cache
