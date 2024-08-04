@@ -18,7 +18,6 @@ module = AutoLoad(import_structure = {
 })
 
 import cv2
-dev = module.load('device')
 
 class ComposableStableDiffusionXLPipeline:
 
@@ -66,7 +65,7 @@ class ComposableStableDiffusionXLPipeline:
     }
   })
 
-  device = dev(default["device"])
+  device = module.load('device')(default["device"])
   generator = module.load('Generator')(device = device)
 
   name = {}
