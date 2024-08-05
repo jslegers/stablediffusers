@@ -519,10 +519,9 @@ def module(name, attrs = None) :
         Module_proxy._Module_Attr__module = mod
         del Module_proxy.attrs
         Module_proxy.attrs = []
-        if not Module_proxy.attr_names :
-          print(inspect.getmembers(mod))
-        for key in Module_proxy.attr_names :
-          attrval = next(mod)
+        for valuepair in mod :
+          key = valuepair[0]
+          attrval = valuepair[1]
           if callable(attrval) :
             def q(cls, *args, **kwargs) :
               return attrval(*args, **kwargs)
