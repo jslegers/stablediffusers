@@ -67,7 +67,7 @@ class Attr:
         return instance.__dict__[self.name]
     def __set__(self, instance, value):
         print(f"SET --  instance.__dict__[{self.name}] = {value}")
-        instance.__dict__[self.name] = (self, value)
+        instance.__dict__[self.name] = value
 
 class MyClass():
 
@@ -88,60 +88,116 @@ class Module_Attr:
   def __call__(self, instance, *args, **kwargs):
     print(instance._Module_Attr__PROXY__activated)
     print(self.name)
-    instance.__attr[self.name](*args, **kwargs)
     if not instance._Module_Attr__PROXY__activated :
-      print(f"CALL --  instance.__attr[{self.name}]([{args}], {kwargs})")
+      instance._Module_Attr__PROXY__activate()
+    return getattr(instance.__module, self.name)(*args, **kwargs)
+    print(f"CALL --  instance.__dict__[{self.name}]([{args}], {kwargs})")
   def __get__(self, instance, owner):
     print(instance._Module_Attr__PROXY__activated)
-    print(f"GET --  instance.__attr[{self.name}]")
+    print(f"GET --  instance.__dict__[{self.name}]")
     if not instance._Module_Attr__PROXY__activated :
-      return instance.__attr[self.name] if self.name in instance.__attr else None
+      return instance.__module_proxy[self.name]
+    else :
+      return getattr(instance.__module, self.name)
   def __set__(self, instance, value):
-    print(f"SET --  instance.__attr[{self.name}] = {value}")
-    instance.__attr[self.name] = value
+    print(f"SET --  instance.__dict__[{self.name}] = {value}")
+    if not instance._Module_Attr__PROXY__activated :
+      instance.__module_proxy[self.name] = value
+    else :
+      setattr(instance.__module, self.name, value)
+
+from importlib import import_module, util
+import sys
+
+def get_module_from_code(code):
+  def run_code(fullname, source_code = None):
+    spec = util.spec_from_loader(fullname, loader = None)
+    module = util.module_from_spec(spec)
+    exec(source_code if source_code else fullname, module.__dict__)
+    return module
+  try:
+    return sys.modules[code]
+  except KeyError:
+    mod = run_code(code)
+    sys.modules[code] = mod
+    return mod
+
+def get_mod(fullname, attrs = None):
+  if not attrs :
+    code = f"from {fullname} import *"
+    return get_module_from_code(code)
+  if isinstance(attrs, str) :
+    code = f"from {fullname} import {attrs}"
+    return getattr(get_module_from_code(code), attrs)
+  code = f"from {fullname} import {', '.join(attrs)}"
+  return (getattr(get_module_from_code(code), attr) for attr in attrs)
+
+import types
 
 def create_module_proxy(name, attrs) :
 
   class Module_proxy(object):
-    _Module_Attr__attr = {}
     attr_names = []
     attrs = []
     attrs_dict = {}
     _Module_Attr__PROXY__activated = False
-
-    def get(self, key):
-      return getattr(self, key)
+    _Module_Attr__module_proxy = {}
+    _Module_Attr__module = None
+    MODULY_PROXY_name = ''
 
     @classmethod
-    def activate(cls) :
-      Module_proxy._Module_Attr__PROXY__activated = True
+    def _Module_Attr__PROXY__activate(cls) :
+      if not Module_proxy._Module_Attr__PROXY__activated :
+        Module_proxy._Module_Attr__PROXY__activated = True
+        print("ACTIVATE")
+        mod = get_mod(cls.MODULY_PROXY_name, cls.attr_names)
+        Module_proxy._Module_Attr__module = mod
+        Module_proxy.attrs = []
+        for key in Module_proxy.attr_names :
+          attrval = next(mod)
+          if callable(attrval) :
+            def q(cls, *args, **kwargs) :
+              return attrval(*args, **kwargs)
+          else :
+            q = attrval
+          del Module_proxy.attrs_dict[key]
+          Module_proxy.attrs_dict[key] = q
+          Module_proxy.attrs.append(q)
+          setattr(Module_proxy_parent, key, q)
+        print(Module_proxy._Module_Attr__module)
+
+    def __init__(self, name) :
+      Module_proxy.MODULY_PROXY_name = name
 
   class Module_proxy_child(Module_proxy):
     @classmethod
+
     def setupattr(cls, name, parent):
-      proxy = cls(name, parent)
-      for attr in Module_proxy.attrs_dict :
-        if attr == name :
-          setattr(Module_proxy, attr, Module_proxy.attrs_dict[attr])
-          delattr(Module_proxy_parent, attr)
+      proxy = Module_proxy_child(name, parent)
       return proxy
 
     def __init__(self, name, parent) :
-      self.__name = name
+      self.MODULY_PROXY_name = name
       self.__parent = parent
 
     def __getattr__(self, key):
-      if name :
-        self.activate()
-        return None
-      else :
-        return None
+      self._Module_Attr__PROXY__activate()
+      return getattr(Module_proxy.attrs_dict[self.MODULY_PROXY_name], self.MODULY_PROXY_name)
+
+    def __str__(self):
+      self._Module_Attr__PROXY__activate()
+      return str(Module_proxy.attrs_dict[self.MODULY_PROXY_name])
+
+    def __call__(self, *args, **kwargs):
+      self._Module_Attr__PROXY__activate()
+      return Module_proxy.attrs_dict[self.MODULY_PROXY_name](*args, **kwargs)
+
 
   class Module_proxy_parent(Module_proxy):
+
     @classmethod
     def setup(cls, name, attrs = None):
-      cls.__name = name
-      proxy = Module_proxy_parent()
+      proxy = Module_proxy_parent(name)
       if not attrs :
         return proxy
       if isinstance(attrs, str) :
@@ -150,7 +206,9 @@ def create_module_proxy(name, attrs) :
         Module_proxy.attrs.append(a)
         Module_proxy.attr_names.append(attrs)
         Module_proxy.attrs_dict[attrs] = a
-        Module_proxy.attrs[-1] = Module_proxy_child.setupattr(name, proxy)
+        child = Module_proxy_child.setupattr(attrs, proxy)
+        Module_proxy.attrs[-1] = child
+        Module_proxy._Module_Attr__module_proxy[attrs] = child
         return proxy
       for attr in attrs :
         a = Module_Attr(attr)
@@ -158,37 +216,44 @@ def create_module_proxy(name, attrs) :
         Module_proxy.attrs.append(a)
         Module_proxy.attr_names.append(attr)
         Module_proxy.attrs_dict[attr] = a
-        Module_proxy.attrs[-1] = Module_proxy_child.setupattr(name, proxy)
+        child = Module_proxy_child.setupattr(attr, proxy)
+        Module_proxy.attrs[-1] = child
+        Module_proxy._Module_Attr__module_proxy[attr] = child
       return proxy
+
+    def __getattr__(self, key):
+      return Module_proxy._Module_Attr__module_proxy[key].value
 
     def __getitem__(self, key):
       return type(self).attrs[key]
 
   proxy = Module_proxy_parent.setup(name, attrs)
-  #return Module_proxy()
   return proxy
 
 PIL = create_module_proxy("PIL", ["Image", "ImageDraw", "ImageFont"])
 
 Image, ImageDraw, ImageFont = PIL
 
-cuda = create_module_proxy("torch.cuda", ["empty_cache", "ipc_collect"])
+cuda = create_module_proxy("torch.cuda", ["empty_cache", "ipc_collect", "device_count"])
 
 test4 = create_module_proxy("diffusers.utils", "logging")
 
 Test = cuda.empty_cache
 
-print(Image)
+print(PIL.ImageDraw)
+print(ImageDraw)
 print(PIL.ImageDraw)
 
-Image.ImageDraw = "Test"
+print(cuda.empty_cache)
 
 print(cuda.empty_cache)
-cuda.activate()
-print(cuda.empty_cache)
-print(Image.ImageDraw)
 print(PIL.Image)
-Image.activate()
+
 print(ImageDraw)
 print(PIL.Image)
 print(ImageFont)
+print(cuda.device_count)
+how_many_gpus = cuda.device_count()
+for _ in range(how_many_gpus):
+  cuda.set_device(_)
+  cuda.empty_cache()

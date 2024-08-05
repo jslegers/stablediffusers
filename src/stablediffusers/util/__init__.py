@@ -484,7 +484,7 @@ class Module_Attr:
       instance.__module_proxy[self.name] = value
     else :
       setattr(instance.__module, self.name, value)
-      
+
 
 def get_mod(fullname, attrs = None):
   if not attrs :
