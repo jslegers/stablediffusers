@@ -460,9 +460,43 @@ def AutoLoad(**kwargs) :
 
 
 
+class Module_Attr:
+  def __init__(self, value):
+    self.name = value
+    print(f"INIT --  self.name = {value}")
+  def __call__(self, instance, *args, **kwargs):
+    print(instance._Module_Attr__PROXY__activated)
+    print(self.name)
+    if not instance._Module_Attr__PROXY__activated :
+      instance._Module_Attr__PROXY__activate()
+    return getattr(instance.__module, self.name)(*args, **kwargs)
+    print(f"CALL --  instance.__dict__[{self.name}]([{args}], {kwargs})")
+  def __get__(self, instance, owner):
+    print(instance._Module_Attr__PROXY__activated)
+    print(f"GET --  instance.__dict__[{self.name}]")
+    if not instance._Module_Attr__PROXY__activated :
+      return instance.__module_proxy[self.name]
+    else :
+      return getattr(instance.__module, self.name)
+  def __set__(self, instance, value):
+    print(f"SET --  instance.__dict__[{self.name}] = {value}")
+    if not instance._Module_Attr__PROXY__activated :
+      instance.__module_proxy[self.name] = value
+    else :
+      setattr(instance.__module, self.name, value)
+      
 
+def get_mod(fullname, attrs = None):
+  if not attrs :
+    code = f"from {fullname} import *"
+    return get_module_from_code(code)
+  if isinstance(attrs, str) :
+    code = f"from {fullname} import {attrs}"
+    return getattr(get_module_from_code(code), attrs)
+  code = f"from {fullname} import {', '.join(attrs)}"
+  return (getattr(get_module_from_code(code), attr) for attr in attrs)
 
-
+import types
 
 def module(name, attrs = None) :
 
