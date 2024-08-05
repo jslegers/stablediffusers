@@ -516,14 +516,10 @@ def module(name, attrs = None) :
         Module_proxy._Module_Attr__PROXY__activated = True
         print("ACTIVATE")
         mod = get_mod(cls.MODULY_PROXY_name, cls.attr_names)
-        print(inspect.getmembers(mod))
-        Module_proxy.attrs_dict = dict(c for c in mod)
-        Module_proxy._Module_Attr__module = Module_proxy.attrs_dict
-        del Module_proxy.attrs
-        Module_proxy.attrs = Module_proxy.attrs_dict.values()
-        """
-        for key in mod:
-          attrval = mod[key]
+        Module_proxy._Module_Attr__module = mod
+        Module_proxy.attrs = []
+        for key in Module_proxy.attr_names :
+          attrval = next(mod)
           if callable(attrval) :
             def q(cls, *args, **kwargs) :
               return attrval(*args, **kwargs)
@@ -533,7 +529,6 @@ def module(name, attrs = None) :
           Module_proxy.attrs_dict[key] = q
           Module_proxy.attrs.append(q)
           setattr(Module_proxy_parent, key, q)
-        """
 
     def __init__(self, name) :
       Module_proxy.MODULY_PROXY_name = name
