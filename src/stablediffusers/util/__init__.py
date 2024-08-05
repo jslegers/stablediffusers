@@ -173,6 +173,7 @@ def lazy_old(fullname):
   print("Can't lazy load module")
 
 def get_module_from_code(code):
+  print(code)
   def run_code(fullname, source_code = None):
     spec = util.spec_from_loader(fullname, loader = None)
     module = util.module_from_spec(spec)
@@ -518,6 +519,8 @@ def module(name, attrs = None) :
         Module_proxy._Module_Attr__module = mod
         del Module_proxy.attrs
         Module_proxy.attrs = []
+        if not Module_proxy.attr_names :
+          print(inspect.getmembers(mod))
         for key in Module_proxy.attr_names :
           attrval = next(mod)
           if callable(attrval) :
