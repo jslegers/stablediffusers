@@ -596,6 +596,8 @@ def module(name, attrs = None) :
       if key in Module_proxy._Module_Attr__module :
         return Module_proxy._Module_Attr__module[key]
       else :
+        print(Module_proxy.attr_names)
+        print(Module_proxy._Module_Attr__module)
         return Module_proxy._Module_Attr__module[Module_proxy.attr_names[0]][key]
 
     def __getitem__(self, key):
