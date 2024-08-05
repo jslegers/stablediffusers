@@ -111,6 +111,67 @@ def get_caller_module(depth : int = 1) -> ModuleType :
     del previous_frame
     return module
 
+def load_module_from_file_path(module_name, file_path):
+    """Import a module given its name and file path."""
+    spec = util.spec_from_file_location(module_name, file_path)
+    module = util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+def import_from_string(module_name, source_code):
+  try :
+    spec = util.spec_from_loader(module_name, loader=None)
+    module = util.module_from_spec(spec)
+    exec(source_code, module.__dict__)
+    return module
+  except Exception as e :
+    print(e)
+
+def lazy_another_fail(module_name : str) :
+  try:
+    return sys.modules[module_name]
+  except KeyError:
+    if (spec := util.find_spec(module_name)) is not None :
+      module = util.module_from_spec(spec)
+      loader = util.LazyLoader(spec.loader)
+      spec.loader = loader
+      loader.exec_module(module)
+      sys.modules[module_name] = module
+      globals()[module_name] = module
+      return module
+  except Exception as e :
+    print(e)
+  print("Can't lazy load module")
+
+def lazy_load_module(module_name : str) -> ModuleType :
+  try :
+    if module_name in sys.modules:
+      print(f"{module_name} already in sys.modules")
+      return sys.modules[module_name]
+    if (spec := util.find_spec(module_name)) is not None :
+      module = util.module_from_spec(spec)
+      loader = util.LazyLoader(spec.loader)
+      spec.loader = loader
+      loader.exec_module(module)
+      return module
+  except Exception as e :
+    print(e)
+  print("Can't lazy load module")
+
+def lazy_old(fullname):
+  try:
+    return sys.modules[fullname]
+  except KeyError:
+    spec = util.find_spec(fullname)
+    module = util.module_from_spec(spec)
+    loader = util.LazyLoader(spec.loader)
+    # Make module with proper locking and get it inserted into sys.modules.
+    loader.exec_module(module)
+    return module
+  except Exception as e :
+    print(e)
+  print("Can't lazy load module")
+
 def get_module_from_code(code):
   print(code)
   def run_code(fullname, source_code = None):
@@ -124,6 +185,111 @@ def get_module_from_code(code):
     mod = run_code(code)
     sys.modules[code] = mod
     return mod
+
+class ModuleProxy :
+  def __init__(self, name) :
+    self.__name = name
+    self.__attr = {}
+
+  def __getattr__(self, key) :
+    try:
+      return self.__attr[key]
+    except KeyError:
+      raise AttributeError(f"'Module {self.__name}' has no attribute '{value}'")
+
+  def load(self, keys) :
+    for key in keys :
+      self.__attr[name] = ModuleAttrProxy(name, self)
+
+  def activate() :
+    return self
+
+class ModuleAttrProxy :
+  def __init__(self, name, module_proxy) :
+    self.__name = name
+    self.module = module_proxy
+    self.activated = False
+
+  def __getattr__(self, key) :
+    if self.activated :
+      return self.module[self.__name][key]
+    else :
+      self.module.activate()
+      return self.module[self.__name][key]
+
+  def __call__(self, key) :
+    if self.activated :
+      return self.module[self.__name]()
+    else :
+      self.module.activate()
+      return self.module[self.__name]()
+
+def module_prev(fullname, attrs = None):
+  if not attrs :
+    code = f"from {fullname} import *"
+    return get_module_from_code(code)
+  if isinstance(attrs, str) :
+    code = f"from {fullname} import {attrs}"
+    return getattr(get_module_from_code(code), attrs)
+  code = f"from {fullname} import {', '.join(attrs)}"
+  return (getattr(get_module_from_code(code), attr) for attr in attrs)
+
+def lazy_4(module_name : str) -> ModuleType :
+  try:
+    return sys.modules[module_name]
+  except KeyError:
+    module = import_module(module_name)
+    # module_from_spec doesn't work on Google Collab
+    spec = module.__spec__
+    del module
+    module = util.module_from_spec(spec)
+    # Make module with proper locking and get it inserted into sys.modules.
+    spec.loader.exec_module(module)
+    return module
+  except Exception as e :
+    print(e)
+  print("Can't lazy load module")
+
+def lazy_3(name, package=None):
+    """An approximate implementation of import."""
+    absolute_name = util.resolve_name(name, package)
+    try:
+        return sys.modules[absolute_name]
+    except KeyError:
+        pass
+
+    path = None
+    if '.' in absolute_name:
+        parent_name, _, child_name = absolute_name.rpartition('.')
+        parent_module = import_module(parent_name)
+        path = parent_module.__spec__.submodule_search_locations
+    for finder in sys.meta_path:
+        spec = finder.find_spec(absolute_name, path)
+        if spec is not None:
+            break
+    else:
+        msg = f'No module named {absolute_name!r}'
+        raise ModuleNotFoundError(msg, name=absolute_name)
+    module = util.module_from_spec(spec)
+    sys.modules[absolute_name] = module
+    loader = util.LazyLoader(spec.loader)
+    loader.exec_module(module)
+    if path is not None:
+        setattr(parent_module, child_name, module)
+    return module
+
+def load_module(module_name : str) -> ModuleType :
+  try :
+    if module_name in sys.modules:
+      print(f"{module_name} already in sys.modules")
+      return sys.modules[module_name]
+    if (spec := util.find_spec(module_name)) is not None :
+      module = util.module_from_spec(spec)
+      spec.loader.exec_module(module)
+      return module
+  except Exception as e :
+    print(e)
+  print("Can't load module")
 
 def snake_to_camel(word : str) -> str :
   return ''.join(x.capitalize() or '_' for x in word.split('_'))
@@ -330,7 +496,8 @@ def get_mod(fullname, attrs = None):
     return getattr(get_module_from_code(code), attrs)
   code = f"from {fullname} import {', '.join(attrs)}"
   return (getattr(get_module_from_code(code), attr) for attr in attrs)
-  
+
+import types
 
 def module(name, attrs = None) :
 
