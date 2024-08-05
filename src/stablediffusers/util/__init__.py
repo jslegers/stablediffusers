@@ -587,7 +587,7 @@ def module(name, attrs = None) :
 
     def __getattr__(self, key):
       self._Module_Attr__PROXY__activate()
-      return getattr(Module_proxy.attrs_dict[self.MODULY_PROXY_name], self.MODULY_PROXY_name)
+      return getattr(getattr(Module_proxy.attrs_dict[self.MODULY_PROXY_name], self.MODULY_PROXY_name), key)
 
     def __getitem__(self, key):
       return type(self).attrs[key]
