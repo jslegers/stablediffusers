@@ -518,7 +518,7 @@ def module(name, attrs = None) :
         mod = get_mod(cls.MODULY_PROXY_name, cls.attr_names)
         print(inspect.getmembers(mod))
         del Module_proxy.attrs_dict
-        Module_proxy.attrs_dict = { dict((key, value) for key, value in mod) }
+        Module_proxy.attrs_dict = { key: value for (key, value) in mod }
         Module_proxy._Module_Attr__module = Module_proxy.attrs_dict
         del Module_proxy.attrs
         Module_proxy.attrs = Module_proxy.attrs_dict.values()
