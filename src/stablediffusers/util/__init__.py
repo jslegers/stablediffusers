@@ -516,6 +516,7 @@ def module(name, attrs = None) :
         print("ACTIVATE")
         mod = get_mod(cls.MODULY_PROXY_name, cls.attr_names)
         Module_proxy._Module_Attr__module = mod
+        del Module_proxy.attrs
         Module_proxy.attrs = []
         for key in Module_proxy.attr_names :
           attrval = next(mod)
@@ -591,6 +592,7 @@ def module(name, attrs = None) :
       if Module_proxy.attrs :
         return getattr(Module_proxy.attrs[-1], key)
       else :
+        print(Module_proxy.attrs)
         print(Module_proxy.attrs_dict.keys())
         return Module_proxy.attrs_dict[key]
 
