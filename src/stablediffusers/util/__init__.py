@@ -599,5 +599,9 @@ def module(name, attrs = None) :
     def __getitem__(self, key):
       return type(self).attrs[key]
 
+    def __call__(self, *args, **kwargs):
+      self._Module_Attr__PROXY__activate()
+      return Module_proxy.attrs_dict[self.MODULY_PROXY_name](*args, **kwargs)
+
   proxy = Module_proxy_parent.setup(name, attrs)
   return proxy
