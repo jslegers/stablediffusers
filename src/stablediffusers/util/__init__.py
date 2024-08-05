@@ -519,9 +519,9 @@ def module(name, attrs = None) :
         print(inspect.getmembers(mod))
         del Module_proxy.attrs_dict
         Module_proxy.attrs_dict = { item: item for item in mod }
-        Module_proxy._Module_Attr__module = mod
+        Module_proxy._Module_Attr__module = Module_proxy.attrs_dict
         del Module_proxy.attrs
-        Module_proxy.attrs = mod.values()
+        Module_proxy.attrs = Module_proxy.attrs_dict.values()
         """
         for key in mod:
           attrval = mod[key]
