@@ -601,7 +601,11 @@ def module(name, attrs = None) :
 
     def __call__(self, *args, **kwargs):
       self._Module_Attr__PROXY__activate()
-      return Module_proxy.attrs_dict[self.MODULY_PROXY_name](*args, **kwargs)
+      try :
+        return getattr(Module_proxy._Module_Attr__module[Module_proxy.attr_names[0]], key)(*args, **kwargs)
+      except Exception as e :
+        return getattr(Module_proxy._Module_Attr__module, key)(*args, **kwargs)
+
 
   proxy = Module_proxy_parent.setup(name, attrs)
   return proxy
