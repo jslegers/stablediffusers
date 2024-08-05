@@ -593,7 +593,10 @@ def module(name, attrs = None) :
 
     def __getattr__(self, key):
       self._Module_Attr__PROXY__activate()
-      return Module_proxy._Module_Attr__module[key]
+      if key in Module_proxy._Module_Attr__module
+        return Module_proxy._Module_Attr__module[key]
+      else
+        return Module_proxy._Module_Attr__module[Module_proxy.attr_names[0]][key]
 
     def __getitem__(self, key):
       return type(self).attrs[key]
