@@ -172,87 +172,66 @@ def lazy_old(fullname):
     print(e)
   print("Can't lazy load module")
 
-def get_module_from_code(fullname, source_code = None):
-  spec = util.spec_from_loader(fullname, loader = None)
-  module = util.module_from_spec(spec)
-  exec(source_code if source_code else fullname, module.__dict__)
-  return module
-
-def blabla(code):
+def get_module_from_code(code):
+  def run_code(fullname, source_code = None):
+    spec = util.spec_from_loader(fullname, loader = None)
+    module = util.module_from_spec(spec)
+    exec(source_code if source_code else fullname, module.__dict__)
+    return module
   try:
     return sys.modules[code]
   except KeyError:
-    mod = get_module_from_code(code)
+    mod = run_code(code)
     sys.modules[code] = mod
     return mod
 
-def module(fullname, attrs = None, run_code = None):
+class ModuleProxy :
+  def __init__(self, name) :
+    self.__name = name
+    self.__attr = {}
+
+  def __getattr__(self, key) :
+    try:
+      return self.__attr[key]
+    except KeyError:
+      raise AttributeError(f"'Module {self.__name}' has no attribute '{value}'")
+
+  def load(self, keys) :
+    for key in keys :
+      self.__attr[name] = ModuleAttrProxy(name, self)
+
+  def activate() :
+    return self
+
+class ModuleAttrProxy :
+  def __init__(self, name, module_proxy) :
+    self.__name = name
+    self.module = module_proxy
+    self.activated = False
+
+  def __getattr__(self, key) :
+    if self.activated :
+      return self.module[self.__name][key]
+    else :
+      self.module.activate()
+      return self.module[self.__name][key]
+
+  def __call__(self, key) :
+    if self.activated :
+      return self.module[self.__name]()
+    else :
+      self.module.activate()
+      return self.module[self.__name]()
+
+def module_prev(fullname, attrs = None):
   if not attrs :
     code = f"from {fullname} import *"
-    return blabla(code)
+    return get_module_from_code(code)
   if isinstance(attrs, str) :
     code = f"from {fullname} import {attrs}"
-    return getattr(blabla(code), attrs)
+    return getattr(get_module_from_code(code), attrs)
   code = f"from {fullname} import {', '.join(attrs)}"
-  return (getattr(blabla(code), attr) for attr in attrs)
-
-def old_module_2(fullname, attrs = None):
-  def get_module_attrs(module, attrs = None, run_code = None):
-    print(module)
-    print(attrs)
-    print(run_code)
-    if not attrs :
-      return module if not run_code \
-        else run_code(f"from {fullname} import *")
-    if isinstance(attrs, str) :
-      return getattr(module if not run_code \
-        else run_code(f"from {fullname} import {attrs}"), attrs)
-    return (getattr(module if not run_code \
-      else run_code(f"from {fullname} import {', '.join(attrs)}"), attr) for attr in attrs)
-  try:
-    return get_module_attrs(sys.modules[fullname], attrs)
-  except KeyError:
-    return get_module_attrs(fullname, attrs, get_module_from_code)
-
-def old_module(fullname, props = None):
-  try:
-    module = sys.modules[fullname]
-    print(f"Module {fullname} exists")
-    if not props :
-      module = sys.modules[f"{fullname}import"]
-      print(f"PHASE 1")
-      return module
-    if isinstance(props, str) :
-      module = sys.modules[f"{fullname}import.{props}"]
-      print(f"PHASE 2")
-      return getattr(module, props)
-    module = sys.modules[f"{fullname}import.{':'.join(props)}"]
-    print(f"PHASE 3")
-    return (getattr(module, prop) for prop in props)
-  except KeyError:
-    print(f"Module {fullname} doesn't exist")
-    spec = util.spec_from_loader(fullname, loader=None)
-    module = util.module_from_spec(spec)
-    if not props :
-      print(f"PHASE 1 prep")
-      source_code = f"from {fullname} import *"
-      exec(source_code, module.__dict__)
-      sys.modules[f"{fullname}import"] = module
-      return module
-    if isinstance(props, str) :
-      print(f"PHASE 2 prep")
-      source_code = f"from {fullname} import {props}"
-      exec(source_code, module.__dict__)
-      sys.modules[f"{fullname}import.{props}"] = module
-      return getattr(module, props)
-    print(f"PHASE 3 prep")
-    source_code = f"from {fullname} import {', '.join(props)}"
-    exec(source_code, module.__dict__)
-    sys.modules[f"{fullname}import.{':'.join(props)}"] = module
-    return (getattr(module, prop) for prop in props)
-  except Exception as e :
-    print(e)
-  print("Can't lazy load module")
+  return (getattr(get_module_from_code(code), attr) for attr in attrs)
 
 def lazy_4(module_name : str) -> ModuleType :
   try:
@@ -454,3 +433,129 @@ def AutoLoad(**kwargs) :
   module = LazyModule(module, **kwargs)
   sys.modules[module_name] = module
   return module
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def module(name, attrs = None) :
+
+  class Module_proxy(object):
+    attr_names = []
+    attrs = []
+    attrs_dict = {}
+    _Module_Attr__PROXY__activated = False
+    _Module_Attr__module_proxy = {}
+    _Module_Attr__module = None
+    MODULY_PROXY_name = ''
+
+    @classmethod
+    def _Module_Attr__PROXY__activate(cls) :
+      if not Module_proxy._Module_Attr__PROXY__activated :
+        Module_proxy._Module_Attr__PROXY__activated = True
+        print("ACTIVATE")
+        mod = get_mod(cls.MODULY_PROXY_name, cls.attr_names)
+        Module_proxy._Module_Attr__module = mod
+        Module_proxy.attrs = []
+        for key in Module_proxy.attr_names :
+          attrval = next(mod)
+          if callable(attrval) :
+            def q(cls, *args, **kwargs) :
+              return attrval(*args, **kwargs)
+          else :
+            q = attrval
+          del Module_proxy.attrs_dict[key]
+          Module_proxy.attrs_dict[key] = q
+          Module_proxy.attrs.append(q)
+          setattr(Module_proxy_parent, key, q)
+        print(Module_proxy._Module_Attr__module)
+
+    def __init__(self, name) :
+      Module_proxy.MODULY_PROXY_name = name
+
+  class Module_proxy_child(Module_proxy):
+    @classmethod
+
+    def setupattr(cls, name, parent):
+      proxy = Module_proxy_child(name, parent)
+      return proxy
+
+    def __init__(self, name, parent) :
+      self.MODULY_PROXY_name = name
+      self.__parent = parent
+
+    def __getattr__(self, key):
+      self._Module_Attr__PROXY__activate()
+      return getattr(Module_proxy.attrs_dict[self.MODULY_PROXY_name], self.MODULY_PROXY_name)
+
+    def __str__(self):
+      self._Module_Attr__PROXY__activate()
+      return str(Module_proxy.attrs_dict[self.MODULY_PROXY_name])
+
+    def __call__(self, *args, **kwargs):
+      self._Module_Attr__PROXY__activate()
+      return Module_proxy.attrs_dict[self.MODULY_PROXY_name](*args, **kwargs)
+
+
+  class Module_proxy_parent(Module_proxy):
+
+    @classmethod
+    def setup(cls, name, attrs = None):
+      proxy = Module_proxy_parent(name)
+      if not attrs :
+        return proxy
+      if isinstance(attrs, str) :
+        a = Module_Attr(attrs)
+        setattr(Module_proxy_parent, attrs, a)
+        Module_proxy.attrs.append(a)
+        Module_proxy.attr_names.append(attrs)
+        Module_proxy.attrs_dict[attrs] = a
+        child = Module_proxy_child.setupattr(attrs, proxy)
+        Module_proxy.attrs[-1] = child
+        Module_proxy._Module_Attr__module_proxy[attrs] = child
+        return proxy
+      for attr in attrs :
+        a = Module_Attr(attr)
+        setattr(Module_proxy_parent, attr, a)
+        Module_proxy.attrs.append(a)
+        Module_proxy.attr_names.append(attr)
+        Module_proxy.attrs_dict[attr] = a
+        child = Module_proxy_child.setupattr(attr, proxy)
+        Module_proxy.attrs[-1] = child
+        Module_proxy._Module_Attr__module_proxy[attr] = child
+      return proxy
+
+    def __getattr__(self, key):
+      return Module_proxy._Module_Attr__module_proxy[key].value
+
+    def __getitem__(self, key):
+      return type(self).attrs[key]
+
+  proxy = Module_proxy_parent.setup(name, attrs)
+  return proxy
