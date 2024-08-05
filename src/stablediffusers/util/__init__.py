@@ -526,8 +526,8 @@ def module(name, attrs = None) :
               def q(cls, *args, **kwargs) :
                 return attrval(*args, **kwargs)
             else :
-              q = attrval
             """
+            q = attrval
             del Module_proxy.attrs_dict[key]
             Module_proxy.attrs_dict[key] = q
             Module_proxy.attrs.append(q)
