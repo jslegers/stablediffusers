@@ -520,8 +520,8 @@ def module(name, attrs = None) :
         if Module_proxy.attr_names :
           Module_proxy.attrs = []
           for key in Module_proxy.attr_names :
-            """
             attrval = next(mod)
+            """
             if callable(attrval) :
               def q(cls, *args, **kwargs) :
                 return attrval(*args, **kwargs)
