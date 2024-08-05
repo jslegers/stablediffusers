@@ -528,6 +528,7 @@ def module(name, attrs = None) :
           Module_proxy.attrs_dict[key] = q
           Module_proxy.attrs.append(q)
           setattr(Module_proxy_parent, key, q)
+        Module_proxy._Module_Attr__module = Module_proxy.attrs_dict
         print(Module_proxy._Module_Attr__module)
 
     def __init__(self, name) :
@@ -587,7 +588,10 @@ def module(name, attrs = None) :
 
     def __getattr__(self, key):
       self._Module_Attr__PROXY__activate()
-      return getattr(Module_proxy.attrs[-1], key)
+      if Module_proxy.attrs :
+        return getattr(Module_proxy.attrs[-1], key)
+      else :
+        return Module_proxy.attrs_dict[key]
 
     def __getitem__(self, key):
       return type(self).attrs[key]
