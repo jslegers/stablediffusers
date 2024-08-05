@@ -594,7 +594,7 @@ def module(name, attrs = None) :
       else :
         print(Module_proxy.attr_names)
         print(Module_proxy._Module_Attr__module)
-        return Module_proxy._Module_Attr__module[Module_proxy.attr_names[0]][key]
+        return getattr(Module_proxy._Module_Attr__module, Module_proxy.attr_names[0])[key]
 
     def __getitem__(self, key):
       return type(self).attrs[key]
