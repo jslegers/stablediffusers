@@ -591,7 +591,7 @@ def module(name, attrs = None) :
       self._Module_Attr__PROXY__activate()
       try :
         return getattr(Module_proxy._Module_Attr__module, key)
-      else :
+      except Exception e :
         print(Module_proxy.attr_names)
         print(Module_proxy._Module_Attr__module)
         return getattr(Module_proxy._Module_Attr__module[Module_proxy.attr_names[0]], key)
