@@ -380,9 +380,6 @@ def module(name, attrs = None) :
             attrval = next(mod)
           Module_proxy._Module_Attr__module
 
-    def __init__(self, name) :
-      Module_proxy.MODULY_PROXY_name = name
-
   class Module_proxy_child(Module_proxy):
     @classmethod
 
@@ -406,6 +403,7 @@ def module(name, attrs = None) :
 
     @classmethod
     def setup(cls, name, attrs = None):
+      cls.MODULY_PROXY_name = name
       proxy = Module_proxy_parent(name)
       if not attrs :
         return proxy
