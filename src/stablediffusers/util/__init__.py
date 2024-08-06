@@ -345,11 +345,10 @@ def module(name, attrs = None) :
 
   class Module_proxy(object):
     attr_names = []
-    attrs = []
     attrs_dict = {}
     _Module_Attr__PROXY__activated = False
     _Module_Attr__module_proxy = {}
-    _Module_Attr__module = None
+    _Module_Attr__module = []
     MODULY_PROXY_name = ''
 
     @classmethod
@@ -360,25 +359,23 @@ def module(name, attrs = None) :
         mod = get_mod(Module_proxy.MODULY_PROXY_name, cls.attr_names)
         try :
           mod = next(mod)
+          Module_proxy._Module_Attr__module = []
+          if Module_proxy.attr_names :
+            for key in Module_proxy.attr_names :
+              """
+              if callable(attrval) :
+                def q(cls, *args, **kwargs) :
+                  return attrval(*args, **kwargs)
+              else :
+              """
+              q = attrval
+              Module_proxy._Module_Attr__module.append(q)
+              del Module_proxy.attrs_dict[key]
+              Module_proxy.attrs_dict[key] = q
+              setattr(Module_proxy_parent, key, q)
+              attrval = next(mod)
         except :
           pass
-        Module_proxy._Module_Attr__module = mod
-        if not Module_proxy.attr_names :
-          Module_proxy.attrs = []
-          for key in Module_proxy.attr_names :
-            """
-            if callable(attrval) :
-              def q(cls, *args, **kwargs) :
-                return attrval(*args, **kwargs)
-            else :
-            """
-            q = attrval
-            del Module_proxy.attrs_dict[key]
-            Module_proxy.attrs_dict[key] = q
-            Module_proxy.attrs.append(q)
-            setattr(Module_proxy_parent, key, q)
-            attrval = next(mod)
-          Module_proxy._Module_Attr__module
 
     def __init__(self, name) :
       self.MODULY_PROXY_name = name
@@ -388,11 +385,11 @@ def module(name, attrs = None) :
 
     def __getattr__(self, key):
       self._Module_Attr__PROXY__activate()
-      return getattr(Module_proxy.attrs_dict[self.MODULY_PROXY_name], key)
+      return getattr(getattr(Module_proxy._Module_Attr__module, self.MODULY_PROXY_name), key)
 
     def __str__(self):
       self._Module_Attr__PROXY__activate()
-      return str(Module_proxy.attrs_dict[self.MODULY_PROXY_name])
+      return str(getattr(Module_proxy._Module_Attr__module, self.MODULY_PROXY_name))
 
     def __call__(self, *args, **kwargs):
       self._Module_Attr__PROXY__activate()
@@ -414,11 +411,11 @@ def module(name, attrs = None) :
       for attr in attrs :
         a = Module_Attr(attr)
         setattr(Module_proxy_parent, attr, a)
-        Module_proxy.attrs.append(a)
+        Module_proxy._Module_Attr__module.append(a)
         Module_proxy.attr_names.append(attr)
         Module_proxy.attrs_dict[attr] = a
         child = Module_proxy_child(attr)
-        Module_proxy.attrs[-1] = child
+        Module_proxy._Module_Attr__module[-1] = child
         Module_proxy._Module_Attr__module_proxy[attr] = child
       return proxy
 
@@ -432,7 +429,7 @@ def module(name, attrs = None) :
         return getattr(Module_proxy._Module_Attr__module, Module_proxy.attr_names[0])[key]
 
     def __getitem__(self, key):
-      return Module_proxy.attrs[key]
+      return Module_proxy._Module_Attr__module[key]
 
     def __call__(self, *args, **kwargs):
       self._Module_Attr__PROXY__activate()
