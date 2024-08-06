@@ -356,23 +356,21 @@ def module(name, attrs = None) :
       if not Module_proxy._Module_Attr__PROXY__activated :
         Module_proxy._Module_Attr__PROXY__activated = True
         print("ACTIVATE")
-        mod = get_mod(cls.parent.MODULY_PROXY_name, cls.attr_names)
+        mod = get_mod(Module_proxy.parent.MODULY_PROXY_name, cls.attr_names)
         Module_proxy._Module_Attr__module = mod
         print(Module_proxy._Module_Attr__module)
-        """
         if Module_proxy.attr_names :
-          Module_proxy._Module_Attr__module = obj
+          Module_proxy._Module_Attr__module = lambda:None
           for key in Module_proxy.attr_names :
-            attrval = next(mod)""
-            ""
+            attrval = next(mod)
+            """
             if callable(attrval) :
               def q(cls, *args, **kwargs) :
                 return attrval(*args, **kwargs)
             else :
-            ""
-            ""q = attrval
-            Module_proxy._Module_Attr__module.append(q)
-            setattr(cls.parent, key, q)"""
+            """
+            setattr(Module_proxy._Module_Attr__module, key, attrval)
+            setattr(Module_proxy.parent, key, attrval)
 
     def __init__(self, name) :
       self.MODULY_PROXY_name = name
