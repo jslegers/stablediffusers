@@ -3,7 +3,7 @@ from os import scandir
 from os.path import join, dirname, splitext, isfile, isdir
 from pathlib import PurePath
 from importlib import import_module, util
-from types import ModuleType, FrameType
+from types import ModuleType, FrameType, SimpleNamespace
 from itertools import chain, islice
 import pprint
 from inspect import stack
@@ -342,7 +342,7 @@ def get_mod(fullname, attrs = None):
 
 def module(name, attrs = None) :
 
-  class Module_proxy(object):
+  class Module_proxy(SimpleNamespace):
     attr_names = []
     _Module_Attr__PROXY__activated = False
     MODULY_PROXY_name = ''
