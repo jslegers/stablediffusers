@@ -404,14 +404,14 @@ def module(name, attrs = None) :
       try :
         return proxy.__dict__[key]
       except Exception as e :
-        return getattr(getattr(Module_proxy, [Module_proxy.attr_names[0]]), key)
+        return getattr(getattr(Module_proxy, Module_proxy.attr_names[0]), key)
 
     def __getitem__(self, key):
       return getattr(Module_proxy, Module_proxy.attr_names[key])
 
     def __call__(self, *args, **kwargs):
       self._Module_Attr__PROXY__activate()
-      return getattr(Module_proxy, [Module_proxy.attr_names[0])(*args, **kwargs)
+      return getattr(Module_proxy, Module_proxy.attr_names[0])(*args, **kwargs)
 
 
   proxy = Module_proxy_parent.setup(name, attrs)
