@@ -388,9 +388,6 @@ def module(name, attrs = None) :
     def __init__(self, name) :
       self.MODULY_PROXY_name = name
 
-    def setupattr(cls, name, parent):
-      return Module_proxy_child(name)
-
     def __getattr__(self, key):
       self._Module_Attr__PROXY__activate()
       return getattr(Module_proxy.attrs_dict[self.MODULY_PROXY_name], key)
@@ -419,7 +416,7 @@ def module(name, attrs = None) :
         Module_proxy.attrs.append(a)
         Module_proxy.attr_names.append(attr)
         Module_proxy.attrs_dict[attr] = a
-        child = Module_proxy_child.setupattr(attr, proxy)
+        child = Module_proxy_child(attr)
         Module_proxy.attrs[-1] = child
         Module_proxy._Module_Attr__module_proxy[attr] = child
       return proxy
