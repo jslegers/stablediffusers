@@ -356,7 +356,7 @@ def module(name, attrs = None) :
       if not Module_proxy._Module_Attr__PROXY__activated :
         Module_proxy._Module_Attr__PROXY__activated = True
         print("ACTIVATE")
-        mod = get_mod(Module_proxy.parent.MODULY_PROXY_name, cls.attr_names)
+        mod = get_mod(cls.parent.MODULY_PROXY_name, cls.attr_names)
         try :
           mod = next(mod)
           del Module_proxy._Module_Attr__module
@@ -431,7 +431,7 @@ def module(name, attrs = None) :
         return getattr(Module_proxy._Module_Attr__module, Module_proxy.attr_names[0])[key]
 
     def __getitem__(self, key):
-      return Module_proxy._Module_Attr__module[key]
+      return Module_proxy._Module_Attr__module[key].value
 
     def __call__(self, *args, **kwargs):
       self._Module_Attr__PROXY__activate()
