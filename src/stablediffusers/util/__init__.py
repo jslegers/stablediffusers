@@ -370,15 +370,15 @@ def module(name, attrs = None) :
 
     def __getattr__(self, key):
       self._Module_Attr__PROXY__activate()
-      return getattr(Module_proxy.__dict__[self.MODULY_PROXY_name], key)
+      return getattr(getattr(Module_proxy, self.MODULY_PROXY_name), key)
 
     def __str__(self):
       self._Module_Attr__PROXY__activate()
-      return str(Module_proxy.__dict__[self.MODULY_PROXY_name])
+      return str(getattr(Module_proxy, [self.MODULY_PROXY_name))
 
     def __call__(self, *args, **kwargs):
       self._Module_Attr__PROXY__activate()
-      return Module_proxy.__dict__[self.MODULY_PROXY_name](*args, **kwargs)
+      return getattr(Module_proxy, self.MODULY_PROXY_name)(*args, **kwargs)
 
 
   class Module_proxy_parent(Module_proxy):
@@ -404,14 +404,14 @@ def module(name, attrs = None) :
       try :
         return proxy.__dict__[key]
       except Exception as e :
-        return getattr(proxy.__dict__[Module_proxy.attr_names[0]], key)
+        return getattr(getattr(Module_proxy, [Module_proxy.attr_names[0]]), key)
 
     def __getitem__(self, key):
-      return type(self).__dict__[Module_proxy.attr_names[key]]
+      return getattr(Module_proxy, Module_proxy.attr_names[key])
 
     def __call__(self, *args, **kwargs):
       self._Module_Attr__PROXY__activate()
-      return Module_proxy.__dict__[Module_proxy.attr_names[0]](*args, **kwargs)
+      return getattr(Module_proxy, [Module_proxy.attr_names[0])(*args, **kwargs)
 
 
   proxy = Module_proxy_parent.setup(name, attrs)
