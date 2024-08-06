@@ -357,7 +357,7 @@ def module(name, attrs = None) :
       if not Module_proxy._Module_Attr__PROXY__activated :
         Module_proxy._Module_Attr__PROXY__activated = True
         print("ACTIVATE")
-        mod = get_mod(Module_proxy_parent.MODULY_PROXY_name, cls.attr_names)
+        mod = get_mod(cls.MODULY_PROXY_name, cls.attr_names)
         try :
           mod = next(mod)
         except :
@@ -385,6 +385,9 @@ def module(name, attrs = None) :
 
   class Module_proxy_child(Module_proxy):
     @classmethod
+
+    def __init__(self, name) :
+      self.MODULY_PROXY_name = name
 
     def __getattr__(self, key):
       self._Module_Attr__PROXY__activate()
