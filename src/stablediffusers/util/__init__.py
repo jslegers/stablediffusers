@@ -420,15 +420,7 @@ def module(name, attrs = None) :
       if not attrs :
         return proxy
       if isinstance(attrs, str) :
-        a = Module_Attr(attrs)
-        setattr(Module_proxy_parent, attrs, a)
-        Module_proxy.attrs.append(a)
-        Module_proxy.attr_names.append(attrs)
-        Module_proxy.attrs_dict[attrs] = a
-        child = Module_proxy_child.setupattr(attrs, proxy)
-        Module_proxy.attrs[-1] = child
-        Module_proxy._Module_Attr__module_proxy[attrs] = child
-        return proxy
+        attrs = [attrs]
       for attr in attrs :
         a = Module_Attr(attr)
         setattr(Module_proxy_parent, attr, a)
