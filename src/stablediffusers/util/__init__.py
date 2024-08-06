@@ -404,7 +404,7 @@ def module(name, attrs = None) :
       try :
         return proxy.__dict__[key]
       except Exception as e :
-        return getattr(proxy.__dict__[Module_proxy.attr_names[0]]), key)
+        return getattr(proxy.__dict__[Module_proxy.attr_names[0]], key)
 
     def __getitem__(self, key):
       return type(self).__dict__[Module_proxy.attr_names[key]]
