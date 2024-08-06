@@ -394,7 +394,8 @@ def module(name, attrs = None) :
       self._Module_Attr__PROXY__activate()
       print(Module_proxy.attr_names)
       print(Module_proxy._Module_Attr__module)
-      return getattr(Module_proxy._Module_Attr__module, self.MODULY_PROXY_name)(*args, **kwargs)
+      print(Module_proxy._Module_Attr__module_proxy)
+      return getattr(Module_proxy._Module_Attr__module)(*args, **kwargs)
 
 
   class Module_proxy_parent(Module_proxy):
