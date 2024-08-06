@@ -310,9 +310,8 @@ class Module_Attr:
     print(instance._Module_Attr__PROXY__activated)
     print(f"GET --  instance.__dict__[{self.name}]")
     if not instance._Module_Attr__PROXY__activated :
-      return instance.__module_proxy[self.name]
-    else :
-      return getattr(instance.__module, self.name)
+      instance._Module_Attr__PROXY__activate()
+    return getattr(instance.__module, self.name)
 
 
 def get_mod(fullname, attrs = None):
@@ -346,7 +345,6 @@ def module(name, attrs = None) :
   class Module_proxy(object):
     attr_names = []
     _Module_Attr__PROXY__activated = False
-    _Module_Attr__module_proxy = {}
     _Module_Attr__module = []
     MODULY_PROXY_name = ''
     parent = None
@@ -387,7 +385,6 @@ def module(name, attrs = None) :
       self._Module_Attr__PROXY__activate()
       print(Module_proxy.attr_names)
       print(Module_proxy._Module_Attr__module)
-      print(Module_proxy._Module_Attr__module_proxy)
       return getattr(Module_proxy._Module_Attr__module, self.MODULY_PROXY_name)(*args, **kwargs)
 
 
@@ -408,7 +405,6 @@ def module(name, attrs = None) :
         Module_proxy.attr_names.append(attr)
         Module_proxy._Module_Attr__module.append(a)
         Module_proxy._Module_Attr__module[-1] = child
-        Module_proxy._Module_Attr__module_proxy[attr] = child
       return proxy
 
     def __getattr__(self, key):
