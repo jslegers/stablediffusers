@@ -330,7 +330,7 @@ def get_mod(fullname, attrs = None):
     return getattr(get_module_from_code(code), attrs)
   code = f"from {fullname} import {', '.join(attrs)}"
   return (getattr(get_module_from_code(code), attr) for attr in attrs)
-  
+
 
 def module(name, attrs = None) :
 
@@ -365,7 +365,6 @@ def module(name, attrs = None) :
             Module_proxy.attrs_dict[key] = q
             Module_proxy.attrs.append(q)
             setattr(Module_proxy_parent, key, q)
-          Module_proxy._Module_Attr__module = Module_proxy.attrs_dict
 
     def __init__(self, name) :
       Module_proxy.MODULY_PROXY_name = name

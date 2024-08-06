@@ -257,3 +257,16 @@ how_many_gpus = cuda.device_count()
 for _ in range(how_many_gpus):
   cuda.set_device(_)
   cuda.empty_cache()
+
+
+
+
+  from google.colab import userdata
+
+secret = userdata.get('HF_TOKEN')
+
+composable.save_pretrained(
+    save_directory = "testwithtext2",
+    token = secret,
+    push_to_hub = True
+)
