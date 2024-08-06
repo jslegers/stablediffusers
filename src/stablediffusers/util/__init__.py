@@ -394,6 +394,9 @@ def module(name, attrs = None) :
 
     def __call__(self, *args, **kwargs):
       self._Module_Attr__PROXY__activate()
+      print(Module_proxy.attr_names)
+      print(Module_proxy.attrs_dict)
+      print(Module_proxy._Module_Attr__module)
       return getattr(Module_proxy._Module_Attr__module, self.MODULY_PROXY_name)(*args, **kwargs)
 
 
@@ -410,11 +413,10 @@ def module(name, attrs = None) :
       for attr in attrs :
         a = Module_Attr(attr)
         setattr(Module_proxy_parent, attr, a)
-        Module_proxy._Module_Attr__module.append(a)
+        child = Module_proxy_child(attr)
         Module_proxy.attr_names.append(attr)
         Module_proxy.attrs_dict[attr] = a
-        child = Module_proxy_child(attr)
-        Module_proxy._Module_Attr__module[-1] = child
+        Module_proxy._Module_Attr__module.append(child)
         Module_proxy._Module_Attr__module_proxy[attr] = child
       return proxy
 
@@ -424,6 +426,7 @@ def module(name, attrs = None) :
         return getattr(Module_proxy._Module_Attr__module, key)
       except Exception as e :
         print(Module_proxy.attr_names)
+        print(Module_proxy.attrs_dict)
         print(Module_proxy._Module_Attr__module)
         return getattr(Module_proxy._Module_Attr__module, Module_proxy.attr_names[0])[key]
 
