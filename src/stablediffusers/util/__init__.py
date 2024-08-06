@@ -359,19 +359,20 @@ def module(name, attrs = None) :
         mod = get_mod(cls.parent.MODULY_PROXY_name, cls.attr_names)
         Module_proxy._Module_Attr__module = mod
         print(Module_proxy._Module_Attr__module)
+        """
         if Module_proxy.attr_names :
-          Module_proxy._Module_Attr__module = []
+          Module_proxy._Module_Attr__module = obj
           for key in Module_proxy.attr_names :
-            attrval = next(mod)
+            attrval = next(mod)"""
             """
             if callable(attrval) :
               def q(cls, *args, **kwargs) :
                 return attrval(*args, **kwargs)
             else :
             """
-            q = attrval
+            """q = attrval
             Module_proxy._Module_Attr__module.append(q)
-            setattr(cls.parent, key, q)
+            setattr(cls.parent, key, q)"""
 
     def __init__(self, name) :
       self.MODULY_PROXY_name = name
