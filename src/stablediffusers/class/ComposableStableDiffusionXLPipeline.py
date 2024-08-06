@@ -111,9 +111,11 @@ class ComposableStableDiffusionXLPipeline:
   @classmethod
   def flush(cls, *args, **kwargs):
     collect()
+    """
     for _ in range(how_many_gpus):
       set_device(_)
-      empty_cache()
+    """
+    empty_cache()
 
   @classmethod
   def load_model(cls, *args, **kwargs):

@@ -313,12 +313,6 @@ class Module_Attr:
       return instance.__module_proxy[self.name]
     else :
       return getattr(instance.__module, self.name)
-  def __set__(self, instance, value):
-    print(f"SET --  instance.__dict__[{self.name}] = {value}")
-    if not instance._Module_Attr__PROXY__activated :
-      instance.__module_proxy[self.name] = value
-    else :
-      setattr(instance.__module, self.name, value)
 
 
 def get_mod(fullname, attrs = None):
@@ -392,11 +386,7 @@ def module(name, attrs = None) :
     @classmethod
 
     def setupattr(cls, name, parent):
-      proxy = Module_proxy_child(name, parent)
-      return proxy
-
-    def __init__(self, name, parent) :
-      self.MODULY_PROXY_name = name
+      return Module_proxy_child(name)
 
     def __getattr__(self, key):
       self._Module_Attr__PROXY__activate()
