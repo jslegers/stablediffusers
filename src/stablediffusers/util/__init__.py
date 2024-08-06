@@ -417,7 +417,8 @@ def module(name, attrs = None) :
         child = Module_proxy_child(attr)
         Module_proxy.attr_names.append(attr)
         Module_proxy.attrs_dict[attr] = a
-        Module_proxy._Module_Attr__module.append(child)
+        Module_proxy._Module_Attr__module.append(a)
+        Module_proxy._Module_Attr__module[-1] = child
         Module_proxy._Module_Attr__module_proxy[attr] = child
       return proxy
 
