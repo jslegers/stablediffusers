@@ -435,7 +435,10 @@ def module(name, attrs = None) :
 
     def __call__(self, *args, **kwargs):
       self._Module_Attr__PROXY__activate()
-      return getattr(Module_proxy._Module_Attr__module, self.MODULY_PROXY_name)(*args, **kwargs)
+      try :
+        return getattr(Module_proxy._Module_Attr__module, key)(*args, **kwargs)
+      except Exception as e :
+        return getattr(Module_proxy._Module_Attr__module, self.MODULY_PROXY_name)(*args, **kwargs)
 
 
   proxy = Module_proxy_parent.setup(name, attrs)
