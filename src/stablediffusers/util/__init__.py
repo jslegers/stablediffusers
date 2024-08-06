@@ -382,6 +382,9 @@ def module(name, attrs = None) :
   class Module_proxy_child(Module_proxy):
     @classmethod
 
+    def setup(cls, name, attrs = None):
+      proxy = cls(name)
+
     def __getattr__(self, key):
       self._Module_Attr__PROXY__activate()
       return getattr(getattr(Module_proxy._Module_Attr__module, self.MODULY_PROXY_name), key)
@@ -395,14 +398,14 @@ def module(name, attrs = None) :
       print(Module_proxy.attr_names)
       print(Module_proxy._Module_Attr__module)
       print(Module_proxy._Module_Attr__module_proxy)
-      return getattr(Module_proxy._Module_Attr__module)(*args, **kwargs)
+      return getattr(Module_proxy._Module_Attr__module, self.MODULY_PROXY_name)(*args, **kwargs)
 
 
   class Module_proxy_parent(Module_proxy):
 
     @classmethod
     def setup(cls, name, attrs = None):
-      proxy = Module_proxy_parent(name)
+      proxy = cls(name)
       Module_proxy.parent = proxy
       if not attrs :
         return proxy
@@ -410,7 +413,7 @@ def module(name, attrs = None) :
         attrs = [attrs]
       for attr in attrs :
         a = Module_Attr(attr)
-        setattr(Module_proxy_parent, attr, a)
+        setattr(Module_proxy, attr, a)
         child = Module_proxy_child(attr)
         Module_proxy.attr_names.append(attr)
         Module_proxy._Module_Attr__module.append(a)
