@@ -381,7 +381,7 @@ def module(name, attrs = None) :
           Module_proxy._Module_Attr__module
 
     def __init__(self, name) :
-      self.MODULY_PROXY_name = name
+      Module_proxy.MODULY_PROXY_name = name
 
   class Module_proxy_child(Module_proxy):
     @classmethod
