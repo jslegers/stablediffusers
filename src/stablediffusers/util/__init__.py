@@ -366,7 +366,7 @@ def module(name, attrs = None) :
         mod = get_mod(cls.MODULY_PROXY_name, cls.attr_names)
         Module_proxy._Module_Attr__module = mod
         if not Module_proxy.attr_names :
-          attrval = next(mod)
+          Module_proxy._Module_Attr__module = next(mod)
         else :
           Module_proxy.attrs = []
           for key in Module_proxy.attr_names :
