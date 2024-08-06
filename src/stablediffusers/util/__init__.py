@@ -363,14 +363,14 @@ def module(name, attrs = None) :
         if Module_proxy.attr_names :
           Module_proxy._Module_Attr__module = obj
           for key in Module_proxy.attr_names :
-            attrval = next(mod)"""
-            """
+            attrval = next(mod)""
+            ""
             if callable(attrval) :
               def q(cls, *args, **kwargs) :
                 return attrval(*args, **kwargs)
             else :
-            """
-            """q = attrval
+            ""
+            ""q = attrval
             Module_proxy._Module_Attr__module.append(q)
             setattr(cls.parent, key, q)"""
 
