@@ -397,11 +397,10 @@ def module(name, attrs = None) :
 
     def __init__(self, name, parent) :
       self.MODULY_PROXY_name = name
-      self.__parent = parent
 
     def __getattr__(self, key):
       self._Module_Attr__PROXY__activate()
-      return getattr(Module_proxy.attrs_dict[self.MODULY_PROXY_name], self.MODULY_PROXY_name)
+      return getattr(Module_proxy.attrs_dict[self.MODULY_PROXY_name], key)
 
     def __str__(self):
       self._Module_Attr__PROXY__activate()
