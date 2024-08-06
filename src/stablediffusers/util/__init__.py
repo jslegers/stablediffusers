@@ -358,10 +358,13 @@ def module(name, attrs = None) :
         print("ACTIVATE")
         mod = get_mod(cls.parent.MODULY_PROXY_name, cls.attr_names)
         try :
-          mod = next(mod)
+          attrval = next(mod)
+          print(Module_proxy._Module_Attr__module)
           del Module_proxy._Module_Attr__module
           Module_proxy._Module_Attr__module = []
-          if Module_proxy.attr_names :
+          if not Module_proxy.attr_names :
+            mod = attrval
+          else :
             for key in Module_proxy.attr_names :
               """
               if callable(attrval) :
