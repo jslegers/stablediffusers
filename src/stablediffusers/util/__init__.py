@@ -379,6 +379,9 @@ def module(name, attrs = None) :
             setattr(Module_proxy_parent, key, q)
             attrval = next(mod)
 
+    def __init__(self, name) :
+      Module_proxy.MODULY_PROXY_name = name
+
   class Module_proxy_child(Module_proxy):
     @classmethod
 
@@ -436,9 +439,6 @@ def module(name, attrs = None) :
     def __call__(self, *args, **kwargs):
       self._Module_Attr__PROXY__activate()
       return getattr(Module_proxy._Module_Attr__module, self.MODULY_PROXY_name)(*args, **kwargs)
-
-    def __init__(self, name) :
-      Module_proxy.MODULY_PROXY_name = name
 
 
   proxy = Module_proxy_parent.setup(name, attrs)
