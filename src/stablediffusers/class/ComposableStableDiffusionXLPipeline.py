@@ -111,9 +111,11 @@ class ComposableStableDiffusionXLPipeline:
   @classmethod
   def flush(cls, *args, **kwargs):
     collect()
+    """
     for _ in range(how_many_gpus):
       set_device(_)
-      empty_cache()
+    """
+    empty_cache()
 
   @classmethod
   def load_model(cls, *args, **kwargs):
@@ -140,7 +142,7 @@ class ComposableStableDiffusionXLPipeline:
     except :
       logger.info("Logging default variant instead")
       inference.pop("variant")
-      pipeline = StableDiffusionXLPipeline.from_pretrained(path, **kwargs, **inference).to(dtype=cls.default["inference"]["torch_dtype"])
+      pipeline = StableDiffusionXLPipeline.from_pretrained(path, **kwargs, **inference).to(dtype=default["inference"]["torch_dtype"])
     cls.name[name] = [None, [name], pipeline]
     cls.current = cls.name[name]
     if "unet" in kwargs or "text_encoder" in kwargs or "text_encoder_2" in kwargs or "vae" in kwargs :
