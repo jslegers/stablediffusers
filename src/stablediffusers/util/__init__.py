@@ -350,7 +350,6 @@ def module(name, attrs = None) :
     _Module_Attr__PROXY__activated = False
     _Module_Attr__module_proxy = {}
     _Module_Attr__module = None
-    MODULY_PROXY_name = ''
 
     @classmethod
     def _Module_Attr__PROXY__activate(cls) :
@@ -403,7 +402,7 @@ def module(name, attrs = None) :
 
     @classmethod
     def setup(cls, name, attrs = None):
-      cls.MODULY_PROXY_name = name
+      Module_proxy.MODULY_PROXY_name = name
       proxy = Module_proxy_parent()
       if not attrs :
         return proxy
