@@ -350,13 +350,14 @@ def module(name, attrs = None) :
     _Module_Attr__PROXY__activated = False
     _Module_Attr__module_proxy = {}
     _Module_Attr__module = None
+    MODULY_PROXY_name = ''
 
     @classmethod
     def _Module_Attr__PROXY__activate(cls) :
       if not Module_proxy._Module_Attr__PROXY__activated :
         Module_proxy._Module_Attr__PROXY__activated = True
         print("ACTIVATE")
-        mod = get_mod(cls.MODULY_PROXY_name, cls.attr_names)
+        mod = get_mod(Module_proxy.MODULY_PROXY_name, cls.attr_names)
         try :
           mod = next(mod)
         except :
@@ -379,11 +380,11 @@ def module(name, attrs = None) :
             attrval = next(mod)
           Module_proxy._Module_Attr__module
 
-  class Module_proxy_child(Module_proxy):
-    @classmethod
-
     def __init__(self, name) :
       self.MODULY_PROXY_name = name
+
+  class Module_proxy_child(Module_proxy):
+    @classmethod
 
     def __getattr__(self, key):
       self._Module_Attr__PROXY__activate()
@@ -400,9 +401,11 @@ def module(name, attrs = None) :
 
   class Module_proxy_parent(Module_proxy):
 
+    def __init__(self, name) :
+      Module_proxy.MODULY_PROXY_name = name
+
     @classmethod
     def setup(cls, name, attrs = None):
-      Module_proxy.MODULY_PROXY_name = name
       proxy = Module_proxy_parent()
       if not attrs :
         return proxy
@@ -429,7 +432,7 @@ def module(name, attrs = None) :
         return getattr(Module_proxy._Module_Attr__module, Module_proxy.attr_names[0])[key]
 
     def __getitem__(self, key):
-      return type(self).attrs[key]
+      return Module_proxy._Module_Attr__module_proxy[key]
 
     def __call__(self, *args, **kwargs):
       self._Module_Attr__PROXY__activate()
