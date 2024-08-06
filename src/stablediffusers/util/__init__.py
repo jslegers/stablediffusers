@@ -402,7 +402,7 @@ def module(name, attrs = None) :
     @classmethod
     def setup(cls, name, attrs = None):
       proxy = Module_proxy_parent(name)
-      cls.parent = proxy
+      Module_proxy.parent = proxy
       if not attrs :
         return proxy
       if isinstance(attrs, str) :
