@@ -13,12 +13,15 @@ empty_cache, ipc_collect = module("torch.cuda", ["empty_cache", "ipc_collect"])
 init_empty_weights = module("accelerate", "init_empty_weights")
 load_model_dict_into_meta = module("diffusers.models.model_loading_utils", "load_model_dict_into_meta")
 
-logger = module("diffusers.utils", "logging").get_logger(__name__)
+how_many_gpus = module("torch.cuda").device_count()
+cuda_is_available = module("torch.cuda").is_available()
+
+logging = module("diffusers.utils", "logging")
+logger = logging.get_logger(__name__)
 logger.setLevel("ERROR")
 
 default = {
   "model" : "stabilityai/stable-diffusion-xl-base-1.0",
-  "device" : "cuda" if module("torch.cuda").is_available() else "cpu",
   "merging" : {
     "text_encoder" : {
       "model" : module("transformers", "CLIPTextModel"),
@@ -45,11 +48,11 @@ default = {
 
 default.update({
   "inference" : {
-    "torch_dtype" : module("torch", "float16"),
+    "torch_dtype" : module("torch").float16,
     "variant" : "fp16",
     "use_safetensors" : True
-  } if default["device"] == "cuda" else {
-    "torch_dtype" : module("torch", "bfloat16"),
+  } if cuda_is_available else {
+    "torch_dtype" : module("torch").bfloat16,
     "variant" : "bf16",
     "use_safetensors" : True
   }
@@ -57,8 +60,8 @@ default.update({
 
 class ComposableStableDiffusionXLPipeline:
 
-  device = module("torch", "device")(default["device"])
-  generator = module("torch", "Generator")(device = device)
+  device = module("torch").device("cuda" if cuda_is_available else "cpu")
+  generator = module("torch").Generator(device = device)
 
   name = {}
   path = {}
@@ -108,8 +111,9 @@ class ComposableStableDiffusionXLPipeline:
   @classmethod
   def flush(cls, *args, **kwargs):
     collect()
-    empty_cache()
-    ipc_collect()
+    for _ in range(how_many_gpus):
+      set_device(_)
+      empty_cache()
 
   @classmethod
   def load_model(cls, *args, **kwargs):
@@ -319,7 +323,7 @@ class ComposableStableDiffusionXLPipeline:
 
     merged_state_dict = {}
 
-    for key in module.load('logging').tqdm(model_a.state_dict().keys(), desc=f"Merging {model} models"):
+    for key in logging.tqdm(model_a.state_dict().keys(), desc=f"Merging {model} models"):
       if key not in model_b.state_dict():
         raise ValueError(f"Key {key} not found in vae B")
 
