@@ -371,7 +371,7 @@ def module(name, attrs = None) :
             """
             q = attrval
             Module_proxy._Module_Attr__module.append(q)
-            setattr(self.parent, key, q)
+            setattr(cls.parent, key, q)
 
     def __init__(self, name) :
       self.MODULY_PROXY_name = name
