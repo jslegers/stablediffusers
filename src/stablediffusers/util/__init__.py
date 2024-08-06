@@ -345,7 +345,6 @@ def module(name, attrs = None) :
 
   class Module_proxy(object):
     attr_names = []
-    attrs_dict = {}
     _Module_Attr__PROXY__activated = False
     _Module_Attr__module_proxy = {}
     _Module_Attr__module = []
@@ -372,8 +371,6 @@ def module(name, attrs = None) :
               """
               q = attrval
               Module_proxy._Module_Attr__module.append(q)
-              del Module_proxy.attrs_dict[key]
-              Module_proxy.attrs_dict[key] = q
               setattr(parent, key, q)
               attrval = next(mod)
         except :
@@ -396,7 +393,6 @@ def module(name, attrs = None) :
     def __call__(self, *args, **kwargs):
       self._Module_Attr__PROXY__activate()
       print(Module_proxy.attr_names)
-      print(Module_proxy.attrs_dict)
       print(Module_proxy._Module_Attr__module)
       return getattr(Module_proxy._Module_Attr__module, self.MODULY_PROXY_name)(*args, **kwargs)
 
@@ -416,7 +412,6 @@ def module(name, attrs = None) :
         setattr(Module_proxy_parent, attr, a)
         child = Module_proxy_child(attr)
         Module_proxy.attr_names.append(attr)
-        Module_proxy.attrs_dict[attr] = a
         Module_proxy._Module_Attr__module.append(a)
         Module_proxy._Module_Attr__module[-1] = child
         Module_proxy._Module_Attr__module_proxy[attr] = child
@@ -428,7 +423,6 @@ def module(name, attrs = None) :
         return getattr(Module_proxy._Module_Attr__module, key)
       except Exception as e :
         print(Module_proxy.attr_names)
-        print(Module_proxy.attrs_dict)
         print(Module_proxy._Module_Attr__module)
         return getattr(Module_proxy._Module_Attr__module, Module_proxy.attr_names[0])[key]
 
