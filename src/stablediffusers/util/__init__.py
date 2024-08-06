@@ -360,6 +360,7 @@ def module(name, attrs = None) :
         mod = get_mod(cls.parent.MODULY_PROXY_name, cls.attr_names)
         try :
           mod = next(mod)
+          del Module_proxy._Module_Attr__module
           Module_proxy._Module_Attr__module = []
           if Module_proxy.attr_names :
             for key in Module_proxy.attr_names :
