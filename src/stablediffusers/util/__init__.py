@@ -396,7 +396,7 @@ def module(name, attrs = None) :
         setattr(Module_proxy_parent, attr, a)
         child = Module_proxy_child(attr)
         Module_proxy.attr_names.append(attr)
-        Module_proxy_parent.__dict__[attr] = child
+        a = child
       return proxy
 
     def __getattr__(self, key):
