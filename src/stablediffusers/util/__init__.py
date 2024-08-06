@@ -355,9 +355,9 @@ def module(name, attrs = None) :
         print("ACTIVATE")
         mod = get_mod(Module_proxy.parent.MODULY_PROXY_name, cls.attr_names)
         if Module_proxy.attr_names :
-          [setattr(Module_proxy.parent, key, next(mod)) for key in Module_proxy.attr_names]
+          [setattr(Module_proxy_parent, key, next(mod)) for key in Module_proxy.attr_names]
         else :
-          [setattr(Module_proxy.parent, key, item) for key, item in vars(mod).items()]
+          [setattr(Module_proxy_parent, key, item) for key, item in vars(mod).items()]
 
     def __init__(self, name) :
       self.MODULY_PROXY_name = name
@@ -407,7 +407,7 @@ def module(name, attrs = None) :
         return getattr(getattr(Module_proxy, Module_proxy.attr_names[0]), key)
 
     def __getitem__(self, key):
-      return getattr(Module_proxy, Module_proxy.attr_names[key])
+      return getattr(Module_proxy_parent, Module_proxy.attr_names[key])
 
     def __call__(self, *args, **kwargs):
       self._Module_Attr__PROXY__activate()
