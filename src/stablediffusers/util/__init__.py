@@ -355,9 +355,9 @@ def module(name, attrs = None) :
         print("ACTIVATE")
         mod = get_mod(Module_proxy.parent.MODULY_PROXY_name, cls.attr_names)
         if Module_proxy.attr_names :
-          [setattr(Module_proxy.parent, item, next(mod)) for key, item in Module_proxy.attr_names]
+          [setattr(Module_proxy_parent, key, next(mod)) for key in Module_proxy.attr_names]
         else :
-          [setattr(Module_proxy.parent, key, item) for key, item in vars(mod).items()]
+          Module_proxy_parent.__dict__.update(vars(mod))
 
     def __init__(self, name) :
       self.MODULY_PROXY_name = name
