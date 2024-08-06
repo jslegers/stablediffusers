@@ -374,7 +374,7 @@ def module(name, attrs = None) :
 
     def __str__(self):
       self._Module_Attr__PROXY__activate()
-      return str(getattr(Module_proxy, [self.MODULY_PROXY_name))
+      return str(getattr(Module_proxy, self.MODULY_PROXY_name))
 
     def __call__(self, *args, **kwargs):
       self._Module_Attr__PROXY__activate()
