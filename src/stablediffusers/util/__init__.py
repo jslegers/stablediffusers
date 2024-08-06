@@ -357,27 +357,21 @@ def module(name, attrs = None) :
         Module_proxy._Module_Attr__PROXY__activated = True
         print("ACTIVATE")
         mod = get_mod(cls.parent.MODULY_PROXY_name, cls.attr_names)
-        try :
-          attrval = next(mod)
-          print(Module_proxy._Module_Attr__module)
-          del Module_proxy._Module_Attr__module
+        Module_proxy._Module_Attr__module = mod
+        print(Module_proxy._Module_Attr__module)
+        if Module_proxy.attr_names :
           Module_proxy._Module_Attr__module = []
-          if not Module_proxy.attr_names :
-            mod = attrval
-          else :
-            for key in Module_proxy.attr_names :
-              """
-              if callable(attrval) :
-                def q(cls, *args, **kwargs) :
-                  return attrval(*args, **kwargs)
-              else :
-              """
-              q = attrval
-              Module_proxy._Module_Attr__module.append(q)
-              setattr(parent, key, q)
-              attrval = next(mod)
-        except :
-          Module_proxy._Module_Attr__module = mod
+          for key in Module_proxy.attr_names :
+            attrval = next(mod)
+            """
+            if callable(attrval) :
+              def q(cls, *args, **kwargs) :
+                return attrval(*args, **kwargs)
+            else :
+            """
+            q = attrval
+            Module_proxy._Module_Attr__module.append(q)
+            setattr(parent, key, q)
 
     def __init__(self, name) :
       self.MODULY_PROXY_name = name
