@@ -357,7 +357,7 @@ def module(name, attrs = None) :
       if not Module_proxy._Module_Attr__PROXY__activated :
         Module_proxy._Module_Attr__PROXY__activated = True
         print("ACTIVATE")
-        mod = get_mod(cls.MODULY_PROXY_name, cls.attr_names)
+        mod = get_mod(Module_proxy.MODULY_PROXY_name, cls.attr_names)
         try :
           mod = next(mod)
         except :
@@ -379,11 +379,11 @@ def module(name, attrs = None) :
             setattr(Module_proxy_parent, key, q)
             attrval = next(mod)
 
-    def __init__(self, name) :
-      Module_proxy.MODULY_PROXY_name = name
-
   class Module_proxy_child(Module_proxy):
     @classmethod
+
+    def __init__(self, name) :
+      self.MODULY_PROXY_name = name
 
     def setupattr(cls, name, parent):
       return Module_proxy_child(name)
@@ -436,6 +436,9 @@ def module(name, attrs = None) :
     def __call__(self, *args, **kwargs):
       self._Module_Attr__PROXY__activate()
       return getattr(Module_proxy._Module_Attr__module, self.MODULY_PROXY_name)(*args, **kwargs)
+
+    def __init__(self, name) :
+      Module_proxy.MODULY_PROXY_name = name
 
 
   proxy = Module_proxy_parent.setup(name, attrs)
