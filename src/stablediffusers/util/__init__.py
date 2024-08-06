@@ -332,6 +332,21 @@ def get_mod(fullname, attrs = None):
   return (getattr(get_module_from_code(code), attr) for attr in attrs)
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def module(name, attrs = None) :
 
   class Module_proxy(object):
@@ -350,7 +365,9 @@ def module(name, attrs = None) :
         print("ACTIVATE")
         mod = get_mod(cls.MODULY_PROXY_name, cls.attr_names)
         Module_proxy._Module_Attr__module = mod
-        if Module_proxy.attr_names :
+        if not Module_proxy.attr_names :
+          attrval = next(mod)
+        else :
           Module_proxy.attrs = []
           for key in Module_proxy.attr_names :
             attrval = next(mod)
