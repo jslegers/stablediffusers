@@ -363,12 +363,6 @@ def module(name, attrs = None) :
           Module_proxy._Module_Attr__module = lambda:None
           for key in Module_proxy.attr_names :
             attrval = next(mod)
-            """
-            if callable(attrval) :
-              def q(cls, *args, **kwargs) :
-                return attrval(*args, **kwargs)
-            else :
-            """
             setattr(Module_proxy._Module_Attr__module, key, attrval)
             setattr(Module_proxy.parent, key, attrval)
 
