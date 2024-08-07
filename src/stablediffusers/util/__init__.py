@@ -320,11 +320,6 @@ def get_mod(fullname, attrs = None):
 
 
 
-def f2():
-  curframe = inspect.currentframe()
-  calframe = inspect.getouterframes(curframe, 3)
-  print('caller name:', calframe[1][3])
-
 
 
 def module(name, attrs = None) :
@@ -361,7 +356,6 @@ def module(name, attrs = None) :
 
     @classmethod
     def __activate(cls) :
-      f2()
       if not Module_proxy.__activated__ :
         Module_proxy.__activated__ = True
         print("ACTIVATE")
