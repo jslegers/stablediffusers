@@ -323,22 +323,24 @@ def get_mod(fullname, attrs = None):
 
 
 def module(name, attrs = None) :
-  class Module_Attr:
+  class Module_Attr :
     __slots__ = ['name']
-    def __init__(self, value):
+
+    def __init__(self, value) :
       self.name = value
       print(f"INIT --  self.name = {value}")
-    def __get__(self, instance, owner):
+
+    def __get__(self, instance, owner) :
       print(f"GET --  instance.__dict__[{self.name}]")
       if not instance.__storage__.activated :
         return instance.__storage__.attributes_proxy[self.name]
       else :
         return getattr(instance.__storage__.dependency, self.name)
 
-  class Module_proxy_storage:
+  class Module_proxy_storage() :
     __slots__ = ['dependency', 'activated', 'module_name', 'module_name', 'attributes_proxy', 'attribute_names', 'proxy']
 
-    def __init__(self):
+    def __init__(self) :
       self.dependency = []
       self.activated = False
       self.module_name = ''
@@ -362,29 +364,29 @@ def module(name, attrs = None) :
         print(self.dependency)
       return
 
-  class Module_proxy_child():
+  class Module_proxy_child() :
     def __init__(self, name, storage = None) :
       self.__storage__ = storage
       self.__name__ = name
 
-    def __getattr__(self, key):
+    def __getattr__(self, key) :
       print('child.__getitem__')
       print(key)
       self.__storage__._activate()
       return getattr(getattr(self.__storage__.dependency, self.__name__), key)
 
-    def __str__(self):
+    def __str__(self) :
       self.__storage__._activate()
       return str(getattr(self.__storage__.dependency, self.__name__))
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args, **kwargs) :
       print('child.__call__')
       self.__storage__._activate()
       return getattr(self.__storage__.dependency, self.__name__)(*args, **kwargs)
 
 
-  class Module_proxy():
-    def __init__(self, name, attrs = None):
+  class Module_proxy() :
+    def __init__(self, name, attrs = None) :
       cls = type(self)
       self.__name__ = name
       self.__storage__ = Module_proxy_storage()
@@ -403,7 +405,7 @@ def module(name, attrs = None) :
         self.__storage__.dependency[-1] = child
         self.__storage__.attributes_proxy[attr] = child
 
-    def __getattr__(self, key):
+    def __getattr__(self, key) :
       try :
         print('parent.__getattr__')
         print(key)
@@ -412,12 +414,12 @@ def module(name, attrs = None) :
       except Exception as e :
         return getattr(getattr(self.__storage__.depencency, self.__storage__.attribute_names[0]), key)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key) :
       print('parent.__getitem__')
       print(key)
       return self.__storage__.depencency[key]
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args, **kwargs) :
       self.__storage__._activate()
       return getattr(self.__storage__.depencency, self.__storage__.attribute_names[0])(*args, **kwargs)
 
