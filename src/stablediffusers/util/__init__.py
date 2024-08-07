@@ -331,7 +331,6 @@ def module(name, attrs = None) :
     attr_names = []
     _Module_Attr__PROXY__activated = False
     _Module_Attr__module = []
-    MODULY_PROXY_name = ''
 
     @classmethod
     def _Module_Attr__PROXY__activate(cls) :
