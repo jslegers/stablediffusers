@@ -423,6 +423,6 @@ def module(name, attrs = None) :
       return self.__storage__.dependency[key]
 
     def __call__(self, *args, **kwargs) :
-      return getattr(self.__storage__.get_attr(self.__storage__.attribute_names[0]))(*args, **kwargs)
+      return self.__storage__.get_attr(self.__storage__.attribute_names[0])(*args, **kwargs)
 
   return Module_proxy(name, attrs)
