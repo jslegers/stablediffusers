@@ -444,4 +444,4 @@ def module(module, attrs = None) :
   try :
     return ((attr, getattr(module, attr)) for attr in attrs)
   except :
-    return module
+    return ((key, value) for (key, value) in next(module))
