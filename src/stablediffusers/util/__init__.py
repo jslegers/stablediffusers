@@ -390,8 +390,8 @@ def module(name, attrs = None) :
         print(cls.__dependency__)
       return
 
-    @classmethod
-    def setup(cls, name, attrs = None):
+    def __init__(self, name, attrs = None):
+      cls = type(self)
       proxy = cls(name)
       cls.__module_name__ = name
       if not attrs :
@@ -427,5 +427,5 @@ def module(name, attrs = None) :
       return getattr(self.__dependency__, self.__attribute_names__[0])(*args, **kwargs)
 
 
-  proxy = Module_proxy_parent.setup(name, attrs)
+  proxy = Module_proxy_parent(name, attrs)
   return proxy
