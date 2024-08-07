@@ -385,10 +385,8 @@ def module(name, attrs = None) :
           cls.__dependency__ = mod
         else :
           cls.__dependency__ = lambda:None
-          for key in cls.__attribute_names__ :
-            attr = getattr(mod, key)
-            delattr(cls, key)
-            setattr(cls.__dependency__, key, attr)
+          delattr(cls, key)
+          [setattr(cls.__dependency__, key, getattr(mod, key)) for key in cls.__attribute_names__]
         print(cls.__dependency__)
       return
 
