@@ -412,6 +412,7 @@ def module(name, attrs = None) :
       return proxy
 
     def __getattr__(self, key):
+      return Module_proxy._Module_Attr__module_proxy[key].value
       self._Module_Attr__PROXY__activate()
       try :
         return getattr(Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__, key)
