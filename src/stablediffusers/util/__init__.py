@@ -334,17 +334,11 @@ def module(name, attrs = None) :
       return getattr(Module_proxy_parent.__dependency__, self.name)(*args, **kwargs)
       print(f"CALL --  instance.__dict__[{self.name}]([{args}], {kwargs})")
     def __get__(self, instance, owner):
-      print('attr.__get__')
-      print(instance)
-      print(Module_proxy_parent.__activated__)
       print(f"GET --  instance.__dict__[{self.name}]")
       if not Module_proxy_parent.__activated__ :
         return Module_proxy_parent.__attributes_proxy__[self.name]
       else :
         return getattr(Module_proxy_parent.__dependency__, self.name)
-      #if not instance.Module_proxy_parent.__activated__ :
-      #  instance.__activate()
-      # return getattr(Module_proxy_parent.__dependency__, self.name)
 
 
   class Module_proxy(object):
@@ -370,8 +364,6 @@ def module(name, attrs = None) :
     def __call__(self, *args, **kwargs):
       print('child.__call__')
       Module_proxy_parent._Module_Attr__PROXY__activate()
-      print(Module_proxy_parent.__attribute_names__)
-      print(Module_proxy_parent.__dependency__)
       return getattr(Module_proxy_parent.__dependency__, self.name)(*args, **kwargs)
 
 
@@ -425,8 +417,6 @@ def module(name, attrs = None) :
         cls._Module_Attr__PROXY__activate()
         return getattr(cls.__dependency__, key)
       except Exception as e :
-        print(cls.__attribute_names__)
-        print(cls.__dependency__)
         return getattr(getattr(cls.__dependency__, cls.__attribute_names__[0]), key)
 
     def __getitem__(self, key):
