@@ -350,8 +350,6 @@ def module(module, attrs = None) :
       self.dependency = []
       self.activated = activated
       self.attribute_names = attrs
-      if self.activated :
-        return self.activate()
       self.proxy = proxy
       self.attributes_proxy = {}
       for attr in attrs :
@@ -361,6 +359,8 @@ def module(module, attrs = None) :
         self.dependency.append(a)
         self.dependency[-1] = child
         self.attributes_proxy[attr] = child
+      if self.activated :
+        return self.activate()
 
     def get_item(self, key) :
       return self.dependency[key]
