@@ -426,11 +426,11 @@ def module(name, attrs = None) :
         print('parent.__getattr__')
         print(key)
         return Module_proxy.__dependency__[key]
-      except KeyError as e :
+      except Exception as e :
         try :
           type(self).__activate()
           return getattr(Module_proxy.__dependency__, key)
-        except AttributeError as e :
+        except Exception as e :
           print(Module_proxy.__attribute_names__)
           print(Module_proxy.__dependency__)
           return getattr(getattr(Module_proxy.__dependency__, Module_proxy.__attribute_names__[0]), key)
