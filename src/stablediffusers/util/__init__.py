@@ -344,6 +344,7 @@ def module(name, attrs = None) :
     __MODULE__PROXY__ATTIBUTE__NAMES__ = []
     __MODULE__PROXY__ACTIVATED__ = False
     __MODULE__PROXY__ATTRIBUTES__ = []
+    __MODULE__PROXY__ATTRIBUTES__2 = []
     __MODULE__PROXY__NAME__ = ''
     __MODULE__PROXY__MODULE__NAME__ = ''
 
@@ -401,6 +402,7 @@ def module(name, attrs = None) :
         Module_proxy.__MODULE__PROXY__ATTIBUTE__NAMES__.append(attr)
         Module_proxy.__MODULE__PROXY__ATTRIBUTES__.append(a)
         Module_proxy.__MODULE__PROXY__ATTRIBUTES__[-1] = child
+        Module_proxy.__MODULE__PROXY__ATTRIBUTES__2.append(child)
       return proxy
 
     def __getattr__(self, key):
@@ -413,7 +415,7 @@ def module(name, attrs = None) :
         return getattr(getattr(Module_proxy.__MODULE__PROXY__ATTRIBUTES__, Module_proxy.__MODULE__PROXY__ATTIBUTE__NAMES__[0]), key)
 
     def __getitem__(self, key):
-      return type(self).__MODULE__PROXY__ATTRIBUTES__[key]
+      return type(self).__MODULE__PROXY__ATTRIBUTES__2[key]
 
     def __call__(self, *args, **kwargs):
       self._Module_Attr__PROXY__activate()
