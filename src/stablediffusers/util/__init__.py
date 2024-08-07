@@ -400,7 +400,7 @@ def module(name, attrs = None) :
         a = Module_Attr(attr)
         child = Module_proxy_child(attr, self.__storage__)
         setattr(cls, attr, a)
-        self.__storage__.depencency.append(a)
+        self.__storage__.dependency.append(a)
         self.__storage__.attribute_names.append(attr)
         self.__storage__.dependency[-1] = child
         self.__storage__.attributes_proxy[attr] = child
