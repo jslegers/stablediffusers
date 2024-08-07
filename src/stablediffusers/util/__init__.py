@@ -295,23 +295,7 @@ def AutoLoad(**kwargs) :
 
 
 
-class Module_Attr:
-  def __init__(self, value):
-    self.name = value
-    print(f"INIT --  self.name = {value}")
-  def __call__(self, instance, *args, **kwargs):
-    print(instance._Module_Attr__PROXY__activated)
-    print(self.name)
-    if not instance._Module_Attr__PROXY__activated :
-      instance._Module_Attr__PROXY__activate()
-    return getattr(instance.__module, self.name)(*args, **kwargs)
-    print(f"CALL --  instance.__dict__[{self.name}]([{args}], {kwargs})")
-  def __get__(self, instance, owner):
-    print(instance._Module_Attr__PROXY__activated)
-    print(f"GET --  instance.__dict__[{self.name}]")
-    #if not instance._Module_Attr__PROXY__activated :
-    #  instance._Module_Attr__PROXY__activate()
-    return getattr(instance.__module, self.name)
+
 
 
 def get_mod(fullname, attrs = None):
@@ -402,8 +386,7 @@ def module(name, attrs = None) :
         child = Module_proxy_child(attr)
         child.MODULY_PROXY_name = name
         Module_proxy.attr_names.append(attr)
-        Module_proxy._Module_Attr__module.append(a)
-        Module_proxy._Module_Attr__module[-1] = child
+        Module_proxy._Module_Attr__module.append(child)
       return proxy
 
     def __getattr__(self, key):
