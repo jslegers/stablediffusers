@@ -358,9 +358,9 @@ def module(name, attrs = None) :
 
 
 
-  def activate() :
+  @classmethod
+  def activate(cls) :
     f2()
-    nonlocal activated
     if not activated :
       activated = True
       print("ACTIVATE")
