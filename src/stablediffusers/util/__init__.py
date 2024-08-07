@@ -339,7 +339,7 @@ def module(name, attrs = None) :
     def __call__(self, instance, *args, **kwargs):
       print('attr.__call__')
       if not activated :
-        activate()
+        instance.__activate()
       return getattr(dependency, self.name)(*args, **kwargs)
       print(f"CALL --  instance.__dict__[{self.name}]([{args}], {kwargs})")
     def __get__(self, instance, owner):
@@ -352,14 +352,14 @@ def module(name, attrs = None) :
       else :
         return getattr(dependency, self.name)
       #if not instance.activated :
-      #  instance.activate()
+      #  instance.__activate()
       # return getattr(dependency, self.name)
 
 
   class Module_proxy(object):
 
     @classmethod
-    def activate(cls) :
+    def __activate(cls) :
       f2()
       if not activated :
         activated = True
@@ -385,16 +385,16 @@ def module(name, attrs = None) :
     def __getattr__(self, key):
       print('child.__getitem__')
       print(key)
-      activate()
+      cls.__activate()
       return getattr(getattr(dependency, module_name), key)
 
     def __str__(self):
-      activate()
+      cls.__activate()
       return str(getattr(dependency, module_name))
 
     def __call__(self, *args, **kwargs):
       print('child.__call__')
-      activate()
+      cls.__activate()
       print(attribute_names)
       print(dependency)
       return getattr(dependency, module_name)(*args, **kwargs)
@@ -432,7 +432,7 @@ def module(name, attrs = None) :
         return attributes_proxy[key]
       except KeyError as e :
         try :
-          activate()
+          cls.__activate()
           return getattr(dependency, key)
         except AttributeError as e :
           print(attribute_names)
@@ -445,7 +445,7 @@ def module(name, attrs = None) :
       return dependency[key]
 
     def __call__(self, *args, **kwargs):
-      activate()
+      cls.__activate()
       return getattr(dependency, attribute_names[0])(*args, **kwargs)
 
 
