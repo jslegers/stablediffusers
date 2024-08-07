@@ -412,9 +412,10 @@ def module(name, attrs = None) :
       return proxy
 
     def __getattr__(self, key):
-      return Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__PROXY__[key].value
-      self._Module_Attr__PROXY__activate()
       try :
+        return Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__PROXY__[key].value
+      except KeyError as e :
+        self._Module_Attr__PROXY__activate()
         return getattr(Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__, key)
       except Exception as e :
         print(Module_proxy.__MODULE__PROXY__ATTIBUTE__NAMES__)
