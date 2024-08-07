@@ -410,17 +410,17 @@ def module(name, attrs = None) :
         print('parent.__getattr__')
         print(key)
         self.__storage__._activate()
-        return getattr(self.__storage__.depencency, key)
+        return getattr(self.__storage__.dependency, key)
       except Exception as e :
-        return getattr(getattr(self.__storage__.depencency, self.__storage__.attribute_names[0]), key)
+        return getattr(getattr(self.__storage__.dependency, self.__storage__.attribute_names[0]), key)
 
     def __getitem__(self, key) :
       print('parent.__getitem__')
       print(key)
-      return self.__storage__.depencency[key]
+      return self.__storage__.dependency[key]
 
     def __call__(self, *args, **kwargs) :
       self.__storage__._activate()
-      return getattr(self.__storage__.depencency, self.__storage__.attribute_names[0])(*args, **kwargs)
+      return getattr(self.__storage__.dependency, self.__storage__.attribute_names[0])(*args, **kwargs)
 
   return Module_proxy(name, attrs)
