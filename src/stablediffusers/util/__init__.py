@@ -431,7 +431,7 @@ def module(name, attrs = None) :
       return Module_proxy_parent.__dependency__[key]
 
     def __call__(self, *args, **kwargs):
-      type(self).__activate()
+      Module_proxy_parent._Module_Attr__PROXY__activate()
       return getattr(Module_proxy_parent.__dependency__, Module_proxy_parent.__attribute_names__[0])(*args, **kwargs)
 
 
