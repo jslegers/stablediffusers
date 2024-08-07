@@ -336,7 +336,7 @@ def module(name, attrs = None) :
         return getattr(instance.__storage__.dependency, self.name)
 
   class Module_proxy_storage:
-    __slots__ = ['dependency', 'activated', 'module_name', 'module_name', 'attribute_names', 'proxy']
+    __slots__ = ['dependency', 'activated', 'module_name', 'module_name', 'attributes_proxy', 'attribute_names', 'proxy']
 
     def __init__(self):
       self.dependency = []
