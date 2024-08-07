@@ -362,7 +362,6 @@ def module(name, attrs = None) :
           for key in Module_proxy.attr_names :
             attrval = next(mod)
             setattr(Module_proxy._Module_Attr__module, key, attrval)
-            setattr(Module_proxy.parent, key, attrval)
 
     def __init__(self, name) :
       self.MODULY_PROXY_name = name
@@ -400,7 +399,6 @@ def module(name, attrs = None) :
         attrs = [attrs]
       for attr in attrs :
         a = Module_Attr(attr)
-        setattr(Module_proxy_parent, attr, a)
         child = Module_proxy_child(attr)
         Module_proxy.attr_names.append(attr)
         Module_proxy._Module_Attr__module.append(a)
