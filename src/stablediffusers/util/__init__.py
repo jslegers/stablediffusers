@@ -381,7 +381,6 @@ def module(name, attrs = None) :
       if isinstance(attrs, str) :
         attrs = [attrs]
       for attr in attrs :
-        a = Module_Attr(attr)
         child = Module_proxy_child(attr)
         child.MODULY_PROXY_name = name
         Module_proxy.attr_names.append(attr)
