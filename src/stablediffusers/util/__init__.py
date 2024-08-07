@@ -364,7 +364,7 @@ def module(name, attrs = None) :
           Module_proxy.__dependency__ = mod
         else :
           Module_proxy.__dependency__ = lambda:None
-          [setattr(module, key, next(mod)) for key in Module_proxy.__attribute_names__]
+          [setattr(Module_proxy.__dependency__, key, next(mod)) for key in Module_proxy.__attribute_names__]
         print(Module_proxy.__dependency__)
       return
 
