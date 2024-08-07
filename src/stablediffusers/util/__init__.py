@@ -440,4 +440,6 @@ def module(module, attrs = None) :
       module = sys.modules[module] and get_mod(module, attrs)
     except :
       return Module_proxy(module, attrs)
+  print(module)
+  print(attrs)
   return [getattr(module, key) for key in attrs]
