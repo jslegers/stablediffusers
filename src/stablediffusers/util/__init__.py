@@ -417,7 +417,7 @@ def module(name, attrs = None) :
       except KeyError as e :
         self._Module_Attr__PROXY__activate()
         return getattr(Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__, key)
-      except Exception as e :
+      except AttributeError as e :
         print(Module_proxy.__MODULE__PROXY__ATTIBUTE__NAMES__)
         print(Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__)
         return getattr(getattr(Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__, Module_proxy.__MODULE__PROXY__ATTIBUTE__NAMES__[0]), key)
