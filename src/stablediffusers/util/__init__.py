@@ -436,8 +436,5 @@ def module(module, attrs = None) :
   if isinstance(attrs, str) :
     attrs = [attrs]
   if isinstance(module, str) :
-    try :
-      return sys.modules[module] and Module_proxy(module, attrs, active = True)
-    except Exception as e :
-      return Module_proxy(module, attrs)
+    return Module_proxy(module, attrs)
   return ((attr, getattr(module, attr)) for attr in attrs)
