@@ -304,9 +304,9 @@ def get_mod(fullname, attrs = None):
     return get_module_from_code(code)
   if isinstance(attrs, str) :
     code = f"from {fullname} import {attrs}"
-    return getattr(get_module_from_code(code), attrs)
+    return get_module_from_code(code)
   code = f"from {fullname} import {', '.join(attrs)}"
-  return (getattr(get_module_from_code(code), attr) for attr in attrs)
+  return get_module_from_code(code)
 
 
 
