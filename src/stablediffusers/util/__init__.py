@@ -328,12 +328,6 @@ def module(name, attrs = None) :
     def __init__(self, value):
       self.name = value
       print(f"INIT --  self.name = {value}")
-    def __call__(self, instance, *args, **kwargs):
-      print('attr.__call__')
-      if not instance.__activated__ :
-        instance.__activate()
-      return getattr(instance.__dependency__, self.name)(*args, **kwargs)
-      print(f"CALL --  instance.__dict__[{self.name}]([{args}], {kwargs})")
     def __get__(self, instance, owner):
       print(f"GET --  instance.__dict__[{self.name}]")
       if not instance.__activated__ :
@@ -353,18 +347,18 @@ def module(name, attrs = None) :
       print('child.__getitem__')
       print(key)
       cls = type(super())
-      cls._Module_Attr__PROXY__activate()
+      cls.__activate__()
       return getattr(getattr(cls.__dependency__, self.name), key)
 
     def __str__(self):
       cls = type(super())
-      cls._Module_Attr__PROXY__activate()
+      cls.__activate__()
       return str(getattr(cls.__dependency__, self.name))
 
     def __call__(self, *args, **kwargs):
       print('child.__call__')
       cls = type(super())
-      cls._Module_Attr__PROXY__activate()
+      cls.__activate__()
       return getattr(cls.__dependency__, self.name)(*args, **kwargs)
 
 
@@ -376,7 +370,7 @@ def module(name, attrs = None) :
     __attribute_names__ = []
 
     @classmethod
-    def _Module_Attr__PROXY__activate(cls) :
+    def __activate__(cls) :
       if not cls.__activated__ :
         cls.__activated__ = True
         print("ACTIVATE")
@@ -412,7 +406,7 @@ def module(name, attrs = None) :
       try :
         print('parent.__getattr__')
         print(key)
-        self._Module_Attr__PROXY__activate()
+        cls.__activate__()
         return getattr(self.__dependency__, key)
       except Exception as e :
         return getattr(getattr(cls.__dependency__, cls.__attribute_names__[0]), key)
@@ -425,7 +419,7 @@ def module(name, attrs = None) :
 
     def __call__(self, *args, **kwargs):
       cls = type(self)
-      self._Module_Attr__PROXY__activate()
+      cls.__activate__()
       return getattr(cls.__dependency__, cls.__attribute_names__[0])(*args, **kwargs)
 
 
