@@ -432,7 +432,7 @@ def module(module, attrs = None) :
     def __call__(self, *args, **kwargs) :
       return self.__storage__.get_first_attr()(*args, **kwargs)
 
-  Class Unpackable_partial_copy() :
+  class Unpackable_partial_copy() :
     __slots__ = ['__attr_name__', '__attr__']
     def __init__(self, module, attrs) :
       self.__attr__ = []
