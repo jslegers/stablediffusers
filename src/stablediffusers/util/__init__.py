@@ -392,10 +392,9 @@ def module(name, attrs = None) :
 
     def __init__(self, name, attrs = None):
       cls = type(self)
-      proxy = cls(name)
       cls.__module_name__ = name
       if not attrs :
-        return proxy
+        return None
       if isinstance(attrs, str) :
         attrs = [attrs]
       for attr in attrs :
@@ -406,7 +405,6 @@ def module(name, attrs = None) :
         cls.__attribute_names__.append(attr)
         cls.__dependency__[-1] = child
         cls.__attributes_proxy__[attr] = child
-      return proxy
 
     def __getattr__(self, key):
       try :
