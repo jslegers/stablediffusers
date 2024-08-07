@@ -413,7 +413,7 @@ def module(name, attrs = None) :
         print('parent.__getattr__')
         print(key)
         self._Module_Attr__PROXY__activate()
-        return getattr(cls.__dependency__, key)
+        return getattr(self.__dependency__, key)
       except Exception as e :
         return getattr(getattr(self.__dependency__, self.__attribute_names__[0]), key)
 
@@ -423,7 +423,7 @@ def module(name, attrs = None) :
       return self.__dependency__[key]
 
     def __call__(self, *args, **kwargs):
-      cls._Module_Attr__PROXY__activate()
+      self._Module_Attr__PROXY__activate()
       return getattr(self.__dependency__, self.__attribute_names__[0])(*args, **kwargs)
 
 
