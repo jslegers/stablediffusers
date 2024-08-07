@@ -441,4 +441,7 @@ def module(module, attrs = None) :
       return Module_proxy(module, attrs)
   print(module)
   print(attrs)
-  return ((attr, getattr(module, attr)) for attr in attrs)
+  try :
+    return ((attr, getattr(module, attr)) for attr in attrs)
+  except :
+    return module
