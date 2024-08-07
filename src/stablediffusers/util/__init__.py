@@ -436,18 +436,9 @@ def module(module, attrs = None) :
     attrs = [attrs]
   if isinstance(module, str) :
     try :
-      module = sys.modules[module] and get_mod(module, attrs)
+      module = sys.modules[module]
     except :
       return Module_proxy(module, attrs)
   print(module)
   print(attrs)
-  if(isinstance(module, GeneratorType)) :
-    i = 0
-    output = []
-    for value in next(module) :
-      attr = attrs[i]
-      output.append((attr, value))
-      i = i + 1
-    return tuple(output)
-  else :
-    return ((attr, getattr(module, attr)) for attr in attrs)
+  return ((attr, getattr(module, attr)) for attr in attrs)
