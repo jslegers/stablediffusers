@@ -343,6 +343,8 @@ def module(name, attrs = None) :
 
 
   class Module_proxy(object):
+    __dependency__ = []
+
     def __init__(self, name) :
       self.name = name
 
@@ -356,24 +358,23 @@ def module(name, attrs = None) :
       print('child.__getitem__')
       print(key)
       Module_proxy_parent._Module_Attr__PROXY__activate()
-      return getattr(getattr(Module_proxy_parent.__dependency__, self.name), key)
+      return getattr(getattr(self.__dependency__, self.name), key)
 
     def __str__(self):
       Module_proxy_parent._Module_Attr__PROXY__activate()
-      return str(getattr(Module_proxy_parent.__dependency__, self.name))
+      return str(getattr(self.__dependency__, self.name))
 
     def __call__(self, *args, **kwargs):
       print('child.__call__')
       Module_proxy_parent._Module_Attr__PROXY__activate()
-      return getattr(Module_proxy_parent.__dependency__, self.name)(*args, **kwargs)
+      return getattr(self.__dependency__, self.name)(*args, **kwargs)
 
 
   class Module_proxy_parent(Module_proxy):
-    __attribute_names__ = []
     __activated__ = False
-    __dependency__ = []
     __module_name__ = ''
     __attributes_proxy__ = {}
+    __module_name__ = None
 
     @classmethod
     def _Module_Attr__PROXY__activate(cls) :
@@ -401,32 +402,29 @@ def module(name, attrs = None) :
         a = Module_Attr(attr)
         child = Module_proxy_child(attr)
         setattr(cls, attr, a)
-        cls.__attribute_names__.append(attr)
         cls.__dependency__.append(a)
         cls.__dependency__[-1] = child
         cls.__attributes_proxy__[attr] = child
+      cls.__attribute_names__ = cls.__attributes_proxy__.keys()
       return proxy
 
     def __getattr__(self, key):
       try :
-        cls = type(self)
         print('parent.__getattr__')
         print(key)
-        cls._Module_Attr__PROXY__activate()
+        self._Module_Attr__PROXY__activate()
         return getattr(cls.__dependency__, key)
       except Exception as e :
-        return getattr(getattr(cls.__dependency__, cls.__attribute_names__[0]), key)
+        return getattr(getattr(self.__dependency__, self.__attribute_names__[0]), key)
 
     def __getitem__(self, key):
-      cls = type(self)
       print('parent.__getitem__')
       print(key)
-      return cls.__dependency__[key]
+      return self.__dependency__[key]
 
     def __call__(self, *args, **kwargs):
-      cls = type(self)
       cls._Module_Attr__PROXY__activate()
-      return getattr(cls.__dependency__, cls.__attribute_names__[0])(*args, **kwargs)
+      return getattr(self.__dependency__, self.__attribute_names__[0])(*args, **kwargs)
 
 
   proxy = Module_proxy_parent.setup(name, attrs)
