@@ -387,7 +387,7 @@ def module(name, attrs = None) :
           cls.__dependency__ = lambda:None
           for key in cls.__attribute_names__ :
             attr = getattr(mod, key)
-            setattr(cls.attr, key, attr)
+            setattr(cls, key, attr)
             setattr(cls.__dependency__, key, attr)
         print(cls.__dependency__)
       return
