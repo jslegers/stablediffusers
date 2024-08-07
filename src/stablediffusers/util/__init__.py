@@ -349,7 +349,7 @@ def f2():
 
 def module(name, attrs = None) :
 
-  _Module_Attr__PROXY__activate(cls) :
+  def _Module_Attr__PROXY__activate(cls) :
     f2()
     if not Module_proxy.__MODULE__PROXY__ACTIVATED__ :
       Module_proxy.__MODULE__PROXY__ACTIVATED__ = True
@@ -369,7 +369,6 @@ def module(name, attrs = None) :
     __MODULE__PROXY__NAME__ = ''
     __MODULE__PROXY__MODULE__NAME__ = ''
     __MODULE__PROXY__ATTRIBUTES__PROXY__ = {}
-
 
     def __init__(self, name) :
       self.__MODULE__PROXY__NAME__ = name
