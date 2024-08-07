@@ -324,7 +324,7 @@ class Module_Attr:
     print(self.name)
     if not instance.__MODULE__PROXY__ACTIVATED__ :
       instance._Module_Attr__PROXY__activate()
-    return getattr(instance.__MODULE__ATTRIBUTES__, self.name)(*args, **kwargs)
+    return getattr(instance.__MODULE__PROXY__ATTRIBUTES__, self.name)(*args, **kwargs)
     print(f"CALL --  instance.__dict__[{self.name}]([{args}], {kwargs})")
   def __get__(self, instance, owner):
     print(instance.__MODULE__PROXY__ACTIVATED__)
@@ -408,7 +408,7 @@ def module(name, attrs = None) :
         Module_proxy.__MODULE__PROXY__ATTIBUTE__NAMES__.append(attr)
         Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__.append(a)
         Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__[-1] = child
-        Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__PROXY__[attrs] = child
+        Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__PROXY__[attr] = child
       return proxy
 
     def __getattr__(self, key):
