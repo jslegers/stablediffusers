@@ -343,7 +343,7 @@ def module(name, attrs = None) :
       else :
         return getattr(self.dependency, value)
 
-    def __init__(self, proxy, attrs = []) :
+    def __init__(self, name, proxy, attrs = []) :
       self.module_name = name
       self.dependency = []
       self.activated = False
