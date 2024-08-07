@@ -437,6 +437,6 @@ def module(module, attrs = None) :
     attrs = [attrs]
   if isinstance(module, str) :
     if not sys.modules[module] :
-      return [getattr(module, key) for key in attrs]
+      return Module_proxy(module, attrs)
     module = sys.modules[module]
   return [getattr(module, key) for key in attrs]
