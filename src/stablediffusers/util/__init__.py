@@ -320,13 +320,15 @@ class Module_Attr:
     self.name = value
     print(f"INIT --  self.name = {value}")
   def __call__(self, instance, *args, **kwargs):
-    print(instance.__MODULE__PROXY__ACTIVATED__)
-    print(self.name)
+    print('attr.__call__')
+    print(instance)
     if not instance.__MODULE__PROXY__ACTIVATED__ :
       instance._Module_Attr__PROXY__activate()
     return getattr(instance.__MODULE__PROXY__ATTRIBUTES__, self.name)(*args, **kwargs)
     print(f"CALL --  instance.__dict__[{self.name}]([{args}], {kwargs})")
   def __get__(self, instance, owner):
+    print('attr.__get__')
+    print(instance)
     print(instance.__MODULE__PROXY__ACTIVATED__)
     print(f"GET --  instance.__dict__[{self.name}]")
     if not instance.__MODULE__PROXY__ACTIVATED__ :
@@ -377,6 +379,8 @@ def module(name, attrs = None) :
       proxy = cls(name)
 
     def __getattr__(self, key):
+      print('child.__getitem__')
+      print(key)
       self._Module_Attr__PROXY__activate()
       return getattr(getattr(Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__, self.__MODULE__PROXY__NAME__), key)
 
@@ -385,6 +389,8 @@ def module(name, attrs = None) :
       return str(getattr(Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__, self.__MODULE__PROXY__NAME__))
 
     def __call__(self, *args, **kwargs):
+      print('child.__call__')
+      print(key)
       self._Module_Attr__PROXY__activate()
       print(Module_proxy.__MODULE__PROXY__ATTIBUTE__NAMES__)
       print(Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__)
@@ -413,7 +419,7 @@ def module(name, attrs = None) :
 
     def __getattr__(self, key):
       try :
-        print(Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__PROXY__)
+        print('parent.__getattr__')
         print(key)
         return Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__PROXY__[key]
       except KeyError as e :
@@ -426,6 +432,8 @@ def module(name, attrs = None) :
           return getattr(getattr(Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__, Module_proxy.__MODULE__PROXY__ATTIBUTE__NAMES__[0]), key)
 
     def __getitem__(self, key):
+      print('parent.__getitem__')
+      print(key)
       return type(self)._Module_Attr__MODULE__PROXY__ATTRIBUTES__[key]
 
     def __call__(self, *args, **kwargs):
