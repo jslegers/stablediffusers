@@ -359,8 +359,6 @@ def module(module, attrs = []) :
         self.dependency.append(a)
         self.dependency[-1] = child
         self.attributes_proxy[attr] = child
-      if self.activated :
-        return self.activate()
 
     def get_item(self, key) :
       return self.dependency[key]
