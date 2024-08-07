@@ -413,6 +413,8 @@ def module(name, attrs = None) :
 
     def __getattr__(self, key):
       try :
+        print(Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__PROXY__)
+        print(key)
         return Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__PROXY__[key]
       except KeyError as e :
         try :

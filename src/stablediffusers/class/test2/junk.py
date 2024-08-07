@@ -153,24 +153,18 @@ def create_module_proxy(name, attrs) :
         mod = get_mod(cls.MODULY_PROXY_name, cls.attr_names)
         Module_proxy._Module_Attr__module = mod
         Module_proxy.attrs = []
-        if Module_proxy.attr_names :
-          for key in Module_proxy.attr_names :
-            attrval = next(mod)
-            if callable(attrval) :
-              def q(cls, *args, **kwargs) :
-                return attrval(*args, **kwargs)
-            else :
-              q = attrval
-            del Module_proxy.attrs_dict[key]
-            Module_proxy.attrs_dict[key] = q
-            Module_proxy.attrs.append(q)
-            setattr(Module_proxy_parent, key, q)
-            print(Module_proxy._Module_Attr__module)
-        else :
-          try :
-            mod = next(mod)
-          except :
-            pass
+        for key in Module_proxy.attr_names :
+          attrval = next(mod)
+          if callable(attrval) :
+            def q(cls, *args, **kwargs) :
+              return attrval(*args, **kwargs)
+          else :
+            q = attrval
+          del Module_proxy.attrs_dict[key]
+          Module_proxy.attrs_dict[key] = q
+          Module_proxy.attrs.append(q)
+          setattr(Module_proxy_parent, key, q)
+        print(Module_proxy._Module_Attr__module)
 
     def __init__(self, name) :
       Module_proxy.MODULY_PROXY_name = name
