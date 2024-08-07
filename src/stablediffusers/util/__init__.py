@@ -398,11 +398,9 @@ def module(name, attrs = None) :
       if isinstance(attrs, str) :
         attrs = [attrs]
       for attr in attrs :
-        a = Module_Attr(attr)
         child = Module_proxy_child(attr)
         Module_proxy.attr_names.append(attr)
-        Module_proxy._Module_Attr__module.append(a)
-        Module_proxy._Module_Attr__module[-1] = child
+        Module_proxy._Module_Attr__module.append(child)
       return proxy
 
     def __getattr__(self, key):
