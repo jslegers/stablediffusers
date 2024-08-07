@@ -419,15 +419,12 @@ def module(name, attrs = None) :
       try :
         print('parent.__getattr__')
         print(key)
-        return Module_proxy.__dependency__[key]
+        type(self)._Module_Attr__PROXY__activate()
+        return getattr(Module_proxy.__dependency__, key)
       except Exception as e :
-        try :
-          type(self)._Module_Attr__PROXY__activate()
-          return getattr(Module_proxy.__dependency__, key)
-        except Exception as e :
-          print(Module_proxy.__attribute_names__)
-          print(Module_proxy.__dependency__)
-          return getattr(getattr(Module_proxy.__dependency__, Module_proxy.__attribute_names__[0]), key)
+        print(Module_proxy.__attribute_names__)
+        print(Module_proxy.__dependency__)
+        return getattr(getattr(Module_proxy.__dependency__, Module_proxy.__attribute_names__[0]), key)
 
     def __getitem__(self, key):
       print('parent.__getitem__')
