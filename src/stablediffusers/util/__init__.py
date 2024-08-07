@@ -328,12 +328,6 @@ def module(name, attrs = None) :
     def __init__(self, value):
       self.name = value
       print(f"INIT --  self.name = {value}")
-    def __call__(self, instance, *args, **kwargs):
-      print('attr.__call__')
-      if not instance.__activated__ :
-        instance.__activate()
-      return getattr(instance.__dependency__, self.name)(*args, **kwargs)
-      print(f"CALL --  instance.__dict__[{self.name}]([{args}], {kwargs})")
     def __get__(self, instance, owner):
       print(f"GET --  instance.__dict__[{self.name}]")
       if not instance.__activated__ :
@@ -349,22 +343,19 @@ def module(name, attrs = None) :
   class Module_proxy_child(Module_proxy):
     @classmethod
 
-    def setup(cls, name, attrs = None):
-      proxy = cls(name)
-
     def __getattr__(self, key):
       print('child.__getitem__')
       print(key)
-      Module_proxy_parent._Module_Attr__PROXY__activate()
+      Module_proxy_parent._activate()
       return getattr(getattr(Module_proxy_parent.__dependency__, self.name), key)
 
     def __str__(self):
-      Module_proxy_parent._Module_Attr__PROXY__activate()
+      Module_proxy_parent._activate()
       return str(getattr(Module_proxy_parent.__dependency__, self.name))
 
     def __call__(self, *args, **kwargs):
       print('child.__call__')
-      Module_proxy_parent._Module_Attr__PROXY__activate()
+      Module_proxy_parent._activate()
       return getattr(Module_proxy_parent.__dependency__, self.name)(*args, **kwargs)
 
 
@@ -376,7 +367,7 @@ def module(name, attrs = None) :
     __attribute_names__ = []
 
     @classmethod
-    def _Module_Attr__PROXY__activate(cls) :
+    def _activate(cls) :
       if not cls.__activated__ :
         cls.__activated__ = True
         print("ACTIVATE")
@@ -392,12 +383,11 @@ def module(name, attrs = None) :
         print(cls.__dependency__)
       return
 
-    @classmethod
-    def setup(cls, name, attrs = None):
-      proxy = cls(name)
+    def __init__(self, name, attrs = None):
+      cls = type(self)
       cls.__module_name__ = name
       if not attrs :
-        return proxy
+        return
       if isinstance(attrs, str) :
         attrs = [attrs]
       for attr in attrs :
@@ -408,13 +398,12 @@ def module(name, attrs = None) :
         cls.__attribute_names__.append(attr)
         cls.__dependency__[-1] = child
         cls.__attributes_proxy__[attr] = child
-      return proxy
 
     def __getattr__(self, key):
       try :
         print('parent.__getattr__')
         print(key)
-        self._Module_Attr__PROXY__activate()
+        self._activate()
         return getattr(self.__dependency__, key)
       except Exception as e :
         return getattr(getattr(self.__dependency__, self.__attribute_names__[0]), key)
@@ -425,9 +414,7 @@ def module(name, attrs = None) :
       return self.__dependency__[key]
 
     def __call__(self, *args, **kwargs):
-      self._Module_Attr__PROXY__activate()
+      self._activate()
       return getattr(self.__dependency__, self.__attribute_names__[0])(*args, **kwargs)
 
-
-  proxy = Module_proxy_parent.setup(name, attrs)
-  return proxy
+  return Module_proxy_parent(name, attrs)
