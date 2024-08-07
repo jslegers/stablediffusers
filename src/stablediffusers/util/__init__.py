@@ -355,7 +355,7 @@ def module(name, attrs = None) :
     __attributes_proxy__ = {}
 
     @classmethod
-    def __activate(cls) :
+    def _Module_Attr__PROXY__activate(cls) :
       if not Module_proxy.__activated__ :
         Module_proxy.__activated__ = True
         print("ACTIVATE")
@@ -380,16 +380,16 @@ def module(name, attrs = None) :
     def __getattr__(self, key):
       print('child.__getitem__')
       print(key)
-      type(self).__activate()
+      type(self)._Module_Attr__PROXY__activate()
       return getattr(getattr(Module_proxy.__dependency__, Module_proxy.__module_name__), key)
 
     def __str__(self):
-      type(self).__activate()
+      type(self)._Module_Attr__PROXY__activate()
       return str(getattr(Module_proxy.__dependency__, Module_proxy.__module_name__))
 
     def __call__(self, *args, **kwargs):
       print('child.__call__')
-      type(self).__activate()
+      type(self)._Module_Attr__PROXY__activate()
       print(Module_proxy.__attribute_names__)
       print(Module_proxy.__dependency__)
       return getattr(Module_proxy.__dependency__, Module_proxy.__module_name__)(*args, **kwargs)
@@ -422,7 +422,7 @@ def module(name, attrs = None) :
         return Module_proxy.__dependency__[key]
       except Exception as e :
         try :
-          type(self).__activate()
+          type(self)._Module_Attr__PROXY__activate()
           return getattr(Module_proxy.__dependency__, key)
         except Exception as e :
           print(Module_proxy.__attribute_names__)
