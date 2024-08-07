@@ -400,7 +400,7 @@ def module(name, attrs = None) :
     @classmethod
     def setup(cls, name, attrs = None):
       proxy = cls(name)
-      cls.__MODULE__PROXY__MODULE__NAME__ = name
+      cls.__base__.__MODULE__PROXY__MODULE__NAME__ = name
       if not attrs :
         return proxy
       if isinstance(attrs, str) :
