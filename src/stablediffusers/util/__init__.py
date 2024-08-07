@@ -384,25 +384,25 @@ def module(name, attrs = None) :
 
     @classmethod
     def _Module_Attr__PROXY__activate(cls) :
-      print(Module_proxy_parent.__module_name__)
-      print(Module_proxy_parent.__attribute_names__)
-      print(Module_proxy_parent.__activated__)
-      if not Module_proxy_parent.__activated__ :
-        Module_proxy_parent.__activated__ = True
+      print(cls.__module_name__)
+      print(cls.__attribute_names__)
+      print(cls.__activated__)
+      if not cls.__activated__ :
+        cls.__activated__ = True
         print("ACTIVATE")
-        mod = get_mod(Module_proxy_parent.__module_name__, Module_proxy_parent.__attribute_names__)
-        if not Module_proxy_parent.__attribute_names__ :
-          Module_proxy_parent.__dependency__ = mod
+        mod = get_mod(cls.__module_name__, cls.__attribute_names__)
+        if not cls.__attribute_names__ :
+          cls.__dependency__ = mod
         else :
-          Module_proxy_parent.__dependency__ = lambda:None
-          [setattr(Module_proxy_parent.__dependency__, key, getattr(mod, key)) for key in Module_proxy_parent.__attribute_names__]
-        print(Module_proxy_parent.__dependency__)
+          cls.__dependency__ = lambda:None
+          [setattr(cls.__dependency__, key, getattr(mod, key)) for key in cls.__attribute_names__]
+        print(cls.__dependency__)
       return
 
     @classmethod
     def setup(cls, name, attrs = None):
       proxy = cls(name)
-      Module_proxy_parent.__module_name__ = name
+      cls.__module_name__ = name
       if not attrs :
         return proxy
       if isinstance(attrs, str) :
@@ -410,32 +410,35 @@ def module(name, attrs = None) :
       for attr in attrs :
         a = Module_Attr(attr)
         child = Module_proxy_child(attr)
-        setattr(Module_proxy_parent, attr, a)
-        Module_proxy_parent.__attribute_names__.append(attr)
-        Module_proxy_parent.__dependency__.append(a)
-        Module_proxy_parent.__dependency__[-1] = child
-        Module_proxy_parent.__attributes_proxy__[attr] = child
+        setattr(cls, attr, a)
+        cls.__attribute_names__.append(attr)
+        cls.__dependency__.append(a)
+        cls.__dependency__[-1] = child
+        cls.__attributes_proxy__[attr] = child
       return proxy
 
     def __getattr__(self, key):
       try :
+        cls = type(self)
         print('parent.__getattr__')
         print(key)
-        Module_proxy_parent._Module_Attr__PROXY__activate()
-        return getattr(Module_proxy_parent.__dependency__, key)
+        cls._Module_Attr__PROXY__activate()
+        return getattr(cls.__dependency__, key)
       except Exception as e :
-        print(Module_proxy_parent.__attribute_names__)
-        print(Module_proxy_parent.__dependency__)
-        return getattr(getattr(Module_proxy_parent.__dependency__, Module_proxy_parent.__attribute_names__[0]), key)
+        print(cls.__attribute_names__)
+        print(cls.__dependency__)
+        return getattr(getattr(cls.__dependency__, cls.__attribute_names__[0]), key)
 
     def __getitem__(self, key):
+      cls = type(self)
       print('parent.__getitem__')
       print(key)
-      return Module_proxy_parent.__dependency__[key]
+      return cls.__dependency__[key]
 
     def __call__(self, *args, **kwargs):
-      Module_proxy_parent._Module_Attr__PROXY__activate()
-      return getattr(Module_proxy_parent.__dependency__, Module_proxy_parent.__attribute_names__[0])(*args, **kwargs)
+      cls = type(self)
+      cls._Module_Attr__PROXY__activate()
+      return getattr(cls.__dependency__, cls.__attribute_names__[0])(*args, **kwargs)
 
 
   proxy = Module_proxy_parent.setup(name, attrs)
