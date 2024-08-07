@@ -372,16 +372,16 @@ def module(name, attrs = None) :
     def __getattr__(self, key) :
       print('child.__getitem__')
       print(key)
-      self.__storage__._activate()
+      self.__storage__.activate()
       return getattr(getattr(self.__storage__.dependency, self.__name__), key)
 
     def __str__(self) :
-      self.__storage__._activate()
+      self.__storage__.activate()
       return str(getattr(self.__storage__.dependency, self.__name__))
 
     def __call__(self, *args, **kwargs) :
       print('child.__call__')
-      self.__storage__._activate()
+      self.__storage__.activate()
       return getattr(self.__storage__.dependency, self.__name__)(*args, **kwargs)
 
 
@@ -409,7 +409,7 @@ def module(name, attrs = None) :
       try :
         print('parent.__getattr__')
         print(key)
-        self.__storage__._activate()
+        self.__storage__.activate()
         return getattr(self.__storage__.dependency, key)
       except Exception as e :
         return getattr(getattr(self.__storage__.dependency, self.__storage__.attribute_names[0]), key)
@@ -420,7 +420,7 @@ def module(name, attrs = None) :
       return self.__storage__.dependency[key]
 
     def __call__(self, *args, **kwargs) :
-      self.__storage__._activate()
+      self.__storage__.activate()
       return getattr(self.__storage__.dependency, self.__storage__.attribute_names[0])(*args, **kwargs)
 
   return Module_proxy(name, attrs)
