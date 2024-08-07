@@ -356,24 +356,22 @@ def module(name, attrs = None) :
       # return getattr(dependency, self.name)
 
 
-
-
-  @classmethod
-  def activate(cls) :
-    f2()
-    if not activated :
-      activated = True
-      print("ACTIVATE")
-      mod = get_mod(module_name, attribute_names)
-      if not attribute_names :
-        dependency = mod
-      else :
-        dependency = lambda:None
-        [setattr(module, key, next(mod)) for key in attribute_names]
-      print(dependency)
-    return
-
   class Module_proxy(object):
+
+    @classmethod
+    def activate(cls) :
+      f2()
+      if not activated :
+        activated = True
+        print("ACTIVATE")
+        mod = get_mod(module_name, attribute_names)
+        if not attribute_names :
+          dependency = mod
+        else :
+          dependency = lambda:None
+          [setattr(module, key, next(mod)) for key in attribute_names]
+        print(dependency)
+      return
 
     def __init__(self, name) :
       self.name = name
