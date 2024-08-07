@@ -350,9 +350,10 @@ def module(module, attrs = None) :
       self.proxy = proxy
       self.attributes_proxy = {}
       if not attrs :
-        self.attribute_names = []
+        attrs = []
       if isinstance(attrs, str) :
-        self.attribute_names = [attrs]
+        attrs = [attrs]
+      self.attribute_names = attrs
       if active :
         return self.activate()
       for attr in attrs :
