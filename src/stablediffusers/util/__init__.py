@@ -385,16 +385,16 @@ def module(name, attrs = None) :
     def __getattr__(self, key):
       print('child.__getitem__')
       print(key)
-      cls.__activate()
+      type(self).__activate()
       return getattr(getattr(dependency, module_name), key)
 
     def __str__(self):
-      cls.__activate()
+      type(self).__activate()
       return str(getattr(dependency, module_name))
 
     def __call__(self, *args, **kwargs):
       print('child.__call__')
-      cls.__activate()
+      type(self).__activate()
       print(attribute_names)
       print(dependency)
       return getattr(dependency, module_name)(*args, **kwargs)
@@ -414,15 +414,10 @@ def module(name, attrs = None) :
         a = Module_Attr(attr)
         child = Module_proxy_child(attr)
         setattr(Module_proxy_parent, attr, a)
-        print("ASSIGN 1")
         attribute_names.append(attr)
-        print("ASSIGN 2")
         dependency.append(a)
-        print("ASSIGN 3")
         dependency[-1] = child
-        print("ASSIGN 4")
         attributes_proxy[attr] = child
-        print("ASSIGN 5")
       return proxy
 
     def __getattr__(self, key):
@@ -432,7 +427,7 @@ def module(name, attrs = None) :
         return attributes_proxy[key]
       except KeyError as e :
         try :
-          cls.__activate()
+          type(self).__activate()
           return getattr(dependency, key)
         except AttributeError as e :
           print(attribute_names)
@@ -445,7 +440,7 @@ def module(name, attrs = None) :
       return dependency[key]
 
     def __call__(self, *args, **kwargs):
-      cls.__activate()
+      type(self).__activate()
       return getattr(dependency, attribute_names[0])(*args, **kwargs)
 
 
