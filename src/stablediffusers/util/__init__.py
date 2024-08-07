@@ -442,7 +442,7 @@ def module(name, attrs = None) :
     def __getitem__(self, key):
       print('parent.__getitem__')
       print(key)
-      return getattr(dependency, key)
+      return dependency[key]
 
     def __call__(self, *args, **kwargs):
       activate()
