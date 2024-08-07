@@ -314,7 +314,23 @@ def get_mod(fullname, attrs = None):
 
 
 
-
+class Module_Attr:
+  def __init__(self, value):
+    self.name = value
+    print(f"INIT --  self.name = {value}")
+  def __call__(self, instance, *args, **kwargs):
+    print(instance.__MODULE__PROXY__ACTIVATED__)
+    print(self.name)
+    if not instance.__MODULE__PROXY__ACTIVATED__ :
+      instance._Module_Attr__PROXY__activate()
+    return getattr(instance.__MODULE__PROXY__ATTRIBUTES__, self.name)(*args, **kwargs)
+    print(f"CALL --  instance.__dict__[{self.name}]([{args}], {kwargs})")
+  def __get__(self, instance, owner):
+    print(instance.__MODULE__PROXY__ACTIVATED__)
+    print(f"GET --  instance.__dict__[{self.name}]")
+    if not instance.__MODULE__PROXY__ACTIVATED__ :
+      instance._Module_Attr__PROXY__activate()
+    return getattr(instance.__MODULE__PROXY__ATTRIBUTES__, self.name)
 
 
 
@@ -380,9 +396,11 @@ def module(name, attrs = None) :
       if isinstance(attrs, str) :
         attrs = [attrs]
       for attr in attrs :
+        a = Module_Attr(attr)
         child = Module_proxy_child(attr)
         Module_proxy.__MODULE__PROXY__ATTIBUTE__NAMES__.append(attr)
-        Module_proxy.__MODULE__PROXY__ATTRIBUTES__.append(child)
+        Module_proxy.__MODULE__PROXY__ATTRIBUTES__.append(a)
+        Module_proxy.__MODULE__PROXY__ATTRIBUTES__[-1] = child
       return proxy
 
     def __getattr__(self, key):
