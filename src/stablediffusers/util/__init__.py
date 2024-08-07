@@ -442,4 +442,4 @@ def module(module, attrs = None) :
       return Module_proxy(module, attrs)
   print(module)
   print(attrs)
-  return (key, getattr(module, key)) for key in attrs)
+  return (key, getattr(module, attr)) for attr in attrs))
