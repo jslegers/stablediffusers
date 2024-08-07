@@ -360,6 +360,7 @@ def module(name, attrs = None) :
 
   def activate() :
     f2()
+    nonlocal activated
     if not activated :
       activated = True
       print("ACTIVATE")
@@ -370,6 +371,7 @@ def module(name, attrs = None) :
         dependency = lambda:None
         [setattr(module, key, next(mod)) for key in attribute_names]
       print(dependency)
+    return
 
   class Module_proxy(object):
 
