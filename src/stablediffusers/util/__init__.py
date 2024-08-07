@@ -315,7 +315,6 @@ def get_mod(fullname, attrs = None):
 
 
 class Module_Attr:
-  __slots__ = ['name']
   def __init__(self, value):
     self.name = value
     print(f"INIT --  self.name = {value}")
