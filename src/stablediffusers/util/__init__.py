@@ -445,8 +445,8 @@ def module(module, attrs = None) :
     i = 0
     output = []
     for value in next(module) :
-      attr = attr[i]
-      output.append(attr, value)
+      attr = attrs[i]
+      output.append((attr, value))
       i = i + 1
     return tuple(output)
   else :
