@@ -342,7 +342,7 @@ def module(name, attrs = None) :
           Module_proxy._Module_Attr__module = mod
         else :
           Module_proxy._Module_Attr__module = lambda:None
-          [setattr(Module_proxy._Module_Attr__module, key, attrval) for key in Module_proxy.attr_names]
+          [setattr(Module_proxy._Module_Attr__module, key, next(mod)) for key in Module_proxy.attr_names]
 
 
     def __init__(self, name) :
