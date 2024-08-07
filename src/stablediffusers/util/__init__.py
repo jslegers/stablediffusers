@@ -411,7 +411,7 @@ def module(module, attrs = None) :
 
 
   class Module_proxy() :
-    def __init__(self, name, attrs = None, activated = True) :
+    def __init__(self, name, attrs = [], activated = True) :
       self.__name__ = name
       self.__storage__ = Module_proxy_shared(name, type(self), attrs, activated)
 
