@@ -330,7 +330,7 @@ def module(name, attrs = None) :
     def __call__(self, instance, *args, **kwargs):
       print('attr.__call__')
       if not Module_proxy.__activated__ :
-        instance.__activate()
+        Module_proxy.__activate()
       return getattr(Module_proxy.__dependency__, self.name)(*args, **kwargs)
       print(f"CALL --  instance.__dict__[{self.name}]([{args}], {kwargs})")
     def __get__(self, instance, owner):
