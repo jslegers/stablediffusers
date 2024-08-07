@@ -2,7 +2,7 @@ from stablediffusers.util import module
 
 cv2 = module("cv2")
 Image, ImageDraw, ImageFont = module("PIL", ["Image", "ImageDraw", "ImageFont"])
-join = module("os.path", "join")
+join = module(module("os", "path"), "join")
 
 StableDiffusionXLPipeline = module("diffusers", "StableDiffusionXLPipeline")
 
@@ -16,7 +16,7 @@ load_model_dict_into_meta = module("diffusers.models.model_loading_utils", "load
 how_many_gpus = module("torch", "cuda").device_count()
 cuda_is_available = module("torch", "cuda").is_available()
 
-logging = module("diffusers.utils", "logging")
+logging = module(module("diffusers", "utils"), "logging")
 logger = logging.get_logger(__name__)
 logger.setLevel("ERROR")
 
