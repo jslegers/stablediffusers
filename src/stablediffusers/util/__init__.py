@@ -3,7 +3,7 @@ from os import scandir
 from os.path import join, dirname, splitext, isfile, isdir
 from pathlib import PurePath
 from importlib import import_module, util
-from types import ModuleType, FrameType, GeneratorType
+from types import ModuleType, FrameType
 from itertools import chain, islice
 import pprint
 from inspect import stack
