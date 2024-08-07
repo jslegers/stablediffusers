@@ -3,7 +3,7 @@ from os import scandir
 from os.path import join, dirname, splitext, isfile, isdir
 from pathlib import PurePath
 from importlib import import_module, util
-from types import ModuleType, FrameType
+from types import ModuleType, FrameType, GeneratorType
 from itertools import chain, islice
 import pprint
 from inspect import stack
@@ -441,9 +441,7 @@ def module(module, attrs = None) :
       return Module_proxy(module, attrs)
   print(module)
   print(attrs)
-  try :
-    return ((attr, getattr(module, attr)) for attr in attrs)
-  except :
+  if(isinstance(module, GeneratorType)) :
     i = 0
     output = []
     for value in next(module) :
@@ -451,3 +449,5 @@ def module(module, attrs = None) :
       output.append(attr, value)
       i = i + 1
     return tuple(output)
+  else :
+    return ((attr, getattr(module, attr)) for attr in attrs)
