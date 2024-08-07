@@ -442,7 +442,7 @@ def module(name, attrs = None) :
     def __getitem__(self, key):
       print('parent.__getitem__')
       print(key)
-      return type(self).attributes_proxy[attribute_names[key]]
+      return getattr(type(self), [attribute_names[key]])
 
     def __call__(self, *args, **kwargs):
       activate()
