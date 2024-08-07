@@ -403,9 +403,9 @@ def module(name, attrs = None) :
         child = Module_proxy_child(attr)
         setattr(cls, attr, a)
         cls.__dependency__.append(a)
+        cls.__attribute_names__.append(attr)
         cls.__dependency__[-1] = child
         cls.__attributes_proxy__[attr] = child
-      cls.__attribute_names__ = cls.__attributes_proxy__.keys()
       return proxy
 
     def __getattr__(self, key):
