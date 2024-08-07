@@ -349,7 +349,7 @@ def module(module, attrs = None) :
       self.module_name = name
       self.dependency = []
       self.activated = activated
-      self.attribute_names = attr
+      self.attribute_names = attrs
       if self.activated :
         return self.activate()
       self.proxy = proxy
