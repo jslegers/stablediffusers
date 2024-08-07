@@ -351,7 +351,7 @@ def module(name, attrs = None) :
     _Module_Attr__MODULE__PROXY__ATTRIBUTES__ = []
     __MODULE__PROXY__NAME__ = ''
     __MODULE__PROXY__MODULE__NAME__ = ''
-    _Module_Attr__MODULE__PROXY__ATTRIBUTES__PROXY__ = ''
+    _Module_Attr__MODULE__PROXY__ATTRIBUTES__PROXY__ = {}
 
     @classmethod
     def _Module_Attr__PROXY__activate(cls) :
