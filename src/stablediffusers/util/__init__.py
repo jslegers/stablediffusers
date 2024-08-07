@@ -324,21 +324,22 @@ def get_mod(fullname, attrs = None):
 
 def module(name, attrs = None) :
   class Module_Attr:
+    __slots__ = ['name']
     def __init__(self, value):
       self.name = value
       print(f"INIT --  self.name = {value}")
     def __call__(self, instance, *args, **kwargs):
       print('attr.__call__')
-      if not Module_proxy_parent.__activated__ :
+      if not instance.__activated__ :
         instance.__activate()
-      return getattr(Module_proxy_parent.__dependency__, self.name)(*args, **kwargs)
+      return getattr(instance.__dependency__, self.name)(*args, **kwargs)
       print(f"CALL --  instance.__dict__[{self.name}]([{args}], {kwargs})")
     def __get__(self, instance, owner):
       print(f"GET --  instance.__dict__[{self.name}]")
-      if not Module_proxy_parent.__activated__ :
-        return Module_proxy_parent.__attributes_proxy__[self.name]
+      if not instance.__activated__ :
+        return instance.__attributes_proxy__[self.name]
       else :
-        return getattr(Module_proxy_parent.__dependency__, self.name)
+        return getattr(instance.__dependency__, self.name)
 
 
   class Module_proxy(object):
@@ -376,9 +377,6 @@ def module(name, attrs = None) :
 
     @classmethod
     def _Module_Attr__PROXY__activate(cls) :
-      print(cls.__module_name__)
-      print(cls.__attribute_names__)
-      print(cls.__activated__)
       if not cls.__activated__ :
         cls.__activated__ = True
         print("ACTIVATE")
