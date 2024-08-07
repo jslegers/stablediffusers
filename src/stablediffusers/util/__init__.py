@@ -322,7 +322,7 @@ def get_mod(fullname, attrs = None):
 
 
 
-def module(name, attrs = None) :
+def module(module, attrs = None) :
   class Module_Attr :
     __slots__ = ['name']
 
@@ -343,23 +343,24 @@ def module(name, attrs = None) :
       else :
         return getattr(self.dependency, value)
 
-    def __init__(self, name, proxy, attrs = []) :
+    def __init__(self, name, proxy, attrs = [], active = False) :
       self.module_name = name
       self.dependency = []
       self.activated = False
-      self.attribute_names = []
       self.proxy = proxy
       self.attributes_proxy = {}
       if not attrs :
-        return
+        attrs = []
       if isinstance(attrs, str) :
         attrs = [attrs]
+      self.attribute_names = attrs
+      if active :
+        return self.activate()
       for attr in attrs :
         a = Module_Attr(attr)
         child = Module_proxy_child(attr, self)
         setattr(proxy, attr, a)
         self.dependency.append(a)
-        self.attribute_names.append(attr)
         self.dependency[-1] = child
         self.attributes_proxy[attr] = child
 
@@ -412,9 +413,9 @@ def module(name, attrs = None) :
 
 
   class Module_proxy() :
-    def __init__(self, name, attrs = None) :
+    def __init__(self, name, attrs = None, active = False) :
       self.__name__ = name
-      self.__storage__ = Module_proxy_shared(name, type(self), attrs)
+      self.__storage__ = Module_proxy_shared(name, type(self), attrs, active)
 
     def __getattr__(self, key) :
       try :
@@ -432,4 +433,8 @@ def module(name, attrs = None) :
     def __call__(self, *args, **kwargs) :
       return self.__storage__.get_first_attr()(*args, **kwargs)
 
-  return Module_proxy(name, attrs)
+  if isinstance(attrs, str) :
+    attrs = [attrs]
+  if isinstance(module, str) :
+    return Module_proxy(module, attrs)
+  return ((attr, getattr(module, attr)) for attr in attrs)
