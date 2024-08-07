@@ -432,7 +432,7 @@ def module(name, attrs = None) :
     def __getitem__(self, key):
       print('parent.__getitem__')
       print(key)
-      return type(self).__MODULE__PROXY__ATTRIBUTES__[key]
+      return type(self).__MODULE__PROXY__ATTRIBUTES__PROXY__[Module_proxy.__MODULE__PROXY__ATTIBUTE__NAMES__[key]]
 
     def __call__(self, *args, **kwargs):
       self._Module_Attr__PROXY__activate()
