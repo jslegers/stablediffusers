@@ -334,7 +334,7 @@ def module(name, attrs = None) :
       print(f"GET --  instance.__dict__[{self.name}]")
       return instance.__storage__.get_by_proxy(self.name)
 
-  class Module_proxy_storage() :
+  class Module_proxy_shared() :
     __slots__ = ['dependency', 'activated', 'module_name', 'module_name', 'attribute_names', 'attributes_proxy', 'proxy']
 
     def get_by_proxy(self, value) :
@@ -365,6 +365,9 @@ def module(name, attrs = None) :
 
     def get_item(self, key) :
       return self.dependency[key]
+
+    def get_first_attr(self) :
+      return self.get_attr(self.attribute_names[0])
 
     def get_attr(self, attr) :
       self.activate()
@@ -411,7 +414,7 @@ def module(name, attrs = None) :
   class Module_proxy() :
     def __init__(self, name, attrs = None) :
       self.__name__ = name
-      self.__storage__ = Module_proxy_storage(name, type(self), attrs)
+      self.__storage__ = Module_proxy_shared(name, type(self), attrs)
 
     def __getattr__(self, key) :
       try :
@@ -419,7 +422,7 @@ def module(name, attrs = None) :
         print(key)
         return self.__storage__.get_attr(key)
       except Exception as e :
-        return getattr(self.__storage__.get_attr(self.__storage__.attribute_names[0]), key)
+        return getattr(self.__storage__.get_first_attr(), key)
 
     def __getitem__(self, key) :
       print('parent.__getitem__')
@@ -427,6 +430,6 @@ def module(name, attrs = None) :
       return self.__storage__.get_item(key)
 
     def __call__(self, *args, **kwargs) :
-      return self.__storage__.get_attr(self.__storage__.attribute_names[0])(*args, **kwargs)
+      return self.__storage__.get_first_attr()(*args, **kwargs)
 
   return Module_proxy(name, attrs)
