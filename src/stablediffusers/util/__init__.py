@@ -295,24 +295,6 @@ def AutoLoad(**kwargs) :
 
 
 
-class Module_Attr:
-  def __init__(self, value):
-    self.name = value
-    print(f"INIT --  self.name = {value}")
-  def __call__(self, instance, *args, **kwargs):
-    print(instance._Module_Attr__PROXY__activated)
-    print(self.name)
-    if not instance._Module_Attr__PROXY__activated :
-      instance._Module_Attr__PROXY__activate()
-    return getattr(instance.__module, self.name)(*args, **kwargs)
-    print(f"CALL --  instance.__dict__[{self.name}]([{args}], {kwargs})")
-  def __get__(self, instance, owner):
-    print(instance._Module_Attr__PROXY__activated)
-    print(f"GET --  instance.__dict__[{self.name}]")
-    if not instance._Module_Attr__PROXY__activated :
-      instance._Module_Attr__PROXY__activate()
-    return getattr(instance.__module, self.name)
-
 
 def get_mod(fullname, attrs = None):
   if not attrs :
@@ -355,13 +337,13 @@ def module(name, attrs = None) :
         Module_proxy._Module_Attr__PROXY__activated = True
         print("ACTIVATE")
         mod = get_mod(Module_proxy.parent.MODULY_PROXY_name, cls.attr_names)
-        Module_proxy._Module_Attr__module = mod
         print(Module_proxy._Module_Attr__module)
-        if Module_proxy.attr_names :
+        if not Module_proxy.attr_names :
+          Module_proxy._Module_Attr__module = mod
+        else :
           Module_proxy._Module_Attr__module = lambda:None
-          for key in Module_proxy.attr_names :
-            attrval = next(mod)
-            setattr(Module_proxy._Module_Attr__module, key, attrval)
+          [setattr(Module_proxy._Module_Attr__module, key, attrval) for key in Module_proxy.attr_names]
+
 
     def __init__(self, name) :
       self.MODULY_PROXY_name = name
