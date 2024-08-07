@@ -360,16 +360,16 @@ def module(name, attrs = None) :
     def __getattr__(self, key):
       print('child.__getitem__')
       print(key)
-      type(self)._Module_Attr__PROXY__activate()
+      Module_proxy_parent._Module_Attr__PROXY__activate()
       return getattr(getattr(Module_proxy_parent.__dependency__, self.name), key)
 
     def __str__(self):
-      type(self)._Module_Attr__PROXY__activate()
+      Module_proxy_parent._Module_Attr__PROXY__activate()
       return str(getattr(Module_proxy_parent.__dependency__, self.name))
 
     def __call__(self, *args, **kwargs):
       print('child.__call__')
-      type(self)._Module_Attr__PROXY__activate()
+      Module_proxy_parent._Module_Attr__PROXY__activate()
       print(Module_proxy_parent.__attribute_names__)
       print(Module_proxy_parent.__dependency__)
       return getattr(Module_proxy_parent.__dependency__, self.name)(*args, **kwargs)
@@ -418,7 +418,7 @@ def module(name, attrs = None) :
       try :
         print('parent.__getattr__')
         print(key)
-        type(self)._Module_Attr__PROXY__activate()
+        Module_proxy_parent._Module_Attr__PROXY__activate()
         return getattr(Module_proxy_parent.__dependency__, key)
       except Exception as e :
         print(Module_proxy_parent.__attribute_names__)
