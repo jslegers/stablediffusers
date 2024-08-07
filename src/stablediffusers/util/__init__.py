@@ -343,8 +343,6 @@ def module(name, attrs = None) :
 
 
   class Module_proxy(object):
-    __dependency__ = []
-
     def __init__(self, name) :
       self.name = name
 
@@ -358,19 +356,20 @@ def module(name, attrs = None) :
       print('child.__getitem__')
       print(key)
       Module_proxy_parent._Module_Attr__PROXY__activate()
-      return getattr(getattr(self.__dependency__, self.name), key)
+      return getattr(getattr(Module_proxy_parent.__dependency__, self.name), key)
 
     def __str__(self):
       Module_proxy_parent._Module_Attr__PROXY__activate()
-      return str(getattr(self.__dependency__, self.name))
+      return str(getattr(Module_proxy_parent.__dependency__, self.name))
 
     def __call__(self, *args, **kwargs):
       print('child.__call__')
       Module_proxy_parent._Module_Attr__PROXY__activate()
-      return getattr(self.__dependency__, self.name)(*args, **kwargs)
+      return getattr(Module_proxy_parent.__dependency__, self.name)(*args, **kwargs)
 
 
   class Module_proxy_parent(Module_proxy):
+    __dependency__ = []
     __activated__ = False
     __module_name__ = ''
     __attributes_proxy__ = {}
