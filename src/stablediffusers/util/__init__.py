@@ -322,7 +322,7 @@ def get_mod(fullname, attrs = None):
 
 
 
-def module(name, attrs = None) :
+def module(module, attrs = None) :
   class Module_Attr :
     __slots__ = ['name']
 
@@ -432,4 +432,9 @@ def module(name, attrs = None) :
     def __call__(self, *args, **kwargs) :
       return self.__storage__.get_first_attr()(*args, **kwargs)
 
-  return Module_proxy(name, attrs)
+
+  if isinstance(attrs, str) :
+    attrs = [attrs]
+  if isinstance(module, str) :
+    return Module_proxy(module, attrs)
+  return [getattr(module, key) for key in attrs]

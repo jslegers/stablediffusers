@@ -9,12 +9,12 @@ StableDiffusionXLPipeline = module("diffusers", "StableDiffusionXLPipeline")
 get_weighted_text_embeddings_sdxl = module("sd_embed.embedding_funcs", "get_weighted_text_embeddings_sdxl")
 
 collect = module("gc", "collect")
-empty_cache, ipc_collect, set_device = module("torch.cuda", ["empty_cache", "ipc_collect", "set_device"])
+empty_cache, ipc_collect, set_device = module(module("torch", "cuda"), ["empty_cache", "ipc_collect", "set_device"])
 init_empty_weights = module("accelerate", "init_empty_weights")
 load_model_dict_into_meta = module("diffusers.models.model_loading_utils", "load_model_dict_into_meta")
 
-how_many_gpus = module("torch.cuda").device_count()
-cuda_is_available = module("torch.cuda").is_available()
+how_many_gpus = module("torch", "cuda").device_count()
+cuda_is_available = module("torch", "cuda").is_available()
 
 logging = module("diffusers.utils", "logging")
 logger = logging.get_logger(__name__)
