@@ -444,4 +444,10 @@ def module(module, attrs = None) :
   try :
     return ((attr, getattr(module, attr)) for attr in attrs)
   except :
-    return ((key, value) for (key, value) in next(module))
+    i = 0
+    output = []
+    for value in next(module) :
+      attr = attr[i]
+      output.append(attr, value)
+      i = i + 1
+    return tuple(output)
