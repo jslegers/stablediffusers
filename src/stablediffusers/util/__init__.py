@@ -384,6 +384,9 @@ def module(name, attrs = None) :
 
     @classmethod
     def _Module_Attr__PROXY__activate(cls) :
+      print(Module_proxy_parent.__module_name__)
+      print(Module_proxy_parent.__attribute_names__)
+      print(Module_proxy_parent.__activated__)
       if not Module_proxy_parent.__activated__ :
         Module_proxy_parent.__activated__ = True
         print("ACTIVATE")
