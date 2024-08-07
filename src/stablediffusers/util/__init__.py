@@ -409,10 +409,15 @@ def module(name, attrs = None) :
         a = Module_Attr(attr)
         child = Module_proxy_child(attr)
         setattr(Module_proxy_parent, attr, a)
+        print("ASSIGN 1")
         Module_proxy.__MODULE__PROXY__ATTIBUTE__NAMES__.append(attr)
+        print("ASSIGN 2")
         Module_proxy.__MODULE__PROXY__ATTRIBUTES__.append(a)
+        print("ASSIGN 3")
         Module_proxy.__MODULE__PROXY__ATTRIBUTES__[-1] = child
+        print("ASSIGN 4")
         Module_proxy.__MODULE__PROXY__ATTRIBUTES__PROXY__[attr] = child
+        print("ASSIGN 5")
       return proxy
 
     def __getattr__(self, key):
