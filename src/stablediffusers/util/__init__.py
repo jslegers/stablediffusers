@@ -332,21 +332,39 @@ def module(name, attrs = None) :
 
     def __get__(self, instance, owner) :
       print(f"GET --  instance.__dict__[{self.name}]")
-      if not instance.__storage__.activated :
-        return instance.__storage__.attributes_proxy[self.name]
-      else :
-        return getattr(instance.__storage__.dependency, self.name)
+      return instance.__storage__.get_by_proxy(self.name)
 
   class Module_proxy_storage() :
     __slots__ = ['dependency', 'activated', 'module_name', 'module_name', 'attribute_names', 'attributes_proxy', 'proxy']
 
-    def __init__(self) :
+    def get_by_proxy(self, value) :
+      if not self.activated :
+        return self.attributes_proxy[value]
+      else :
+        return getattr(self.dependency, value)
+
+    def __init__(self, proxy, attrs = []) :
+      self.module_name = name
       self.dependency = []
       self.activated = False
-      self.module_name = ''
       self.attribute_names = []
-      self.attributes_proxy = None
-      self.proxy = None
+      self.proxy = proxy
+      self.attributes_proxy = {}
+      if not attrs :
+        return
+      if isinstance(attrs, str) :
+        attrs = [attrs]
+      for attr in attrs :
+        a = Module_Attr(attr)
+        child = Module_proxy_child(attr, self)
+        setattr(proxy, attr, a)
+        self.dependency.append(a)
+        self.attribute_names.append(attr)
+        self.dependency[-1] = child
+        self.attributes_proxy[attr] = child
+
+    def get_item(self, key) :
+      return self.dependency[key]
 
     def get_attr(self, attr) :
       self.activate()
@@ -371,9 +389,11 @@ def module(name, attrs = None) :
       return
 
   class Module_proxy_child() :
+    __slots__ = ['__storage__', '__name__']
+
     def __init__(self, name, storage = None) :
-      self.__storage__ = storage
       self.__name__ = name
+      self.__storage__ = storage
 
     def __getattr__(self, key) :
       print('child.__getitem__')
@@ -390,24 +410,8 @@ def module(name, attrs = None) :
 
   class Module_proxy() :
     def __init__(self, name, attrs = None) :
-      cls = type(self)
       self.__name__ = name
-      self.__storage__ = Module_proxy_storage()
-      self.__storage__.module_name = name
-      self.__storage__.proxy = cls
-      if not attrs :
-        return
-      if isinstance(attrs, str) :
-        attrs = [attrs]
-      self.__storage__.attributes_proxy = {}
-      for attr in attrs :
-        a = Module_Attr(attr)
-        child = Module_proxy_child(attr, self.__storage__)
-        setattr(cls, attr, a)
-        self.__storage__.dependency.append(a)
-        self.__storage__.attribute_names.append(attr)
-        self.__storage__.dependency[-1] = child
-        self.__storage__.attributes_proxy[attr] = child
+      self.__storage__ = Module_proxy_storage(name, type(self), attrs)
 
     def __getattr__(self, key) :
       try :
@@ -420,7 +424,7 @@ def module(name, attrs = None) :
     def __getitem__(self, key) :
       print('parent.__getitem__')
       print(key)
-      return self.__storage__.dependency[key]
+      return self.__storage__.get_item(key)
 
     def __call__(self, *args, **kwargs) :
       return self.__storage__.get_attr(self.__storage__.attribute_names[0])(*args, **kwargs)
