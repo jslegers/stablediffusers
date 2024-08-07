@@ -380,16 +380,16 @@ def module(name, attrs = None) :
     def __getattr__(self, key):
       print('child.__getitem__')
       print(key)
-      self._Module_Attr__PROXY__activate()
+      Module_proxy._Module_Attr__PROXY__activate()
       return getattr(getattr(Module_proxy.__MODULE__PROXY__ATTRIBUTES__, self.__MODULE__PROXY__NAME__), key)
 
     def __str__(self):
-      self._Module_Attr__PROXY__activate()
+      Module_proxy._Module_Attr__PROXY__activate()
       return str(getattr(Module_proxy.__MODULE__PROXY__ATTRIBUTES__, self.__MODULE__PROXY__NAME__))
 
     def __call__(self, *args, **kwargs):
       print('child.__call__')
-      self._Module_Attr__PROXY__activate()
+      Module_proxy._Module_Attr__PROXY__activate()
       print(Module_proxy.__MODULE__PROXY__ATTIBUTE__NAMES__)
       print(Module_proxy.__MODULE__PROXY__ATTRIBUTES__)
       return getattr(Module_proxy.__MODULE__PROXY__ATTRIBUTES__, self.__MODULE__PROXY__NAME__)(*args, **kwargs)
@@ -427,7 +427,7 @@ def module(name, attrs = None) :
         return Module_proxy.__MODULE__PROXY__ATTRIBUTES__PROXY__[key]
       except KeyError as e :
         try :
-          self._Module_Attr__PROXY__activate()
+          Module_proxy._Module_Attr__PROXY__activate()
           return getattr(Module_proxy.__MODULE__PROXY__ATTRIBUTES__, key)
         except AttributeError as e :
           print(Module_proxy.__MODULE__PROXY__ATTIBUTE__NAMES__)
@@ -440,7 +440,7 @@ def module(name, attrs = None) :
       return type(self).__MODULE__PROXY__ATTRIBUTES__PROXY__[Module_proxy.__MODULE__PROXY__ATTIBUTE__NAMES__[key]]
 
     def __call__(self, *args, **kwargs):
-      self._Module_Attr__PROXY__activate()
+      Module_proxy._Module_Attr__PROXY__activate()
       return getattr(Module_proxy.__MODULE__PROXY__ATTRIBUTES__, Module_proxy.__MODULE__PROXY__ATTIBUTE__NAMES__[0])(*args, **kwargs)
 
 
