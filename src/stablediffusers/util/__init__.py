@@ -374,7 +374,7 @@ def module(name, attrs = None) :
     __activated__ = False
     __module_name__ = ''
     __attributes_proxy__ = {}
-    __module_name__ = None
+    __attribute_names__ = None
 
     @classmethod
     def _Module_Attr__PROXY__activate(cls) :
