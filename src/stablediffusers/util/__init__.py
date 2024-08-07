@@ -348,7 +348,7 @@ def module(name, attrs = None) :
       self.attributes_proxy = None
       self.proxy = None
 
-    def get_attr(attr) :
+    def get_attr(self, attr) :
       self.activate()
       return getattr(self.dependency, attr)
 
