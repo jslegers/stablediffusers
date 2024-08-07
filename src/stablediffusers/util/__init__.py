@@ -432,30 +432,14 @@ def module(module, attrs = None) :
     def __call__(self, *args, **kwargs) :
       return self.__storage__.get_first_attr()(*args, **kwargs)
 
-  class Unpackable_partial_copy() :
-    __slots__ = ['__attr_name__', '__attr__']
-    def __init__(self, module, attrs) :
-      self.__attr__ = []
-      self.__attr_name__ = []
-      for attr in attrs :
-        self.__attr__.append(getattr(module, attr))
-        self.__attr_name__.append(attr)
-
-    def __getitem__(self, key) :
-      attr_name = self.__attr_name__[key]
-      attr = self.__attr__[key]
-      return type(self)(self.__attr__[attr_name], attr_name)
-
-    def __getattr__(self, attr) :
-      return self.__attr__[self.__attr_name__.index(attr)]
-
   if isinstance(attrs, str) :
     attrs = [attrs]
   if isinstance(module, str) :
     try :
+      fail
       module = sys.modules[module] and get_mod(module, attrs)
     except :
       return Module_proxy(module, attrs)
   print(module)
   print(attrs)
-  return Unpackable_partial_copy(module, attrs)
+  return (key, getattr(module, key)) for key in attrs)
