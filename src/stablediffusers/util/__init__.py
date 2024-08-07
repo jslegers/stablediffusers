@@ -315,6 +315,7 @@ def get_mod(fullname, attrs = None):
 
 
 class Module_Attr:
+  __slots__ = ['name']
   def __init__(self, value):
     self.name = value
     print(f"INIT --  self.name = {value}")
@@ -328,9 +329,13 @@ class Module_Attr:
   def __get__(self, instance, owner):
     print(instance.__MODULE__PROXY__ACTIVATED__)
     print(f"GET --  instance.__dict__[{self.name}]")
+    if not instance._Module_Attr__PROXY__activated :
+      return instance.__module_proxy[self.name]
+    else :
+      return getattr(instance.__MODULE__PROXY__ATTRIBUTES__, self.name)
     #if not instance.__MODULE__PROXY__ACTIVATED__ :
     #  instance._Module_Attr__PROXY__activate()
-    return getattr(instance.__MODULE__PROXY__ATTRIBUTES__, self.name)
+    # return getattr(instance.__MODULE__PROXY__ATTRIBUTES__, self.name)
 
 
 
@@ -402,6 +407,7 @@ def module(name, attrs = None) :
         Module_proxy.__MODULE__PROXY__ATTIBUTE__NAMES__.append(attr)
         Module_proxy.__MODULE__PROXY__ATTRIBUTES__.append(a)
         Module_proxy.__MODULE__PROXY__ATTRIBUTES__[-1] = child
+        Module_proxy._Module_Attr__module_proxy[attrs] = child
       return proxy
 
     def __getattr__(self, key):
