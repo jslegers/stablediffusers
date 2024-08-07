@@ -421,7 +421,7 @@ def module(name, attrs = None) :
         return getattr(getattr(Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__, Module_proxy.__MODULE__PROXY__ATTIBUTE__NAMES__[0]), key)
 
     def __getitem__(self, key):
-      return type(self)._Module_Attr__MODULE__PROXY__ATTRIBUTES__[key]
+      return type(self)._Module_Attr__MODULE__PROXY__ATTRIBUTES__PROXY__[key]
 
     def __call__(self, *args, **kwargs):
       self._Module_Attr__PROXY__activate()
