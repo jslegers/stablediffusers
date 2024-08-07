@@ -436,7 +436,7 @@ def module(module, attrs = None) :
     attrs = [attrs]
   if isinstance(module, str) :
     try :
-      module = sys.modules[module]
+      return ((key, sys.modules[module].__dict__[key]) for key in attrs)
     except :
       return Module_proxy(module, attrs)
   print(module)
