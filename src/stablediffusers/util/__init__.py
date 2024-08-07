@@ -415,12 +415,13 @@ def module(name, attrs = None) :
       try :
         return Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__PROXY__[key].value
       except KeyError as e :
-        self._Module_Attr__PROXY__activate()
-        return getattr(Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__, key)
-      except AttributeError as e :
-        print(Module_proxy.__MODULE__PROXY__ATTIBUTE__NAMES__)
-        print(Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__)
-        return getattr(getattr(Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__, Module_proxy.__MODULE__PROXY__ATTIBUTE__NAMES__[0]), key)
+        try :
+          self._Module_Attr__PROXY__activate()
+          return getattr(Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__, key)
+        except AttributeError as e :
+          print(Module_proxy.__MODULE__PROXY__ATTIBUTE__NAMES__)
+          print(Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__)
+          return getattr(getattr(Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__, Module_proxy.__MODULE__PROXY__ATTIBUTE__NAMES__[0]), key)
 
     def __getitem__(self, key):
       return type(self)._Module_Attr__MODULE__PROXY__ATTRIBUTES__[key]
