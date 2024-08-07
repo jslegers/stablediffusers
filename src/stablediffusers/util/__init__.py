@@ -355,7 +355,6 @@ def module(name, attrs = None) :
 
     @classmethod
     def _Module_Attr__PROXY__activate(cls) :
-      Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__PROXY__.test = moo
       if not Module_proxy._Module_Attr__MODULE__PROXY__ACTIVATED__ :
         Module_proxy._Module_Attr__MODULE__PROXY__ACTIVATED__ = True
         print("ACTIVATE")
@@ -414,7 +413,7 @@ def module(name, attrs = None) :
 
     def __getattr__(self, key):
       try :
-        return Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__PROXY__[key].value
+        return Module_proxy._Module_Attr__MODULE__PROXY__ATTRIBUTES__PROXY__[key]
       except KeyError as e :
         try :
           self._Module_Attr__PROXY__activate()
