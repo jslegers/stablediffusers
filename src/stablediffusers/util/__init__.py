@@ -323,98 +323,110 @@ def get_mod(fullname, attrs = None):
 
 
 def module(name, attrs = None) :
-  class Module_Attr:
+  class Module_Attr :
     __slots__ = ['name']
-    def __init__(self, value):
+
+    def __init__(self, value) :
       self.name = value
       print(f"INIT --  self.name = {value}")
-    def __get__(self, instance, owner):
+
+    def __get__(self, instance, owner) :
       print(f"GET --  instance.__dict__[{self.name}]")
-      if not instance.__activated__ :
-        return instance.__attributes_proxy__[self.name]
+      return instance.__storage__.get_by_proxy(self.name)
+
+  class Module_proxy_storage() :
+    __slots__ = ['dependency', 'activated', 'module_name', 'module_name', 'attribute_names', 'attributes_proxy', 'proxy']
+
+    def get_by_proxy(self, value) :
+      if not self.activated :
+        return self.attributes_proxy[value]
       else :
-        return getattr(instance.__dependency__, self.name)
+        return getattr(self.dependency, value)
 
-
-  class Module_proxy(object):
-    def __init__(self, name) :
-      self.name = name
-
-  class Module_proxy_child(Module_proxy):
-    @classmethod
-
-    def __getattr__(self, key):
-      print('child.__getitem__')
-      print(key)
-      Module_proxy_parent._activate()
-      return getattr(getattr(Module_proxy_parent.__dependency__, self.name), key)
-
-    def __str__(self):
-      Module_proxy_parent._activate()
-      return str(getattr(Module_proxy_parent.__dependency__, self.name))
-
-    def __call__(self, *args, **kwargs):
-      print('child.__call__')
-      Module_proxy_parent._activate()
-      return getattr(Module_proxy_parent.__dependency__, self.name)(*args, **kwargs)
-
-
-  class Module_proxy_parent(Module_proxy):
-    __dependency__ = []
-    __activated__ = False
-    __module_name__ = ''
-    __attributes_proxy__ = {}
-    __attribute_names__ = []
-
-    @classmethod
-    def _activate(cls) :
-      if not cls.__activated__ :
-        cls.__activated__ = True
-        print("ACTIVATE")
-        mod = get_mod(cls.__module_name__, cls.__attribute_names__)
-        if not cls.__attribute_names__ :
-          cls.__dependency__ = mod
-        else :
-          cls.__dependency__ = lambda:None
-          for key in cls.__attribute_names__ :
-            attr = getattr(mod, key)
-            delattr(cls, key)
-            setattr(cls.__dependency__, key, attr)
-        print(cls.__dependency__)
-      return
-
-    def __init__(self, name, attrs = None):
-      cls = type(self)
-      cls.__module_name__ = name
+    def __init__(self, name, proxy, attrs = []) :
+      self.module_name = name
+      self.dependency = []
+      self.activated = False
+      self.attribute_names = []
+      self.proxy = proxy
+      self.attributes_proxy = {}
       if not attrs :
         return
       if isinstance(attrs, str) :
         attrs = [attrs]
       for attr in attrs :
         a = Module_Attr(attr)
-        child = Module_proxy_child(attr)
-        setattr(cls, attr, a)
-        cls.__dependency__.append(a)
-        cls.__attribute_names__.append(attr)
-        cls.__dependency__[-1] = child
-        cls.__attributes_proxy__[attr] = child
+        child = Module_proxy_child(attr, self)
+        setattr(proxy, attr, a)
+        self.dependency.append(a)
+        self.attribute_names.append(attr)
+        self.dependency[-1] = child
+        self.attributes_proxy[attr] = child
 
-    def __getattr__(self, key):
+    def get_item(self, key) :
+      return self.dependency[key]
+
+    def get_attr(self, attr) :
+      self.activate()
+      return getattr(self.dependency, attr)
+
+    def activate(self) :
+      if not self.activated :
+        self.activated = True
+        print("ACTIVATE")
+        mod = get_mod(self.module_name, self.attribute_names)
+        if not self.attribute_names :
+          self.dependency = mod
+        else :
+          self.dependency = lambda:None
+          for key in self.attribute_names :
+            attr = getattr(mod, key)
+            delattr(self.proxy, key)
+            setattr(self.dependency, key, attr)
+          self.attributes_proxy = None
+          self.proxy = None
+        print(self.dependency)
+      return
+
+  class Module_proxy_child() :
+    __slots__ = ['__storage__', '__name__']
+
+    def __init__(self, name, storage = None) :
+      self.__name__ = name
+      self.__storage__ = storage
+
+    def __getattr__(self, key) :
+      print('child.__getitem__')
+      print(key)
+      return getattr(self.__storage__.get_attr(self.__name__), key)
+
+    def __str__(self) :
+      return str(self.__storage__.get_attr(self.__name__))
+
+    def __call__(self, *args, **kwargs) :
+      print('child.__call__')
+      return self.__storage__.get_attr(self.__name__)(*args, **kwargs)
+
+
+  class Module_proxy() :
+    def __init__(self, name, attrs = None) :
+      self.__name__ = name
+      self.__storage__ = Module_proxy_storage(name, type(self), attrs)
+
+    def __getattr__(self, key) :
       try :
         print('parent.__getattr__')
         print(key)
-        self._activate()
-        return getattr(self.__dependency__, key)
+        return self.__storage__.get_attr(key)
       except Exception as e :
-        return getattr(getattr(self.__dependency__, self.__attribute_names__[0]), key)
+        return getattr(self.__storage__.get_attr(self.__storage__.attribute_names[0]), key)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key) :
       print('parent.__getitem__')
       print(key)
-      return self.__dependency__[key]
+      return self.__storage__.get_item(key)
 
-    def __call__(self, *args, **kwargs):
-      self._activate()
-      return getattr(self.__dependency__, self.__attribute_names__[0])(*args, **kwargs)
+    def __call__(self, *args, **kwargs) :
+      return self.__storage__.get_attr(self.__storage__.attribute_names[0])(*args, **kwargs)
 
-  return Module_proxy_parent(name, attrs)
+  return Module_proxy(name, attrs)
