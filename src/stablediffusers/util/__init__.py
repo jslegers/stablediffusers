@@ -417,6 +417,4 @@ def module(name, attrs = None) :
       self._activate()
       return getattr(self.__dependency__, self.__attribute_names__[0])(*args, **kwargs)
 
-
-  proxy = Module_proxy_parent.setup(name, attrs)
-  return proxy
+  return Module_proxy_parent(name, attrs)
