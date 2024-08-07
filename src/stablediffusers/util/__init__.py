@@ -344,24 +344,21 @@ def module(module, attrs = None) :
         return getattr(self.dependency, value)
 
     def __init__(self, name, proxy, attrs = [], activated = False) :
+      if isinstance(attrs, str) :
+        attrs = [attrs]
       self.module_name = name
       self.dependency = []
       self.activated = activated
-      self.attribute_names = []
+      self.attribute_names = attr
       if self.activated :
         return self.activate()
       self.proxy = proxy
       self.attributes_proxy = {}
-      if not attrs :
-        return
-      if isinstance(attrs, str) :
-        attrs = [attrs]
       for attr in attrs :
         a = Module_Attr(attr)
         child = Module_proxy_child(attr, self)
         setattr(proxy, attr, a)
         self.dependency.append(a)
-        self.attribute_names.append(attr)
         self.dependency[-1] = child
         self.attributes_proxy[attr] = child
 
