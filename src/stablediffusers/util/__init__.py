@@ -399,7 +399,7 @@ def module(name, attrs = None) :
         return
       if isinstance(attrs, str) :
         attrs = [attrs]
-      self.__storage__.attribute_names = {}
+      self.__storage__.attributes_proxy = {}
       for attr in attrs :
         a = Module_Attr(attr)
         child = Module_proxy_child(attr, self.__storage__)
