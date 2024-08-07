@@ -322,7 +322,7 @@ def get_mod(fullname, attrs = None):
 
 
 
-def module(module, attrs = None) :
+def module(module, attrs = []) :
   class Module_Attr :
     __slots__ = ['name']
 
