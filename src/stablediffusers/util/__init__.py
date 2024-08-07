@@ -347,14 +347,13 @@ def module(name, attrs = None) :
     _Module_Attr__PROXY__activated = False
     _Module_Attr__module = []
     MODULY_PROXY_name = ''
-    parent = None
 
     @classmethod
     def _Module_Attr__PROXY__activate(cls) :
       if not Module_proxy._Module_Attr__PROXY__activated :
         Module_proxy._Module_Attr__PROXY__activated = True
         print("ACTIVATE")
-        mod = get_mod(Module_proxy.parent.MODULY_PROXY_name, cls.attr_names)
+        mod = get_mod(Module_proxy.MODULY_PROXY_name, cls.attr_names)
         Module_proxy._Module_Attr__module = mod
         print(Module_proxy._Module_Attr__module)
         if Module_proxy.attr_names :
@@ -392,7 +391,7 @@ def module(name, attrs = None) :
     @classmethod
     def setup(cls, name, attrs = None):
       proxy = cls(name)
-      Module_proxy.parent = proxy
+      cls.MODULY_PROXY_name = name
       if not attrs :
         return proxy
       if isinstance(attrs, str) :
@@ -400,6 +399,7 @@ def module(name, attrs = None) :
       for attr in attrs :
         a = Module_Attr(attr)
         child = Module_proxy_child(attr)
+        child.MODULY_PROXY_name = name
         Module_proxy.attr_names.append(attr)
         Module_proxy._Module_Attr__module.append(a)
         Module_proxy._Module_Attr__module[-1] = child
