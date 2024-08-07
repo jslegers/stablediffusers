@@ -343,10 +343,10 @@ def module(module, attrs = None) :
       else :
         return getattr(self.dependency, value)
 
-    def __init__(self, name, proxy, attrs = []) :
+    def __init__(self, name, proxy, attrs = [], active = False) :
       self.module_name = name
       self.dependency = []
-      self.activated = False
+      self.activated = active
       self.attribute_names = []
       self.proxy = proxy
       self.attributes_proxy = {}
@@ -362,6 +362,8 @@ def module(module, attrs = None) :
         self.attribute_names.append(attr)
         self.dependency[-1] = child
         self.attributes_proxy[attr] = child
+      if self.activated :
+        self.activate()
 
     def get_item(self, key) :
       return self.dependency[key]
@@ -412,9 +414,9 @@ def module(module, attrs = None) :
 
 
   class Module_proxy() :
-    def __init__(self, name, attrs = None) :
+    def __init__(self, name, attrs = None, active = False) :
       self.__name__ = name
-      self.__storage__ = Module_proxy_shared(name, type(self), attrs)
+      self.__storage__ = Module_proxy_shared(name, type(self), attrs, active)
 
     def __getattr__(self, key) :
       try :
@@ -436,7 +438,7 @@ def module(module, attrs = None) :
     attrs = [attrs]
   if isinstance(module, str) :
     try :
-      return sys.modules[module] and Module_proxy(module, attrs)
+      return sys.modules[module] and Module_proxy(module, attrs, active = True)
     except Exception as e :
       return Module_proxy(module, attrs)
   return ((attr, getattr(module, attr)) for attr in attrs)
