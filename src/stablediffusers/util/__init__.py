@@ -296,6 +296,8 @@ def AutoLoad(**kwargs) :
 
 
 
+
+
 def get_mod(fullname, attrs = None):
   if not attrs :
     code = f"from {fullname} import *"
@@ -326,51 +328,50 @@ def f2():
 
 
 def module(name, attrs = None) :
-  attribute_names = []
-  activated = False
-  dependency = []
-  module_name = ''
-  attributes_proxy = {}
-
   class Module_Attr:
     def __init__(self, value):
       self.name = value
       print(f"INIT --  self.name = {value}")
     def __call__(self, instance, *args, **kwargs):
       print('attr.__call__')
-      if not activated :
+      if not Module_proxy.__activated__ :
         instance.__activate()
-      return getattr(dependency, self.name)(*args, **kwargs)
+      return getattr(Module_proxy.__dependency__, self.name)(*args, **kwargs)
       print(f"CALL --  instance.__dict__[{self.name}]([{args}], {kwargs})")
     def __get__(self, instance, owner):
       print('attr.__get__')
       print(instance)
-      print(activated)
+      print(Module_proxy.__activated__)
       print(f"GET --  instance.__dict__[{self.name}]")
-      if not activated :
-        return attributes_proxy[self.name]
+      if not Module_proxy.__activated__ :
+        return Module_proxy.__attributes_proxy__[self.name]
       else :
-        return getattr(dependency, self.name)
-      #if not instance.activated :
+        return getattr(Module_proxy.__dependency__, self.name)
+      #if not instance.Module_proxy.__activated__ :
       #  instance.__activate()
-      # return getattr(dependency, self.name)
+      # return getattr(Module_proxy.__dependency__, self.name)
 
 
   class Module_proxy(object):
+    __attribute_names__ = []
+    __activated__ = False
+    __dependency__ = []
+    __module_name__ = ''
+    __attributes_proxy__ = {}
 
     @classmethod
     def __activate(cls) :
       f2()
-      if not activated :
-        activated = True
+      if not Module_proxy.__activated__ :
+        Module_proxy.__activated__ = True
         print("ACTIVATE")
-        mod = get_mod(module_name, attribute_names)
-        if not attribute_names :
-          dependency = mod
+        mod = get_mod(Module_proxy.__module_name__, Module_proxy.__attribute_names__)
+        if not Module_proxy.__attribute_names__ :
+          Module_proxy.__dependency__ = mod
         else :
-          dependency = lambda:None
-          [setattr(module, key, next(mod)) for key in attribute_names]
-        print(dependency)
+          Module_proxy.__dependency__ = lambda:None
+          [setattr(module, key, next(mod)) for key in Module_proxy.__attribute_names__]
+        print(Module_proxy.__dependency__)
       return
 
     def __init__(self, name) :
@@ -386,18 +387,18 @@ def module(name, attrs = None) :
       print('child.__getitem__')
       print(key)
       type(self).__activate()
-      return getattr(getattr(dependency, module_name), key)
+      return getattr(getattr(Module_proxy.__dependency__, Module_proxy.__module_name__), key)
 
     def __str__(self):
       type(self).__activate()
-      return str(getattr(dependency, module_name))
+      return str(getattr(Module_proxy.__dependency__, Module_proxy.__module_name__))
 
     def __call__(self, *args, **kwargs):
       print('child.__call__')
       type(self).__activate()
-      print(attribute_names)
-      print(dependency)
-      return getattr(dependency, module_name)(*args, **kwargs)
+      print(Module_proxy.__attribute_names__)
+      print(Module_proxy.__dependency__)
+      return getattr(Module_proxy.__dependency__, Module_proxy.__module_name__)(*args, **kwargs)
 
 
   class Module_proxy_parent(Module_proxy):
@@ -405,7 +406,7 @@ def module(name, attrs = None) :
     @classmethod
     def setup(cls, name, attrs = None):
       proxy = cls(name)
-      module_name = name
+      Module_proxy.__module_name__ = name
       if not attrs :
         return proxy
       if isinstance(attrs, str) :
@@ -414,34 +415,34 @@ def module(name, attrs = None) :
         a = Module_Attr(attr)
         child = Module_proxy_child(attr)
         setattr(Module_proxy_parent, attr, a)
-        attribute_names.append(attr)
-        dependency.append(a)
-        dependency[-1] = child
-        attributes_proxy[attr] = child
+        Module_proxy.__attribute_names__.append(attr)
+        Module_proxy.__dependency__.append(a)
+        Module_proxy.__dependency__[-1] = child
+        Module_proxy.__attributes_proxy__[attr] = child
       return proxy
 
     def __getattr__(self, key):
       try :
         print('parent.__getattr__')
         print(key)
-        return attributes_proxy[key]
+        return Module_proxy.__dependency__[key]
       except KeyError as e :
         try :
           type(self).__activate()
-          return getattr(dependency, key)
+          return getattr(Module_proxy.__dependency__, key)
         except AttributeError as e :
-          print(attribute_names)
-          print(dependency)
-          return getattr(getattr(dependency, attribute_names[0]), key)
+          print(Module_proxy.__attribute_names__)
+          print(Module_proxy.__dependency__)
+          return getattr(getattr(Module_proxy.__dependency__, Module_proxy.__attribute_names__[0]), key)
 
     def __getitem__(self, key):
       print('parent.__getitem__')
       print(key)
-      return dependency[key]
+      return Module_proxy.__dependency__[key]
 
     def __call__(self, *args, **kwargs):
       type(self).__activate()
-      return getattr(dependency, attribute_names[0])(*args, **kwargs)
+      return getattr(Module_proxy.__dependency__, Module_proxy.__attribute_names__[0])(*args, **kwargs)
 
 
   proxy = Module_proxy_parent.setup(name, attrs)
