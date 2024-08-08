@@ -4,8 +4,6 @@ cv2 = module("cv2")
 Image, ImageDraw, ImageFont = module("PIL", ["Image", "ImageDraw", "ImageFont"])
 join = module(module("os", "path"), "join")
 
-StableDiffusionXLPipeline = module("diffusers", "StableDiffusionXLPipeline")
-
 get_weighted_text_embeddings_sdxl = module("sd_embed.embedding_funcs", "get_weighted_text_embeddings_sdxl")
 
 collect = module("gc", "collect")
@@ -16,32 +14,56 @@ load_model_dict_into_meta = module("diffusers.models.model_loading_utils", "load
 how_many_gpus = module("torch", "cuda").device_count()
 cuda_is_available = module("torch", "cuda").is_available()
 
-logging = module("diffusers.utils", "logging")
-logger = logging.get_logger(__name__)
+logger = module("diffusers.utils", "logging").get_logger(__name__)
 logger.setLevel("ERROR")
 
+tqdm = module("diffusers.utils", "logging").tqdm
+
 default = {
-  "model" : "stabilityai/stable-diffusion-xl-base-1.0",
-  "merging" : {
-    "text_encoder" : {
-      "model" : module("transformers", "CLIPTextModel"),
-      "alpha" : 0.5,
-      "skip_config_check" : True
-    },
-    "text_encoder_2" : {
-      "model" : module("transformers", "CLIPTextModelWithProjection"),
-      "alpha" : 0.5,
-      "skip_config_check" : True
-    },
-    "unet" : {
-      "model" : module("diffusers", "UNet2DConditionModel"),
-      "alpha" : 0.5,
-      "skip_config_check" : True
-    },
-    "vae" : {
-      "model" : module("diffusers", "AutoencoderKL"),
-      "alpha" : 0.5,
-      "skip_config_check" : True
+  "SDXL" : {
+    "model" : module("diffusers", ["StableDiffusionXLPipeline", "FluxPipeline"]),
+    "base_model" : "stabilityai/stable-diffusion-xl-base-1.0",
+    "merging" : {
+      "text_encoder" : {
+        "model" : module("transformers", "CLIPTextModel"),
+        "alpha" : 0.5,
+        "skip_config_check" : True
+      },
+      "text_encoder_2" : {
+        "model" : module("transformers", "CLIPTextModelWithProjection"),
+        "alpha" : 0.5,
+        "skip_config_check" : True
+      },
+      "unet" : {
+        "model" : module("diffusers", "UNet2DConditionModel"),
+        "alpha" : 0.5,
+        "skip_config_check" : True
+      },
+      "vae" : {
+        "model" : module("diffusers", "AutoencoderKL"),
+        "alpha" : 0.5,
+        "skip_config_check" : True
+      }
+    }
+  }, "FLUX" : {
+    "model" : module("diffusers", "FluxPipeline"),
+    "base_model" : "black-forest-labs/FLUX.1-dev",
+    "merging" : {
+      "text_encoder" : {
+        "model" : module("transformers", "CLIPTextModel"),
+        "alpha" : 0.5,
+        "skip_config_check" : True
+      },
+      "text_encoder_2" : {
+        "model" : module("transformers", "T5EncoderModel"),
+        "alpha" : 0.5,
+        "skip_config_check" : True
+      },
+      "vae" : {
+        "model" : module("diffusers", "AutoencoderKL"),
+        "alpha" : 0.5,
+        "skip_config_check" : True
+      }
     }
   }
 }
@@ -57,6 +79,16 @@ default.update({
     "use_safetensors" : True
   }
 })
+
+def compare_configs(config_a, config_b, skip_keys):
+  mismatched_keys = set()
+  for key, value_a in config_a.items():
+    if key in skip_keys:
+      continue
+    value_b = config_b.get(key)
+    if value_a != value_b:
+      mismatched_keys.add(key)
+  return mismatched_keys
 
 class ComposableStableDiffusionXLPipeline:
 
@@ -118,7 +150,9 @@ class ComposableStableDiffusionXLPipeline:
   @classmethod
   def load_model(cls, *args, **kwargs):
     path, *_ = list(args) + [None]
-    path = path if path else default["model"]
+    pipeline = kwargs.pop("pipeline", "FLUX")
+    model = default["merging"][pipeline]["model"]
+    path = path if path else model["base_model"]
     skip_load_from_memory = kwargs.pop("skip_load_from_memory", False)
     name = kwargs.pop("name", path)
     if not skip_load_from_memory :
@@ -134,13 +168,13 @@ class ComposableStableDiffusionXLPipeline:
     logger.info(f"Loading model {name} from {path}")
     try :
       inference = default["inference"].copy()
-      return default["merging"][name]["model"].from_pretrained(path, **inference, **{
+      return default["merging"][pipeline][name]["model"].from_pretrained(path, **inference, **{
         "subfolder" : name
       })
     except :
       logger.info("Logging default variant instead")
       inference.pop("variant")
-      pipeline = StableDiffusionXLPipeline.from_pretrained(path, **kwargs, **inference).to(dtype=default["inference"]["torch_dtype"])
+      pipeline = model.from_pretrained(path, **kwargs, **inference).to(dtype=default["inference"]["torch_dtype"])
     cls.name[name] = [None, [name], pipeline]
     cls.current = cls.name[name]
     if "unet" in kwargs or "text_encoder" in kwargs or "text_encoder_2" in kwargs or "vae" in kwargs :
@@ -264,43 +298,36 @@ class ComposableStableDiffusionXLPipeline:
   @classmethod
   def __load_component_from_config(cls, config, **kwargs):
     name = kwargs.setdefault("name", "unet")
-    model = default["merging"][name]["model"]
+    pipeline = kwargs.setdefault("pipeline", "FLUX")
+    model = default["merging"][pipeline][name]["model"]
     return model(config) if "text_encoder" in name else model.from_config(config)
 
   @classmethod
   def __get_component(cls, path, **kwargs):
     name = kwargs.setdefault("name", "unet")
+    pipeline = kwargs.setdefault("pipeline", "FLUX")
+    model = default["merging"][pipeline][name]["model"]
     if path in cls.path :
       return getattr(cls.path[path][2], name)
     else :
       try :
         inference = default["inference"].copy()
-        return default["merging"][name]["model"].from_pretrained(path, **inference, **{
+        return model.from_pretrained(path, **inference, **{
           "subfolder" : name
         })
       except :
-        logger.info("Logging default variant instead")
+        logger.info("Using default variant instead")
         inference.pop("variant")
-        return default["merging"][name]["model"].from_pretrained(path, **inference, **{
+        return model.from_pretrained(path, **inference, **{
           "subfolder" : name
         }).to(dtype=default["inference"]["torch_dtype"])
 
   @classmethod
-  def __compare_configs(cls, config_a, config_b, skip_keys):
-    mismatched_keys = set()
-    for key, value_a in config_a.items():
-      if key in skip_keys:
-        continue
-      value_b = config_b.get(key)
-      if value_a != value_b:
-        mismatched_keys.add(key)
-    return mismatched_keys
-
-  @classmethod
   def merge(cls, model_a_name, model_b_name, **kwargs):
+    pipeline = kwargs.setdefault("pipeline", "FLUX")
     model = kwargs.setdefault("model", "unet")
-    alpha = kwargs.setdefault("alpha", default["merging"][model]["alpha"])
-    skip_config_check = kwargs.setdefault("skip_config_check", default["merging"][model]["skip_config_check"])
+    alpha = kwargs.setdefault("alpha", default["merging"][pipeline][model]["alpha"])
+    skip_config_check = kwargs.setdefault("skip_config_check", default["merging"][pipeline][model]["skip_config_check"])
     torch_dtype = kwargs.setdefault("torch_dtype", default["inference"]["torch_dtype"])
 
     model_a = cls.__get_component(model_a_name, name = model)
@@ -311,7 +338,7 @@ class ComposableStableDiffusionXLPipeline:
 
     if not skip_config_check:
       # Compare configs
-      mismatched_keys = cls.__compare_configs(model_a.config, model_b.config, keys_to_skip)
+      mismatched_keys = compare_configs(model_a.config, model_b.config, keys_to_skip)
 
       if mismatched_keys:
         logger.error(f"{model.capitalize()} models have different configurations. Mismatched keys:")
@@ -323,7 +350,7 @@ class ComposableStableDiffusionXLPipeline:
 
     merged_state_dict = {}
 
-    for key in logging.tqdm(model_a.state_dict().keys(), desc=f"Merging {model} models"):
+    for key in tqdm(model_a.state_dict().keys(), desc=f"Merging {model} models"):
       if key not in model_b.state_dict():
         raise ValueError(f"Key {key} not found in vae B")
 
@@ -343,7 +370,7 @@ class ComposableStableDiffusionXLPipeline:
 
     logger.info(f"Creating merged {model} model...")
     with init_empty_weights():
-      merged_model = cls.__load_component_from_config(model_a.config, name = model)
+      merged_model = cls.__load_component_from_config(model_a.config, name = model, pipeline = pipeline)
 
     load_model_dict_into_meta(merged_model, merged_state_dict, device = cls.device, dtype = default["inference"]["torch_dtype"])
 
