@@ -435,7 +435,6 @@ def module(module, attrs = None) :
 
   if isinstance(attrs, str) :
     attrs = [attrs]
-  return Module_proxy(module, attrs)
-  #if isinstance(module, str) :
-  #  return Module_proxy(module, attrs)
-  #return ((attr, getattr(module, attr)) for attr in attrs)
+  if isinstance(module, str) :
+    return Module_proxy(module, attrs)
+  return ((attr, getattr(module, attr)) for attr in attrs)
