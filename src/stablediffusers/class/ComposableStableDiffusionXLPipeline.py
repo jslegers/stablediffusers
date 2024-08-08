@@ -48,7 +48,7 @@ default = {
   }, "FLUX" : {
     "model" : module("diffusers", "FluxPipeline"),
     "base_model" : "black-forest-labs/FLUX.1-schnell",
-    "tokenizer_2" : module("transformers", "AutoTokenizer"),
+    "tokenizer_2" : module("transformers", "T5TokenizerFast"),
     "merging" : {
       "text_encoder" : {
         "model" : module("transformers", "CLIPTextModel"),
