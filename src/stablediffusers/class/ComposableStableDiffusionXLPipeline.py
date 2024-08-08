@@ -170,7 +170,7 @@ class ComposableStableDiffusionXLPipeline:
     inference = default["inference"].copy()
     if pipeline == "FLUX" :
       tokenizer_2 = default[pipeline]["tokenizer_2"].from_pretrained(
-        model,
+        path,
         subfolder = "tokenizer_2",
         add_prefix_space = False
       )
