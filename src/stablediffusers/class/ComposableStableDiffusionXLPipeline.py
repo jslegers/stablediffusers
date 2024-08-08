@@ -169,11 +169,12 @@ class ComposableStableDiffusionXLPipeline:
     logger.info(f"Loading model {name} from {path}")
     inference = default["inference"].copy()
     if pipeline == "FLUX" :
-      inference.setdefault("tokenizer_2", default[pipeline]["tokenizer_2"].from_pretrained(
+      tokenizer_2 = default[pipeline]["tokenizer_2"].from_pretrained(
         model,
         subfolder = "tokenizer_2",
         add_prefix_space = False
-      ))
+      )
+      inference.setdefault("tokenizer_2", tokenizer_2)
     try :
       pipeline = default[pipeline]["merging"][name]["model"].from_pretrained(path, **inference)
     except :
