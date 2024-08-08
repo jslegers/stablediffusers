@@ -166,8 +166,8 @@ class ComposableStableDiffusionXLPipeline:
         logger.info(f"Loading model {name} from memory")
         return cls
     logger.info(f"Loading model {name} from {path}")
+    inference = default[pipeline]["inference"].copy()
     try :
-      inference = default[pipeline]["inference"].copy()
       pipeline = default[pipeline]["merging"][name]["model"].from_pretrained(path, **inference)
     except :
       logger.info("Using default variant instead")
@@ -312,8 +312,8 @@ class ComposableStableDiffusionXLPipeline:
     if path in cls.path :
       return getattr(cls.path[path][2], name)
     else :
+      inference = inference.copy()
       try :
-        inference = inference.copy()
         return model.from_pretrained(path, **inference, **{
           "subfolder" : name
         })
