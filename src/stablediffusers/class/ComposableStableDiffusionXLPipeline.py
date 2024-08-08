@@ -48,6 +48,7 @@ default = {
   }, "FLUX" : {
     "model" : module("diffusers", "FluxPipeline"),
     "base_model" : "black-forest-labs/FLUX.1-schnell",
+    "tokenizer_2" : module("transformers", "AutoTokenizer"),
     "merging" : {
       "text_encoder" : {
         "model" : module("transformers", "CLIPTextModel"),
@@ -167,6 +168,8 @@ class ComposableStableDiffusionXLPipeline:
         return cls
     logger.info(f"Loading model {name} from {path}")
     inference = default["inference"].copy()
+    if pipeline == "FLUX" :
+      inference.setdefault("tokenizer_2", default[pipeline]["tokenizer_2"].from_pretrained(model, subfolder = "tokenizer_2", add_prefix_space = False)
     try :
       pipeline = default[pipeline]["merging"][name]["model"].from_pretrained(path, **inference)
     except :
@@ -253,7 +256,7 @@ class ComposableStableDiffusionXLPipeline:
     if model is not None :
       model = model[2]
       if pipeline == "SDXL" :
-        kwargs.setdefault("unet", model.unet)
+        kwargs.pop("unet", model.unet)
       kwargs.setdefault("text_encoder", model.text_encoder)
       kwargs.setdefault("text_encoder_2", model.text_encoder_2)
       kwargs.setdefault("vae", model.vae)
