@@ -152,7 +152,7 @@ class ComposableStableDiffusionXLPipeline:
     path, *_ = list(args) + [None]
     pipeline = kwargs.pop("pipeline", "FLUX")
     model = default[pipeline]["model"]
-    path = path if path else model[pipeline]["base_model"]
+    path = path if path else default[pipeline]["base_model"]
     skip_load_from_memory = kwargs.pop("skip_load_from_memory", False)
     name = kwargs.pop("name", path)
     if not skip_load_from_memory :
