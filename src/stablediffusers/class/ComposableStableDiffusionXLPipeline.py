@@ -151,7 +151,7 @@ class ComposableStableDiffusionXLPipeline:
   def load_model(cls, *args, **kwargs):
     path, *_ = list(args) + [None]
     pipeline = kwargs.pop("pipeline", "FLUX")
-    model = default["merging"][pipeline]["model"]
+    model = default[pipeline]["model"]
     path = path if path else model["base_model"]
     skip_load_from_memory = kwargs.pop("skip_load_from_memory", False)
     name = kwargs.pop("name", path)
@@ -167,14 +167,13 @@ class ComposableStableDiffusionXLPipeline:
         return cls
     logger.info(f"Loading model {name} from {path}")
     try :
-      inference = default["inference"].copy()
-      return default["merging"][pipeline][name]["model"].from_pretrained(path, **inference, **{
-        "subfolder" : name
-      })
+      inference = default[pipeline]["inference"].copy()
+      pipeline = default[pipeline]["merging"][name]["model"].from_pretrained(path, **inference)
     except :
-      logger.info("Logging default variant instead")
+      logger.info("Using default variant instead")
       inference.pop("variant")
-      pipeline = model.from_pretrained(path, **kwargs, **inference).to(dtype=default["inference"]["torch_dtype"])
+      dtype = inference.pop("torch_dtype")
+      pipeline = model.from_pretrained(path, **kwargs, **inference).to(dtype = dtype)
     cls.name[name] = [None, [name], pipeline]
     cls.current = cls.name[name]
     if "unet" in kwargs or "text_encoder" in kwargs or "text_encoder_2" in kwargs or "vae" in kwargs :
@@ -241,6 +240,7 @@ class ComposableStableDiffusionXLPipeline:
 
   @classmethod
   def compose(cls, *args, **kwargs):
+    pipeline = kwargs.pop("pipeline", "FLUX")
     name = kwargs.setdefault("name", None)
     if name is None :
       raise Exception ("Composite models must have a name")
@@ -248,11 +248,12 @@ class ComposableStableDiffusionXLPipeline:
       raise Exception ("Models must have a unique name")
     path, *_ = list(args) + [None]
     if path is None :
-      path = default["model"] if cls.current is None else cls.current[0]
+      path = default[pipeline]["model"] if cls.current is None else cls.current[0]
     model = cls.__get_model_from_store(path)
     if model is not None :
       model = model[2]
-      kwargs.setdefault("unet", model.unet)
+      if pipeline == "SDXL" :
+        kwargs.setdefault("unet", model.unet)
       kwargs.setdefault("text_encoder", model.text_encoder)
       kwargs.setdefault("text_encoder_2", model.text_encoder_2)
       kwargs.setdefault("vae", model.vae)
@@ -299,36 +300,38 @@ class ComposableStableDiffusionXLPipeline:
   def __load_component_from_config(cls, config, **kwargs):
     name = kwargs.setdefault("name", "unet")
     pipeline = kwargs.setdefault("pipeline", "FLUX")
-    model = default["merging"][pipeline][name]["model"]
+    model = default[pipeline]["merging"][name]["model"]
     return model(config) if "text_encoder" in name else model.from_config(config)
 
   @classmethod
   def __get_component(cls, path, **kwargs):
     name = kwargs.setdefault("name", "unet")
     pipeline = kwargs.setdefault("pipeline", "FLUX")
-    model = default["merging"][pipeline][name]["model"]
+    model = default[pipeline]["merging"][name]["model"]
+    inference = default[pipeline]["inference"]
     if path in cls.path :
       return getattr(cls.path[path][2], name)
     else :
       try :
-        inference = default["inference"].copy()
+        inference = inference.copy()
         return model.from_pretrained(path, **inference, **{
           "subfolder" : name
         })
       except :
         logger.info("Using default variant instead")
         inference.pop("variant")
+        dtype = inference.pop("torch_dtype")
         return model.from_pretrained(path, **inference, **{
           "subfolder" : name
-        }).to(dtype=default["inference"]["torch_dtype"])
+        }).to(dtype = dtype)
 
   @classmethod
   def merge(cls, model_a_name, model_b_name, **kwargs):
     pipeline = kwargs.setdefault("pipeline", "FLUX")
     model = kwargs.setdefault("model", "unet")
-    alpha = kwargs.setdefault("alpha", default["merging"][pipeline][model]["alpha"])
-    skip_config_check = kwargs.setdefault("skip_config_check", default["merging"][pipeline][model]["skip_config_check"])
-    torch_dtype = kwargs.setdefault("torch_dtype", default["inference"]["torch_dtype"])
+    alpha = kwargs.setdefault("alpha", default[pipeline]["merging"][model]["alpha"])
+    skip_config_check = kwargs.setdefault("skip_config_check", default[pipeline]["merging"][model]["skip_config_check"])
+    dtype = kwargs.setdefault("torch_dtype", default[pipeline]["inference"]["torch_dtype"])
 
     model_a = cls.__get_component(model_a_name, name = model)
     model_b = cls.__get_component(model_b_name, name = model)
@@ -372,6 +375,6 @@ class ComposableStableDiffusionXLPipeline:
     with init_empty_weights():
       merged_model = cls.__load_component_from_config(model_a.config, name = model, pipeline = pipeline)
 
-    load_model_dict_into_meta(merged_model, merged_state_dict, device = cls.device, dtype = default["inference"]["torch_dtype"])
+    load_model_dict_into_meta(merged_model, merged_state_dict, device = cls.device, dtype = dtype)
 
     return merged_model
