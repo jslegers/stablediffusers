@@ -166,7 +166,7 @@ class ComposableStableDiffusionXLPipeline:
         logger.info(f"Loading model {name} from memory")
         return cls
     logger.info(f"Loading model {name} from {path}")
-    inference = default[pipeline]["inference"].copy()
+    inference = default["inference"].copy()
     try :
       pipeline = default[pipeline]["merging"][name]["model"].from_pretrained(path, **inference)
     except :
@@ -308,7 +308,7 @@ class ComposableStableDiffusionXLPipeline:
     name = kwargs.setdefault("name", "unet")
     pipeline = kwargs.setdefault("pipeline", "FLUX")
     model = default[pipeline]["merging"][name]["model"]
-    inference = default[pipeline]["inference"]
+    inference = default["inference"]
     if path in cls.path :
       return getattr(cls.path[path][2], name)
     else :
@@ -331,7 +331,7 @@ class ComposableStableDiffusionXLPipeline:
     model = kwargs.setdefault("model", "unet")
     alpha = kwargs.setdefault("alpha", default[pipeline]["merging"][model]["alpha"])
     skip_config_check = kwargs.setdefault("skip_config_check", default[pipeline]["merging"][model]["skip_config_check"])
-    dtype = kwargs.setdefault("torch_dtype", default[pipeline]["inference"]["torch_dtype"])
+    dtype = kwargs.setdefault("torch_dtype", default["inference"]["torch_dtype"])
 
     model_a = cls.__get_component(model_a_name, name = model)
     model_b = cls.__get_component(model_b_name, name = model)
