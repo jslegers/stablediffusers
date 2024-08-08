@@ -47,7 +47,7 @@ default = {
     }
   }, "FLUX" : {
     "model" : module("diffusers", "FluxPipeline"),
-    "base_model" : "black-forest-labs/FLUX.1-dev",
+    "base_model" : "black-forest-labs/FLUX.1-schnell",
     "merging" : {
       "text_encoder" : {
         "model" : module("transformers", "CLIPTextModel"),
